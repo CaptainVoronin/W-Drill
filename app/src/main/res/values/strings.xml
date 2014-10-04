@@ -34,6 +34,9 @@
     <string name="dict_has_to_be_supplemented_with_words">Словарь необходимо пополнить словами</string>
     <string name="title_activity_act_dictionary_entry">ActDictionaryEntry</string>
     <string name="whole_word_list">Весь словарь</string>
+    <string name="the_word">Слово</string>
+    <string name="transcription">Транскрипция</string>
+    <string name="edit_dict">Редактировать словарь</string>
 
 
 </resources>

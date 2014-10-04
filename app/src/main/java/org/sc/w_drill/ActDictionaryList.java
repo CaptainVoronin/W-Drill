@@ -48,6 +48,9 @@ public class ActDictionaryList extends ActionBarActivity {
         db = new WDdb( getApplicationContext() );
         Intent data = getIntent();
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
         if( data != null )
             activeDictId = data.getIntExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1 );
         prepareList();

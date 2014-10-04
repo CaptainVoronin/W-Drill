@@ -32,5 +32,18 @@
         android:text="@string/words_to_check"
         android:id="@+id/words_to_check" />
 
+    <TextView
+        style="@style/LargeTitleStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/add_words"
+        android:id="@+id/add_words" />
+
+    <TextView
+        style="@style/LargeTitleStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/edit_dict"
+        android:id="@+id/edit_dict" />
 
 </LinearLayout>

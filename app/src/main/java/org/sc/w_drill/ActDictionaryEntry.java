@@ -11,20 +11,22 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
 
 
-public class ActDictionaryEntry extends ActionBarActivity implements ActionBar.TabListener {
+public class ActDictionaryEntry
+        extends ActionBarActivity
+        implements ActionBar.TabListener,
+        EditWordFragment.OnFragmentInteractionListener,
+        DictWholeWordListFragment.DictWholeListListener
+{
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -35,6 +37,9 @@ public class ActDictionaryEntry extends ActionBarActivity implements ActionBar.T
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     SectionsPagerAdapter mSectionsPagerAdapter;
+
+    EditWordFragment editWordFragment;
+    DictWholeWordListFragment dictWholeWordListFragment;
 
     public static final String ENTRY_KIND_PARAM_NAME = "ENTRY_KIND_PARAM_NAME";
 
@@ -77,11 +82,12 @@ public class ActDictionaryEntry extends ActionBarActivity implements ActionBar.T
 
         int entryKind = data.getIntExtra( ENTRY_KIND_PARAM_NAME, ADD_WORDS );
 
-
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setTitle( activeDictionary.getName() );
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -111,6 +117,20 @@ public class ActDictionaryEntry extends ActionBarActivity implements ActionBar.T
                     actionBar.newTab()
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
+        }
+
+        switch( entryKind )
+        {
+            case ActDictionaryEntry.ADD_WORDS:
+                getSupportActionBar().setSelectedNavigationItem( 1 );
+                break;
+            case ActDictionaryEntry.WORDS_TO_STUDY:
+            case ActDictionaryEntry.WORDS_TO_LEARN:
+                getSupportActionBar().setSelectedNavigationItem( 0 );
+                break;
+            case ActDictionaryEntry.WHOLE_LIST_ENTRY:
+                getSupportActionBar().setSelectedNavigationItem( 2 );
+                break;
         }
     }
 
@@ -154,21 +174,50 @@ public class ActDictionaryEntry extends ActionBarActivity implements ActionBar.T
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
 
+    @Override
+    public void onWordAdded( int id )
+    {
+        if( dictWholeWordListFragment != null )
+        {
+            dictWholeWordListFragment.setNeedRefresh();
+        }
+    }
+
+    @Override
+    public void onWordSelected(int id)
+    {
+        editWordFragment.setActiveWord(id);
+        getSupportActionBar().setSelectedNavigationItem( 1 );
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    public class SectionsPagerAdapter extends FragmentPagerAdapter
+    {
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
         @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+        public Fragment getItem(int position)
+        {
+            if( position == 1 )
+            {
+                if( editWordFragment == null )
+                    editWordFragment = EditWordFragment.newInstance(activeDictionary.getId());
+                return ( Fragment ) editWordFragment;
+            }
+            else if ( position == 2 )
+            {
+                if( dictWholeWordListFragment == null )
+                    dictWholeWordListFragment = DictWholeWordListFragment.newInstance(activeDictionary.getId());
+                return ( Fragment ) dictWholeWordListFragment;
+            }
+            else
+                return PlaceholderFragment.newInstance(position + 1);
         }
 
         @Override
@@ -206,7 +255,8 @@ public class ActDictionaryEntry extends ActionBarActivity implements ActionBar.T
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
+        public static PlaceholderFragment newInstance(int sectionNumber)
+        {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);

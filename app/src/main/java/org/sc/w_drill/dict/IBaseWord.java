@@ -7,6 +7,7 @@ public interface IBaseWord
 {
     public static enum LearnState { learn, check };
     public int getId();
+    public void setId( int id );
     public String getWord();
     public int LearnPercent();
     public LearnState getLearnState();

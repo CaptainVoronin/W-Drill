@@ -353,8 +353,8 @@ public class MainActivity extends ActionBarActivity
     {
         @Override
         public View onCreateView(LayoutInflater inflater,
-                                 ViewGroup container, Bundle savedInstanceState) {
-
+                                 ViewGroup container, Bundle savedInstanceState)
+        {
             View view;
 
             // Inflate the layout for this fragment
@@ -381,7 +381,6 @@ public class MainActivity extends ActionBarActivity
                         Log.d( "[MainActivity]", "Go to a full list of words");
                     }
                 });
-
 
                 int cnt = DBDictionaryFactory.getInstance(MainActivity.this.database)
                         .getWordsTo(activeDict.getId(), DBDictionaryFactory.STAGE_LEARN);
@@ -412,8 +411,33 @@ public class MainActivity extends ActionBarActivity
                     {
                         Log.d( "[MainActivity]", "Go to check words");
                         goToDictionaryEntry( activeDict.getId(), ActDictionaryEntry.WORDS_TO_STUDY );
+
+
                     }
                 });
+
+                text = (TextView) view.findViewById(R.id.add_words);
+                text.setOnClickListener( new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        Log.d( "[MainActivity]", "Go to add words");
+                        goToDictionaryEntry( activeDict.getId(), ActDictionaryEntry.ADD_WORDS );
+                    }
+                });
+
+                text = (TextView) view.findViewById(R.id.edit_dict);
+                text.setOnClickListener( new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        Log.d( "[MainActivity]", "Go to dictionary entry");
+                        goToDictionaryEntry( activeDict.getId(), ActDictionaryEntry.WHOLE_LIST_ENTRY );
+                    }
+                });
+
 
             }
             else
