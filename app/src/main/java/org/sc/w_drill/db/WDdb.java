@@ -12,6 +12,7 @@ public class WDdb extends SQLiteOpenHelper
     public final static int SCHEME_VERSION = 5;
 
     public final static String T_DICTIONARY = "dictionary";
+    public final static String T_WORDS = "words";
 
     final static String CREATE_DICTIONARY = "CREATE TABLE dictionary( id INTEGER PRIMARY KEY autoincrement, name TEXT NOT NULL UNIQUE, language TEXT NOT NULL  );";
     final static String CREATE_WORDS = "CREATE TABLE " +
@@ -35,7 +36,7 @@ public class WDdb extends SQLiteOpenHelper
     @Override
     public void onCreate(SQLiteDatabase db)
     {
-        //db.execSQL(CREATE_DICTIONARY);
+        db.execSQL(CREATE_DICTIONARY);
         db.execSQL(CREATE_WORDS);
     }
 
