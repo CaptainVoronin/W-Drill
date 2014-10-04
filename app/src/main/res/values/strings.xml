@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">W-Drill</string>
+    <string name="learn_words">Учить</string>
+    <string name="check_words">Проверять</string>
+    <string name="add_words">Добавить слова</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Настройки</string>
+    <string name="title_activity_act_new_dictionary">Создание нового словаря</string>
+    <string name="new_dictionary_comment">Создание нового словаря</string>
+    <string name="enter_dict_name_prompt">Название словаря</string>
+    <string name="language">Язык</string>
+    <string name="now_dicts_click_to_create_one">Словарей пока нет. Нажмите, чтобы перейти к созданию словаря.</string>
+    <string name="dict_name_already_exists">Словарь с таким названием уже существует</string>
+    <string name="title_activity_act_dictionary_list">Список словарей</string>
+    <string name="incorrect_name">Недопустимое название</string>
+    <string name="l_en">английский</string>
+    <string name="l_de">немецкий</string>
+    <string name="l_fr">французский</string>
+    <string name="l_sp">испанский</string>
+    <string name="action_dict_list">Словари</string>
+    <string name="action_move_and_delete">Перести слова и удалить</string>
+    <string name="action_delete">Удалить</string>
+    <string name="action_new_dictionary">Новый словарь</string>
+    <string name="delete_dictionary_question">Вы действитиельно хотите удалить словарь %s?</string>
+    <string name="current_dict_info" formatted="false">%s (%s)</string>
+    <string name="msg_have_to_choose_dict">Необходимо выбрать словарь</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="words_total">Всего слов — %s</string>
+    <string name="words_to_learn">Слов для запоминания — %s</string>
+    <string name="words_to_check">Слов для проверки — %s</string>
+    <string name="row_dict_list_dict_word_count">всего слов — %s</string>
+    <string name="dict_has_to_be_supplemented_with_words">Словарь необходимо пополнить словами</string>
+    <string name="title_activity_act_dictionary_entry">ActDictionaryEntry</string>
+    <string name="whole_word_list">Весь словарь</string>
+
+
+</resources>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:paddingLeft="6pt"
+        android:paddingRight="6pt">
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_column="0">
+            <LinearLayout android:orientation="vertical"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content">
+                <TextView
+                    style="@style/Header2"
+                    android:id="@+id/row_dict_list_dict_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Sample dictionary name"/>
+                <LinearLayout android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                <TextView
+                    style="@style/NoteText"
+                    android:id="@+id/row_dict_list_dict_lang"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text= "language"/>
+                <TextView
+                    style="@style/NoteText"
+                    android:paddingLeft="6pt"
+                    android:id="@+id/row_dict_list_dict_word_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text= "@string/row_dict_list_dict_word_count"/>
+                </LinearLayout>
+            </LinearLayout>
+
+        </TableRow>
+    </TableRow>
+</TableLayout>
