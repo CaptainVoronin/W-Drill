@@ -105,4 +105,13 @@ public class DBWordFactory
         }
         return word;
     }
+
+    public void deleteWords(ArrayList<Integer> selectedWords)
+    {
+        SQLiteDatabase db = database.getWritableDatabase();
+        db.beginTransaction();
+        for( Integer val : selectedWords )
+             db.delete( WDdb.T_WORDS, "id=?", new String[] { val.toString() } );
+        db.endTransaction();
+    }
 }

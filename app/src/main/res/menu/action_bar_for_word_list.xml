@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="org.sc.w_drill.ActDictionaryEntry">
+
+    <item android:id="@+id/bnt_delete_words"
+          android:icon="@drawable/delete"
+          app:showAsAction="always"
+          android:title=""></item>
+</menu>

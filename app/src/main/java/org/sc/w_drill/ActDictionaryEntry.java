@@ -11,8 +11,11 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+//import android.support.v7.view.ActionMode;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +59,7 @@ public class ActDictionaryEntry
     WDdb database;
 
     Dictionary activeDictionary;
+    private ActionMode actionMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -190,6 +194,19 @@ public class ActDictionaryEntry
         getSupportActionBar().setSelectedNavigationItem( 1 );
     }
 
+    @Override
+    public void onStatActionModeForWordList()
+    {
+        actionMode = startActionMode( callback );
+    }
+
+    @Override
+    public void onFinishActionModeForWordList()
+    {
+        if( actionMode != null)
+            actionMode.finish();
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -275,4 +292,43 @@ public class ActDictionaryEntry
         }
     }
 
+    ActionMode.Callback callback = new ActionMode.Callback ()
+    {
+
+        @Override
+        public boolean onCreateActionMode(ActionMode actionMode, Menu menu)
+        {
+            MenuInflater inflater = actionMode.getMenuInflater();
+            inflater.inflate(R.menu.action_bar_for_word_list, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu)
+        {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem)
+        {
+            switch (menuItem.getItemId())
+            {
+                case R.id.bnt_delete_words:
+                    dictWholeWordListFragment.deleteSelected();
+                    break;
+                default:
+                    break;
+            }
+
+            actionMode.finish();
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode actionMode)
+        {
+
+        }
+    };
 }

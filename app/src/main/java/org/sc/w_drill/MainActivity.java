@@ -99,7 +99,7 @@ public class MainActivity extends ActionBarActivity
                         break;
                     }
                 if( activeDictExistsInDB )
-                    restoreState(activeDictID); // yes, it was deleted
+                    restoreState(); // yes, it was deleted
                 else
                     goToDictionaryList(); // no, it wasn't
             }
@@ -131,18 +131,13 @@ public class MainActivity extends ActionBarActivity
     /**
      * Эта функция создает инфтерфейс и восстанавливаетс
      * состояние программы
-     * @param activeDictID
      */
-    private void restoreState(int activeDictID)
+    private void restoreState()
     {
         // Set up the action bar.
         actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        if( activeDictID != -1 )
-        {
-            setupActiveDict( activeDictID );
-        }
+        setupActiveDict( );
     }
 
     /**
@@ -210,18 +205,17 @@ public class MainActivity extends ActionBarActivity
                     id = data.getIntExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1 );
                 else
                     id = -1;
-                    detectState( id );
+                detectState( id );
                 break;
             default:
                 break;
         }
     }
 
-    private void setupActiveDict(int dictID)
+    private void setupActiveDict()
     {
         try
         {
-            activeDict = dictionaryFactory.getDictionaryById(dictID);
             getSupportActionBar().setTitle(getString(R.string.current_dict_info, activeDict.getName(), activeDict.getLang()));
 
             FragmentManager fragmentManager = getFragmentManager();
