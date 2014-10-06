@@ -35,6 +35,11 @@ public class Word implements IWord
     }
 
     @Override
+    public void setWord(String _word) {
+        word = _word;
+    }
+
+    @Override
     public int getId()
     {
         return id;
@@ -68,4 +73,10 @@ public class Word implements IWord
     {
 
     }
+
+    public static Word getDummy()
+    {
+        return new Word( -1, "" );
+    }
+
 }

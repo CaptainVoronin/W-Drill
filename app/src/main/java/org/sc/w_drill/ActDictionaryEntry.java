@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 //import android.support.v7.view.ActionMode;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,13 +23,15 @@ import android.view.ViewGroup;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.dict.IBaseWord;
 
 
 public class ActDictionaryEntry
         extends ActionBarActivity
         implements ActionBar.TabListener,
         EditWordFragment.OnFragmentInteractionListener,
-        DictWholeWordListFragment.DictWholeListListener
+        DictWholeWordListFragment.DictWholeListListener,
+        LearnWordsFragment.OnLearnWordsFragmentListener
 {
 
     /**
@@ -43,6 +46,7 @@ public class ActDictionaryEntry
 
     EditWordFragment editWordFragment;
     DictWholeWordListFragment dictWholeWordListFragment;
+    LearnWordsFragment learnWordsFragment;
 
     public static final String ENTRY_KIND_PARAM_NAME = "ENTRY_KIND_PARAM_NAME";
 
@@ -207,6 +211,12 @@ public class ActDictionaryEntry
             actionMode.finish();
     }
 
+    @Override
+    public void wordsStageChanged()
+    {
+
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -224,17 +234,26 @@ public class ActDictionaryEntry
             if( position == 1 )
             {
                 if( editWordFragment == null )
-                    editWordFragment = EditWordFragment.newInstance(activeDictionary.getId());
+                    editWordFragment = EditWordFragment.newInstance( );
+                editWordFragment.setParams( activeDictionary.getId(), -1 );
                 return ( Fragment ) editWordFragment;
             }
             else if ( position == 2 )
             {
                 if( dictWholeWordListFragment == null )
-                    dictWholeWordListFragment = DictWholeWordListFragment.newInstance(activeDictionary.getId());
+                    dictWholeWordListFragment = DictWholeWordListFragment.newInstance();
+
+                dictWholeWordListFragment.setDict( activeDictionary );
+                Log.d("[ActDictionaryEntry]", "Get DictWholeWordListFragment instance");
                 return ( Fragment ) dictWholeWordListFragment;
             }
             else
-                return PlaceholderFragment.newInstance(position + 1);
+            {
+                if( learnWordsFragment == null )
+                    learnWordsFragment = new LearnWordsFragment();
+
+                learnWordsFragment.setLearnParams( activeDictionary, IBaseWord.LearnState.learn);
+            }
         }
 
         @Override

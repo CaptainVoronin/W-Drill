@@ -3,6 +3,7 @@ package org.sc.w_drill.db_wrapper;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.dict.BaseWord;
@@ -29,9 +30,16 @@ public class DBWordFactory
         if( instance == null )
             instance = new DBWordFactory( _db, _dict );
 
+        if( !_dict.equals( instance.getDict()) )
+            instance = new DBWordFactory( _db, _dict );
+
         return instance;
     }
 
+    public Dictionary getDict()
+    {
+        return dict;
+    }
     protected DBWordFactory(WDdb _db, Dictionary _dict)
     {
         database = _db;
@@ -110,8 +118,17 @@ public class DBWordFactory
     {
         SQLiteDatabase db = database.getWritableDatabase();
         db.beginTransaction();
-        for( Integer val : selectedWords )
-             db.delete( WDdb.T_WORDS, "id=?", new String[] { val.toString() } );
+        int cnt = 0;
+        for( Integer val : selectedWords ) {
+            if( db.delete(WDdb.T_WORDS, "id=?", new String[]{val.toString()}) != 0 )
+                cnt++;
+            else
+                Log.w("[DBWordFactory::deleteWords]", "Word with id " + val.toString() + " wasn't delete");
+        }
+
+        Log.w("[DBWordFactory::deleteWords]", "Was deleted " + cnt + " from " + selectedWords.size() );
+
+        db.setTransactionSuccessful();
         db.endTransaction();
     }
 }

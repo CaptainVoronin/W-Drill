@@ -19,6 +19,11 @@ public class BaseWord implements IBaseWord
     }
 
     @Override
+    public void setWord(String _word) {
+        word = _word;
+    }
+
+    @Override
     public int getId()
     {
         return id;
@@ -53,4 +58,5 @@ public class BaseWord implements IBaseWord
     {
         state = _state;
     }
+
 }

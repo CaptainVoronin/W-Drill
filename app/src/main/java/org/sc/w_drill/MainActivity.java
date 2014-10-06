@@ -248,6 +248,7 @@ public class MainActivity extends ActionBarActivity
     {
         Intent intent = new Intent( this, ActDictionaryEntry.class );
         intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, dictId );
+        Log.d( "[MainActivity::goToDictionaryEntry]", "Start ActDictionaryEntry for part " + entryPart + ", dict ID " + dictId );
         intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, entryPart );
         startActivity( intent );
     }

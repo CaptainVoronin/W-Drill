@@ -5,6 +5,7 @@ package org.sc.w_drill.dict;
  */
 public interface IBaseWord
 {
+    public void setWord(String word);
     public static enum LearnState { learn, check };
     public int getId();
     public void setId( int id );
@@ -12,4 +13,5 @@ public interface IBaseWord
     public int LearnPercent();
     public LearnState getLearnState();
     public void setLearnState( LearnState state );
+
 }

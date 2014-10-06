@@ -14,9 +14,12 @@ import android.widget.EditText;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
+import org.sc.w_drill.dict.BaseWord;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.dict.Word;
+
+import java.util.Locale;
 
 
 /**
@@ -40,27 +43,10 @@ public class EditWordFragment extends Fragment
     private boolean isVisible;
     private boolean needBringWord;
 
-    public static EditWordFragment newInstance(int _dict_id, int _word_id )
+    public static EditWordFragment newInstance(  )
     {
         EditWordFragment fragment = new EditWordFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments( makeArgs( _dict_id, _word_id ) );
         return fragment;
-    }
-
-    public static EditWordFragment newInstance(int _dict_id )
-    {
-        EditWordFragment fragment = new EditWordFragment();
-        fragment.setArguments(makeArgs(_dict_id, -1));
-        return fragment;
-    }
-
-    private static Bundle makeArgs(int _dict_id, int _word_id)
-    {
-        Bundle args = new Bundle();
-        args.putInt(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, _dict_id );
-        args.putInt(DBWordFactory.WORD_ID_VALUE_NAME, _word_id);
-        return args;
     }
 
     public EditWordFragment() {
@@ -70,14 +56,17 @@ public class EditWordFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        int dictId;
+
+        database = new WDdb( getActivity().getApplicationContext() );
+
+        /*int dictId;
         int wordId;
         if (getArguments() != null)
         {
             dictId = getArguments().getInt(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME);
             wordId = getArguments().getInt(DBWordFactory.WORD_ID_VALUE_NAME);
 
-            database = new WDdb( getActivity().getApplicationContext() );
+
 
             activeDict = DBDictionaryFactory.getInstance( database ).getDictionaryById( dictId );
 
@@ -92,11 +81,12 @@ public class EditWordFragment extends Fragment
         else
         {
             fatalError();
-        }
+        } */
     }
 
     private void prepareForNewWord()
     {
+        edWord.setText("");
     }
 
     public void bringWordToScreen()
@@ -124,35 +114,47 @@ public class EditWordFragment extends Fragment
                 startSaveWord();
             }
         });
-
         edWord = ( EditText ) view.findViewById( R.id.the_word );
         return view;
     }
 
     private void startSaveWord()
     {
+        /**
+         * Gather information
+         */
         String word = String.valueOf(edWord.getText());
+        // It's a dummy, obviously
         if( activeWord == null )
             activeWord = new Word( word );
-        saveWord(activeWord);
+        else
+            activeWord.setWord( word );
+
+        saveWord();
     }
 
-    private void saveWord(IWord activeWord)
+    private void saveWord()
     {
-        if( activeWord.getId() != -1 )
-            DBWordFactory.getInstance( database, activeDict ).updateWord( activeWord );
+        int id;
+        if( ( id = activeWord.getId() ) != -1 ) {
+            DBWordFactory.getInstance(database, activeDict).updateWord(activeWord);
+        }
         else
         {
-            int id = DBWordFactory.getInstance(database, activeDict).insertWord(activeWord);
+            id = DBWordFactory.getInstance(database, activeDict).insertWord(activeWord);
             activeWord.setId( id );
-            mListener.onWordAdded( id );
         }
-        clearInterface();
-    }
 
-    private void clearInterface()
-    {
-        edWord.setText("");
+        /**
+         * We should update the word list
+         * in any case due to word or a new word was added
+         * or an old word has been changed.
+         */
+        mListener.onWordAdded( id );
+
+        activeWord = new Word("");
+
+        bringWordToScreen();
     }
 
     @Override
@@ -204,10 +206,19 @@ public class EditWordFragment extends Fragment
 
     }
 
-
     public void setActiveWord( int wordId )
     {
         activeWord = DBWordFactory.getInstance( database, activeDict  ).getWord( wordId );
         needBringWord = true;
+    }
+
+    public void setParams( int dictId, int wordId)
+    {
+        activeDict = DBDictionaryFactory.getInstance( database ).getDictionaryById( dictId );
+
+        if( wordId != -1 )
+            activeWord = DBWordFactory.getInstance( database, activeDict  ).getWord( wordId );
+        else
+            activeWord = Word.getDummy();
     }
 }

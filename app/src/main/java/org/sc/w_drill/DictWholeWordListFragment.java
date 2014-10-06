@@ -16,7 +16,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import org.sc.w_drill.db.WDdb;
-import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.dict.BaseWord;
 import org.sc.w_drill.dict.Dictionary;
@@ -37,6 +36,7 @@ public class DictWholeWordListFragment extends Fragment
     ListView listWords;
     EditText edSearchPattern;
     boolean isVisible;
+    boolean isViewCreated = false;
     private boolean needRefresh;
     private TextWatcher searchTextWatcher;
 
@@ -51,12 +51,9 @@ public class DictWholeWordListFragment extends Fragment
      * @return A new instance of fragment DictWholeWordListFragment.
      */
 
-    public static DictWholeWordListFragment newInstance( int _dictId )
+    public static DictWholeWordListFragment newInstance(  )
     {
         DictWholeWordListFragment fragment = new DictWholeWordListFragment();
-        Bundle args = new Bundle();
-        args.putInt(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, _dictId );
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -65,21 +62,35 @@ public class DictWholeWordListFragment extends Fragment
         // Required empty public constructor
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null)
-        {
-            int dictId = getArguments().getInt(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME);
-            database = new WDdb( getActivity().getApplicationContext() );
-            if( dictId != -1 )
-                activeDict = DBDictionaryFactory.getInstance( database ).getDictionaryById( dictId );
-            else
-                fatalError();
-        }
-        else
-            fatalError();
+    /**
+     * This function must be called iff an instance
+     * of the class has already created and it needs
+     * change active dictionary
+     * @param _dictId
+     */
+    public void setDict( Dictionary dict )
+    {
+        if( dict == null )
+            throw new IllegalArgumentException( this.getClass().getName() + " Dictionary can't be 0" );
 
+        if( activeDict == null )
+        {
+            activeDict = dict;
+            setNeedRefresh();
+        }
+        else if( !activeDict.equals( dict ) )
+        {
+            activeDict = dict;
+            setNeedRefresh();
+        }
+
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        database = new WDdb( getActivity().getApplicationContext() );
         selectedWords = new ArrayList<Integer>();
         checkBoxClickListener = new CheckBoxClickListener();
     }
@@ -97,9 +108,9 @@ public class DictWholeWordListFragment extends Fragment
         listWords = ( ListView ) view.findViewById( R.id.word_list );
 
         edSearchPattern = (EditText) view.findViewById( R.id.search_pattern );
-
-        refreshList();
-
+        isViewCreated = true;
+        if( needRefresh )
+            refreshList();
         return view;
     }
 
@@ -176,7 +187,7 @@ public class DictWholeWordListFragment extends Fragment
             return;
 
         // If is becomes visible, refresh list
-        if( ( isVisible = isVisibleToUser ) && needRefresh )
+        if( ( isVisible = isVisibleToUser ) && isViewCreated && needRefresh )
             refreshList();
     }
 

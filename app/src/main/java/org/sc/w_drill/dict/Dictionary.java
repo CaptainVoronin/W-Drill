@@ -26,6 +26,20 @@ public class Dictionary {
         word_count = 0;
     }
 
+    @Override
+    public boolean equals( Object obj )
+    {
+        if( obj == null )
+            return false;
+
+        if( !(obj instanceof Dictionary) )
+            return false;
+
+        Dictionary d = ( Dictionary ) obj;
+
+        return ((d.getId() == id ) && ( (d.getName().equalsIgnoreCase( name ))));
+    }
+
     public int getId() {
         return id;
     }
