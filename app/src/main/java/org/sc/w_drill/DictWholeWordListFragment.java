@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import org.sc.w_drill.db.WDdb;
+import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.dict.BaseWord;
 import org.sc.w_drill.dict.Dictionary;
@@ -74,17 +75,16 @@ public class DictWholeWordListFragment extends Fragment
         if( dict == null )
             throw new IllegalArgumentException( this.getClass().getName() + " Dictionary can't be 0" );
 
-        if( activeDict == null )
-        {
-            activeDict = dict;
-            setNeedRefresh();
-        }
-        else if( !activeDict.equals( dict ) )
-        {
-            activeDict = dict;
-            setNeedRefresh();
-        }
+        Bundle b1 = new Bundle();
+        b1.putInt( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, dict.getId() );
+        setArguments( b1 );
 
+        if( ( activeDict == null ) || ( ( activeDict != null ) && !activeDict.equals( dict ) ) )
+        {
+            activeDict = dict;
+
+            setNeedRefresh();
+        }
     }
 
     @Override
@@ -92,8 +92,15 @@ public class DictWholeWordListFragment extends Fragment
     {
         super.onCreate(savedInstanceState);
         database = new WDdb( getActivity().getApplicationContext() );
+        Bundle args = getArguments();
+        if( args != null )
+        {
+            int dictId = args.getInt(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME);
+            activeDict = DBDictionaryFactory.getInstance(database).getDictionaryById(dictId);
+        }
         selectedWords = new ArrayList<Integer>();
         checkBoxClickListener = new CheckBoxClickListener();
+        needRefresh = true;
     }
 
     private void fatalError()

@@ -24,6 +24,7 @@ import android.widget.TextView;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.utils.ActiveDictionaryStateFragment;
 
 
 public class MainActivity extends ActionBarActivity
@@ -53,6 +54,8 @@ public class MainActivity extends ActionBarActivity
     SharedPreferences sharedPrefs;
 
     NoDictionaryFragment noDictFragment;
+
+    ActiveDictionaryStateFragment activeDictionaryStateFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -223,9 +226,13 @@ public class MainActivity extends ActionBarActivity
             FragmentTransaction fragmentTransaction =
                     fragmentManager.beginTransaction();
 
-            ActiveDictionaryStateFragment fragment = new ActiveDictionaryStateFragment();
+            if( activeDictionaryStateFragment == null )
+                activeDictionaryStateFragment = ActiveDictionaryStateFragment.getInstance( activeDict );
 
-            fragmentTransaction.replace( android.R.id.content, fragment );
+            activeDictionaryStateFragment.setActiveDict( activeDict );
+
+
+            fragmentTransaction.replace( android.R.id.content, activeDictionaryStateFragment );
 
             fragmentTransaction.commit();
 
@@ -244,11 +251,11 @@ public class MainActivity extends ActionBarActivity
      * @param entryPart - a kind of entry. 0 - a whole word list, 1 - words to learn
      *                  2 - words to study, 3 - add new words
      */
-    protected void goToDictionaryEntry( int dictId, int entryPart )
+    public void goToDictionaryEntry( int dictId, int entryPart )
     {
         Intent intent = new Intent( this, ActDictionaryEntry.class );
         intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, dictId );
-        Log.d( "[MainActivity::goToDictionaryEntry]", "Start ActDictionaryEntry for part " + entryPart + ", dict ID " + dictId );
+        Log.d("[MainActivity::goToDictionaryEntry]", "Start ActDictionaryEntry for part " + entryPart + ", dict ID " + dictId);
         intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, entryPart );
         startActivity( intent );
     }
@@ -288,6 +295,11 @@ public class MainActivity extends ActionBarActivity
      */
     class NoDictionaryFragment extends Fragment
     {
+        public NoDictionaryFragment()
+        {
+
+        }
+
         @Override
         public View onCreateView(LayoutInflater inflater,
                                  ViewGroup container, Bundle savedInstanceState) {
@@ -318,6 +330,11 @@ public class MainActivity extends ActionBarActivity
      */
     class ChooseDictionaryFragment extends Fragment
     {
+        public ChooseDictionaryFragment()
+        {
+
+        }
+
         @Override
         public View onCreateView(LayoutInflater inflater,
                                  ViewGroup container, Bundle savedInstanceState) {
@@ -341,116 +358,6 @@ public class MainActivity extends ActionBarActivity
         public void onActivityResult (int requestCode, int resultCode, Intent data)
         {
             MainActivity.this.onActivityResult( requestCode, resultCode, data );
-        }
-    }
-
-    class ActiveDictionaryStateFragment extends Fragment
-    {
-        @Override
-        public View onCreateView(LayoutInflater inflater,
-                                 ViewGroup container, Bundle savedInstanceState)
-        {
-            View view;
-
-            // Inflate the layout for this fragment
-            if( activeDict.getWordCount() != 0 )
-                view =  inflater.inflate(R.layout.active_dict_state_fragment, container, false);
-            else
-                view =  inflater.inflate(R.layout.active_dict_no_words_fragment, container, false);
-
-            TextView text = ( TextView ) view.findViewById( R.id.dict_name );
-            text.setText( activeDict.getName() );
-
-            /**
-             * Id the active dictionary has words at all
-             */
-            if( activeDict.getWordCount() != 0 )
-            {
-                text = ( TextView ) view.findViewById( R.id.word_count );
-                text.setText( MainActivity.this.getResources().getString( R.string.words_total, activeDict.getWordCount() ) );
-                text.setOnClickListener( new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View view)
-                    {
-                        Log.d( "[MainActivity]", "Go to a full list of words");
-                    }
-                });
-
-                int cnt = DBDictionaryFactory.getInstance(MainActivity.this.database)
-                        .getWordsTo(activeDict.getId(), DBDictionaryFactory.STAGE_LEARN);
-
-                text = (TextView) view.findViewById(R.id.words_to_learn);
-                text.setText(MainActivity.this.getResources().getString(R.string.words_to_learn, cnt));
-
-                text.setOnClickListener( new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View view)
-                    {
-                        Log.d( "[MainActivity]", "Go to learn new words");
-                        goToDictionaryEntry( activeDict.getId(), ActDictionaryEntry.WORDS_TO_LEARN );
-                    }
-                });
-
-                cnt = DBDictionaryFactory.getInstance(MainActivity.this.database)
-                        .getWordsTo(activeDict.getId(), DBDictionaryFactory.STAGE_CHECK);
-
-                text = (TextView) view.findViewById(R.id.words_to_check);
-                text.setText(MainActivity.this.getResources().getString(R.string.words_to_check, cnt));
-
-                text.setOnClickListener( new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View view)
-                    {
-                        Log.d( "[MainActivity]", "Go to check words");
-                        goToDictionaryEntry( activeDict.getId(), ActDictionaryEntry.WORDS_TO_STUDY );
-
-
-                    }
-                });
-
-                text = (TextView) view.findViewById(R.id.add_words);
-                text.setOnClickListener( new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View view)
-                    {
-                        Log.d( "[MainActivity]", "Go to add words");
-                        goToDictionaryEntry( activeDict.getId(), ActDictionaryEntry.ADD_WORDS );
-                    }
-                });
-
-                text = (TextView) view.findViewById(R.id.edit_dict);
-                text.setOnClickListener( new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View view)
-                    {
-                        Log.d( "[MainActivity]", "Go to dictionary entry");
-                        goToDictionaryEntry( activeDict.getId(), ActDictionaryEntry.WHOLE_LIST_ENTRY );
-                    }
-                });
-
-
-            }
-            else
-            {
-                text = (TextView) view.findViewById(R.id.dict_has_to_be_supplemented_with_words);
-                text.setText(MainActivity.this.getResources().getString(R.string.dict_has_to_be_supplemented_with_words));
-                text.setOnClickListener( new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View view)
-                    {
-                        Log.d( "[MainActivity]", "The dictionary has to be supplemented with words");
-                        goToDictionaryEntry( activeDict.getId(), ActDictionaryEntry.ADD_WORDS );
-                    }
-                });
-            }
-
-            return view;
         }
     }
 }
