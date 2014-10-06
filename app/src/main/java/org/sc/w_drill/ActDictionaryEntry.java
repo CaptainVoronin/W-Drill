@@ -236,6 +236,7 @@ public class ActDictionaryEntry
                 if( editWordFragment == null )
                     editWordFragment = EditWordFragment.newInstance( );
                 editWordFragment.setParams( activeDictionary.getId(), -1 );
+                Log.d("[ActDictionaryEntry]", "Get EditWordFragment instance");
                 return ( Fragment ) editWordFragment;
             }
             else if ( position == 2 )
@@ -251,8 +252,9 @@ public class ActDictionaryEntry
             {
                 if( learnWordsFragment == null )
                     learnWordsFragment = new LearnWordsFragment();
-
+                Log.d("[ActDictionaryEntry]", "Get LearnWordsFragment instance");
                 learnWordsFragment.setLearnParams( activeDictionary, IBaseWord.LearnState.learn);
+                return ( Fragment ) learnWordsFragment;
             }
         }
 
@@ -274,40 +276,6 @@ public class ActDictionaryEntry
                     return getString(R.string.whole_word_list).toUpperCase(l);
             }
             return null;
-        }
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber)
-        {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_act_dictionaty_entry, container, false);
-            return rootView;
         }
     }
 

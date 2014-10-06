@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -101,15 +102,15 @@ public class DictWholeWordListFragment extends Fragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
-    {
+                             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dict_whole_word_list, container, false);
 
-        listWords = ( ListView ) view.findViewById( R.id.word_list );
+        listWords = (ListView) view.findViewById(R.id.word_list);
 
-        edSearchPattern = (EditText) view.findViewById( R.id.search_pattern );
+        edSearchPattern = (EditText) view.findViewById(R.id.search_pattern);
         isViewCreated = true;
-        if( needRefresh )
+        Log.d("[DictWholeListListener::onCreateView]", "Create view. Sincerely yours C.O.");
+        if (needRefresh)
             refreshList();
         return view;
     }
@@ -148,7 +149,6 @@ public class DictWholeWordListFragment extends Fragment
         WordListAdapter adapter = new WordListAdapter(getActivity().getApplicationContext(), wordList);
         wordList.addListener( adapter );
         listWords.setAdapter( adapter );
-
         needRefresh = false;
     }
 
@@ -261,8 +261,15 @@ public class DictWholeWordListFragment extends Fragment
         @Override
         public void onTextChanged(CharSequence charSequence, int i, int i2, int i3)
         {
-            if( charSequence.length() == 0 )
-                filter.setNewPattern("");
+            if( charSequence.length() == 0 ) {
+                if (filter == null) {
+                    filter = new WordListFilter("");
+                    list.setFilter(filter);
+                    filter.addListener(list);
+                }
+                else
+                    filter.setNewPattern("");
+            }
         }
 
         @Override
@@ -275,7 +282,8 @@ public class DictWholeWordListFragment extends Fragment
                 list.setFilter( filter );
                 filter.addListener( list );
             }
-            filter.setNewPattern( text );
+            else
+                filter.setNewPattern( text );
         }
     }
 
@@ -342,5 +350,12 @@ public class DictWholeWordListFragment extends Fragment
         DBWordFactory.getInstance( database, activeDict ).deleteWords( selectedWords );
         selectedWords.clear();
         refreshList();
+    }
+
+    public void onDestroyView ()
+    {
+        super.onDestroyView();
+        needRefresh = true;
+        isViewCreated = false;
     }
 }
