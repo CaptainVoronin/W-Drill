@@ -9,6 +9,10 @@ public class Word implements IWord
 {
     int id;
     String word;
+    ArrayList<IMeaning> meanings;
+    String transcription;
+    LearnState state;
+    int percent;
 
     public Word ( String _word )
     {
@@ -25,13 +29,21 @@ public class Word implements IWord
     @Override
     public ArrayList<IMeaning> meanings()
     {
-        return null;
+        return meanings;
+    }
+
+    public void addMeaning( IMeaning meaning )
+    {
+        if( meanings == null )
+            meanings = new ArrayList<IMeaning>();
+
+        meanings.add( meaning );
     }
 
     @Override
     public String transcription()
     {
-        return null;
+        return transcription;
     }
 
     @Override
@@ -62,16 +74,21 @@ public class Word implements IWord
         return 0;
     }
 
-    @Override
-    public LearnState getLearnState()
+    public void setLearnPercent( int _percent )
     {
-        return null;
+        percent = _percent;
     }
 
     @Override
-    public void setLearnState(LearnState state)
+    public LearnState getLearnState()
     {
+        return state;
+    }
 
+    @Override
+    public void setLearnState(LearnState _state)
+    {
+        state = _state;
     }
 
     public static Word getDummy()

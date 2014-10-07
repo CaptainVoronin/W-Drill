@@ -4,25 +4,31 @@
     android:layout_height="match_parent"
     tools:context="org.sc.w_drill.EditWordFragment">
 
-    <TableLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <TableRow>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/the_word" />
-
             <EditText
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text"
                 android:layout_weight="0.3"
                 android:id="@+id/the_word"/>
-        </TableRow>
-        <TableRow>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/transcription" />
 
@@ -32,8 +38,42 @@
                 android:inputType="text"
                 android:layout_weight="0.3"
                 android:id="@+id/transcription"/>
-        </TableRow>
-        <TableRow>
+        </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:id="@+id/meanings_table">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/word_meaning"/>
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:ems="10"
+                    android:id="@+id/edMeaning"
+                    android:lines="2"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/usage_sample"/>
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:ems="10"
+                    android:id="@+id/edSample"
+                    android:lines="2"/>
+            </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -44,6 +84,6 @@
                 android:layout_height="wrap_content"
                 android:id = "@+id/btnCancel"
                 android:text="@android:string/cancel" />
-        </TableRow>
-    </TableLayout>
+        </LinearLayout>
+    </LinearLayout>
 </FrameLayout>

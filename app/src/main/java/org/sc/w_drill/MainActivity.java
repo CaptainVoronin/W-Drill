@@ -169,7 +169,12 @@ public class MainActivity extends ActionBarActivity
                 if( data != null )
                     id = data.getIntExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1 );
                 else
-                    id = -1;
+                {
+                    if( activeDict == null )
+                        id = -1;
+                    else
+                        id = activeDict.getId();
+                }
                 detectState( id );
                 break;
             default:
@@ -268,7 +273,6 @@ public class MainActivity extends ActionBarActivity
         return view;
 
     }
-
 
     /**
      * This realises a transition to an entry of the dictionary

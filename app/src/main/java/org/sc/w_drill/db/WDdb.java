@@ -9,10 +9,12 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class WDdb extends SQLiteOpenHelper
 {
-    public final static int SCHEME_VERSION = 6;
+    public final static int SCHEME_VERSION = 7;
 
     public final static String T_DICTIONARY = "dictionary";
     public final static String T_WORDS = "words";
+    public final static String T_MEANINGS = "meanings";
+    public final static String T_EXAMPLE = "example";
 
     final static String CREATE_DICTIONARY = "CREATE TABLE dictionary( id INTEGER PRIMARY KEY autoincrement, " +
             "uuid TEXT NOT NULL UNIQUE, " +
@@ -36,6 +38,22 @@ public class WDdb extends SQLiteOpenHelper
             " update words set updated = CURRENT_TIMESTAMP where id = old.id;" +
             "END;";
 
+    final static String CREATE_MEANINGS ="CREATE TABLE " +
+            "meanings ( id INTEGER PRIMARY KEY autoincrement," +
+            "word_id INTEGER NOT NULL," +
+            "meaning TEXT NOT NULL," +
+            "is_formal INTEGER NOT NULL DEFAULT 0," +
+            "is_disapproving INTEGER NOT NULL DEFAULT 0," +
+            "is_rude INTEGER NOT NULL DEFAULT 0," +
+            "FOREIGN KEY ( word_id ) REFERENCES words ( id ) ON DELETE CASCADE );";
+
+    final static String CREATE_EXAMPLES ="CREATE TABLE " +
+            "examples ( id INTEGER PRIMARY KEY autoincrement," +
+            "word_id INTEGER NOT NULL," +
+            "example TEXT NOT NULL," +
+            "FOREIGN KEY ( word_id ) REFERENCES words ( id ) ON DELETE CASCADE );";
+
+
     final static String DB_NAME = "wd.db";
 
     Context mContext;
@@ -52,6 +70,8 @@ public class WDdb extends SQLiteOpenHelper
         db.execSQL(CREATE_DICTIONARY);
         db.execSQL(CREATE_WORDS);
         db.execSQL(CREATE_WORDS_UPDATE_TRIGGER);
+        db.execSQL(CREATE_MEANINGS);
+        db.execSQL(CREATE_EXAMPLES);
     }
 
     @Override

@@ -159,9 +159,16 @@ public class EditWordFragment extends Fragment
         }
         else
         {
-            // TODO: There might be an exception. need to caught it
-            id = DBWordFactory.getInstance(database, activeDict).insertWord(activeWord);
-            activeWord.setId( id );
+
+            try
+            {
+                activeWord = DBWordFactory.getInstance(database, activeDict).insertWord(activeWord);
+            }
+            catch (Exception e)
+            {
+                // TODO: It must be a correct exception habdler.
+                e.printStackTrace();
+            }
         }
 
         /**

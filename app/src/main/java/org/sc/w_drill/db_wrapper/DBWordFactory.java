@@ -9,9 +9,12 @@ import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.dict.BaseWord;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IBaseWord;
+import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.dict.Word;
+import org.sc.w_drill.utils.DBPair;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -75,24 +78,73 @@ public class DBWordFactory
         throw new UnsupportedOperationException( "DbWordFactory::delete" );
     }
 
-    public int insertWord( IWord word )
+    public IWord insertWord( IWord word ) throws Exception
     {
-        SQLiteDatabase db = database.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put( "word", word.getWord() );
-        cv.put( "dict_id", dict.getId() );
-        cv.put( "uuid", UUID.randomUUID().toString() );
-        db.insert( WDdb.T_WORDS, null, cv );
 
-        String statement = "select max( id ) from words";
-        Cursor crs = db.rawQuery( statement, null );
+        SQLiteDatabase db = null;
+        Exception e = null;
+        try
+        {
+            db = database.getWritableDatabase();
 
-        crs.moveToNext();
-        int id = crs.getInt( 0 );
-        crs.close();
-        db.close();
+            ContentValues cv = new ContentValues();
+            cv.put("word", word.getWord());
+            cv.put("dict_id", dict.getId());
+            cv.put("uuid", UUID.randomUUID().toString());
+            cv.put("transcription", word.transcription());
 
-        return id;
+            db.beginTransaction();
+            db.insert(WDdb.T_WORDS, null, cv);
+
+            String statement = "select max( id ) from words";
+            Cursor crs = db.rawQuery(statement, null);
+
+            crs.moveToNext();
+            int id = crs.getInt(0);
+            crs.close();
+
+            word.setId(id);
+
+            // Now insert meanings
+
+            if( word.meanings() != null )
+                for (IMeaning m : word.meanings())
+                {
+                    cv.clear();
+                    cv.put("word_id", Integer.valueOf(id).toString());
+                    cv.put("meaning", m.meaning());
+                    // TODO: Values: isFormal, etc aren't inserted
+                    db.insert(WDdb.T_MEANINGS, null, cv);
+
+                    // insert examples
+                    if( m.examples() != null )
+                        for (DBPair example : m.examples())
+                        {
+                            cv.clear();
+                            cv.put("word_id", id);
+                            cv.put("example", example.getValue());
+                            db.insert(WDdb.T_EXAMPLE, null, cv);
+                        }
+                }
+            db.setTransactionSuccessful();
+        }catch ( Exception ex )
+        {
+            Log.e( "[DBWordFactory::insertWord]", "Exception: " + ex.getMessage() );
+            e = ex;
+        }
+        finally
+        {
+            if( db != null )
+            {
+                db.endTransaction();
+                db.close();
+            }
+
+            if( e != null )
+                throw e;
+        }
+
+        return word;
     }
 
     public void updateWord(IWord activeWord)

@@ -38,6 +38,8 @@
     <string name="transcription">Транскрипция</string>
     <string name="edit_dict">Редактировать словарь</string>
     <string name="incorrect_word">Такое слово не может быть использовано</string>
+    <string name="word_meaning">Значение</string>
+    <string name="usage_sample">Пример использования</string>
 
 
 </resources>
