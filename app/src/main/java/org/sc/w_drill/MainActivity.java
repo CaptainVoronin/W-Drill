@@ -55,10 +55,9 @@ public class MainActivity extends ActionBarActivity
 
     SharedPreferences sharedPrefs;
 
-    NoDictionaryFragment noDictFragment;
-
     ActiveDictionaryStateFragment activeDictionaryStateFragment;
     LinearLayout rootView;
+    View currentView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,11 +89,14 @@ public class MainActivity extends ActionBarActivity
         dictionaryFactory = DBDictionaryFactory.getInstance( database );
         ArrayList<Dictionary> dictList = dictionaryFactory.getList();
 
+        if( currentView != null )
+            rootView.removeView( currentView );
+
         // It's possible when no dictionaries in database
         if( dictList == null || dictList.size() == 0 )
-            prepareClearInterface();
+            currentView = createNoDictionaryInterface();
         else {
-            // In case of a mistake when active dictionary
+            // In case of a mistake when the active dictionary
             // has been deleted from DB
             boolean activeDictExistsInDB = false;
             if( activeDictID != -1 ) {
@@ -106,73 +108,33 @@ public class MainActivity extends ActionBarActivity
                         break;
                     }
                 if( activeDictExistsInDB )
-                    restoreState(); // yes, it was deleted
+                    currentView = restoreState(); // yes, it was deleted
                 else
-                    goToDictionaryList(); // no, it wasn't
+                    currentView = createChooseDictionaryInterface(); // no, it wasn't
             }
             else
-                goToDictionaryList(); // no active dictionary
+                currentView = createChooseDictionaryInterface(); // no active dictionary
         }
-    }
 
-    /**
-     * Go to the dictionary list due to
-     * dictionary isn't selected
-     */
-    private void goToDictionaryList()
-    {
-
-        FragmentManager fragmentManager = getFragmentManager();
-
-        FragmentTransaction fragmentTransaction =
-                fragmentManager.beginTransaction();
-
-        ChooseDictionaryFragment fragment = new ChooseDictionaryFragment();
-
-        fragmentTransaction.replace( android.R.id.content, fragment );
-
-        fragmentTransaction.commit();
-
+        rootView.addView( currentView );
     }
 
     /**
      * Эта функция создает инфтерфейс и восстанавливаетс
      * состояние программы
      */
-    private void restoreState()
+    View restoreState()
     {
         // Set up the action bar.
         actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        setupActiveDict( );
-    }
-
-    /**
-     * Эта функция вызывается в том случае,
-     * если в БД нет ни одного словаря.
-     * Она сразу кидает на страницу создания словаря.
-     */
-    private void prepareClearInterface()
-    {
-        FragmentManager fragmentManager = getFragmentManager();
-
-        FragmentTransaction fragmentTransaction =
-                fragmentManager.beginTransaction();
-
-        noDictFragment = new NoDictionaryFragment();
-
-        fragmentTransaction.replace( android.R.id.content, noDictFragment );
-
-        fragmentTransaction.commit();
-
-        /* */
+        return setupActiveDict( );
     }
 
     private ArrayList<Dictionary> getDictList()
     {
         return dictionaryFactory.getList();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -219,32 +181,95 @@ public class MainActivity extends ActionBarActivity
         }
     }
 
-    private void setupActiveDict()
+    View setupActiveDict()
     {
-        try
-        {
-            getSupportActionBar().setTitle(getString(R.string.current_dict_info, activeDict.getName(), activeDict.getLang()));
+        LayoutInflater inflater = getLayoutInflater();
 
-            FragmentManager fragmentManager = getFragmentManager();
+        View view =  inflater.inflate(R.layout.active_dict_state_fragment, rootView, false );
 
-            FragmentTransaction fragmentTransaction =
-                    fragmentManager.beginTransaction();
+        // Set the active dictionary name
+        TextView text = ( TextView ) view.findViewById( R.id.dict_name );
+        text.setText( activeDict.getName() );
 
-            if( activeDictionaryStateFragment == null )
-                activeDictionaryStateFragment = ActiveDictionaryStateFragment.getInstance( activeDict );
+        // Set the word count
+        text = ( TextView ) view.findViewById( R.id.word_count);
+        text.setText( getString( R.string.words_total, activeDict.getWordCount() ) );
 
-            activeDictionaryStateFragment.setActiveDict( activeDict );
+        //Set the words-to-learn count
+        text = ( TextView ) view.findViewById( R.id.words_to_learn);
+        text.setText( getString( R.string.words_to_learn, 0 ) );
+        text.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent( MainActivity.this, ActDictionaryEntry.class);
+                if( activeDict != null )
+                    intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
+                else
+                    intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
+
+                intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WORDS_TO_STUDY );
+
+                startActivity(intent);
+            }
+        });
 
 
-            fragmentTransaction.replace( android.R.id.content, activeDictionaryStateFragment );
+        //Set the words-to-check count
+        text = ( TextView ) view.findViewById( R.id.words_to_check);
+        text.setText( getString( R.string.words_to_check, 0 ) );
+        text.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent( MainActivity.this, ActDictionaryEntry.class);
+                if( activeDict != null )
+                    intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
+                else
+                    intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
 
-            fragmentTransaction.commit();
+                intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WORDS_TO_LEARN );
 
-        }
-        catch( Exception e )
-        {
-            showAlert( e.getMessage() );
-        }
+                startActivity(intent);
+            }
+        });
+
+
+        //Set the "add words" label
+        text = ( TextView ) view.findViewById( R.id.add_words);
+        text.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent( MainActivity.this, ActDictionaryEntry.class);
+                if( activeDict != null )
+                    intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
+                else
+                    intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
+
+                intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.ADD_WORDS );
+
+                startActivity(intent);
+            }
+        });
+
+        //Set the "edit dict" label
+        text = ( TextView ) view.findViewById( R.id.edit_dict );
+
+        text.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent( MainActivity.this, ActDictionaryEntry.class);
+                if( activeDict != null )
+                    intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
+                else
+                    intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
+
+                intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WHOLE_LIST_ENTRY );
+
+                startActivity(intent);
+            }
+        });
+
+        return view;
+
     }
 
 
@@ -312,7 +337,6 @@ public class MainActivity extends ActionBarActivity
 
     View createChooseDictionaryInterface(  )
     {
-
         LayoutInflater inflater = getLayoutInflater();
 
         View view =  inflater.inflate(R.layout.choose_dicts_fragment, rootView, false );
@@ -332,8 +356,4 @@ public class MainActivity extends ActionBarActivity
         return view;
     }
 
-    View createDictionaryStateInterface(  )
-    {
-        return null;
-    }
 }
