@@ -1,6 +1,7 @@
 package org.sc.w_drill;
 
 import java.util.ArrayList;
+import java.util.zip.Inflater;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -19,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.sc.w_drill.db.WDdb;
@@ -56,11 +58,13 @@ public class MainActivity extends ActionBarActivity
     NoDictionaryFragment noDictFragment;
 
     ActiveDictionaryStateFragment activeDictionaryStateFragment;
+    LinearLayout rootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        rootView = ( LinearLayout ) findViewById( R.id.rootLayout );
 
         int activeDictID = -1;
 
@@ -290,74 +294,46 @@ public class MainActivity extends ActionBarActivity
         ed.commit();
     }
 
-    /**
-     * This fragment is used when ni one dictionary in DB
-     */
-    class NoDictionaryFragment extends Fragment
+    View createNoDictionaryInterface()
     {
-        public NoDictionaryFragment()
-        {
-
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater,
-                                 ViewGroup container, Bundle savedInstanceState) {
-
-            // Inflate the layout for this fragment
-            View view =  inflater.inflate(R.layout.no_dicts_fragment, container, false);
-            TextView text = ( TextView ) view.findViewById( R.id.msg_goto_new_dictionary );
-            text.setOnClickListener( new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent( MainActivity.this, ActNewDictionary.class);
-                    intent.putExtra( ActNewDictionary.CANCELABLE_PAR_NAME, false );
-                    startActivityForResult(intent, CODE_ActNewDictionary);
-                }
-            });
-            return view;
-        }
-
-        public void onActivityResult (int requestCode, int resultCode, Intent data)
-        {
-            MainActivity.this.onActivityResult( requestCode, resultCode, data );
-        }
+        // Inflate the layout for this fragment
+        View view =  getLayoutInflater().inflate(R.layout.no_dicts_fragment, rootView, false);
+        TextView text = ( TextView ) view.findViewById( R.id.msg_goto_new_dictionary );
+        text.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent( MainActivity.this, ActNewDictionary.class);
+                intent.putExtra( ActNewDictionary.CANCELABLE_PAR_NAME, false );
+                startActivityForResult(intent, CODE_ActNewDictionary);
+            }
+        });
+        return view;
     }
 
-    /**
-     * THis fragment is used when there are dictionaries but
-     * no one active
-     */
-    class ChooseDictionaryFragment extends Fragment
+    View createChooseDictionaryInterface(  )
     {
-        public ChooseDictionaryFragment()
-        {
 
-        }
+        LayoutInflater inflater = getLayoutInflater();
 
-        @Override
-        public View onCreateView(LayoutInflater inflater,
-                                 ViewGroup container, Bundle savedInstanceState) {
+        View view =  inflater.inflate(R.layout.choose_dicts_fragment, rootView, false );
+        TextView text = ( TextView ) view.findViewById( R.id.msg_have_to_choose_dict );
+        text.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent( MainActivity.this, ActDictionaryList.class);
+                if( activeDict != null )
+                    intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
+                else
+                    intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
+                startActivityForResult(intent, CODE_ActDictionaryList);
+            }
+        });
 
-            // Inflate the layout for this fragment
-            View view =  inflater.inflate(R.layout.choose_dicts_fragment, container, false);
-            TextView text = ( TextView ) view.findViewById( R.id.msg_have_to_choose_dict );
-            text.setOnClickListener( new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent( MainActivity.this, ActDictionaryList.class);
-                    if( activeDict != null )
-                        intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
-                    else
-                        intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
-                    startActivityForResult(intent, CODE_ActDictionaryList);
-                }
-            });
-            return view;
-        }
-        public void onActivityResult (int requestCode, int resultCode, Intent data)
-        {
-            MainActivity.this.onActivityResult( requestCode, resultCode, data );
-        }
+        return view;
+    }
+
+    View createDictionaryStateInterface(  )
+    {
+        return null;
     }
 }
