@@ -5,9 +5,6 @@ import java.util.zip.Inflater;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,10 +16,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
@@ -63,6 +58,7 @@ public class MainActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         rootView = ( LinearLayout ) findViewById( R.id.rootLayout );
 
         int activeDictID = -1;
@@ -187,6 +183,9 @@ public class MainActivity extends ActionBarActivity
 
         View view =  inflater.inflate(R.layout.active_dict_state_fragment, rootView, false );
 
+
+        DBDictionaryFactory.getInstance( database ).getAdditionalInfo( activeDict );
+
         // Set the active dictionary name
         TextView text = ( TextView ) view.findViewById( R.id.dict_name );
         text.setText( activeDict.getName() );
@@ -197,7 +196,7 @@ public class MainActivity extends ActionBarActivity
 
         //Set the words-to-learn count
         text = ( TextView ) view.findViewById( R.id.words_to_learn);
-        text.setText( getString( R.string.words_to_learn, 0 ) );
+        text.setText( getString( R.string.words_to_learn, activeDict.getWordsToLear() ) );
         text.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -213,10 +212,9 @@ public class MainActivity extends ActionBarActivity
             }
         });
 
-
         //Set the words-to-check count
         text = ( TextView ) view.findViewById( R.id.words_to_check);
-        text.setText( getString( R.string.words_to_check, 0 ) );
+        text.setText( getString( R.string.words_to_check, activeDict.getWordsToLear() ) );
         text.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -231,7 +229,6 @@ public class MainActivity extends ActionBarActivity
                 startActivity(intent);
             }
         });
-
 
         //Set the "add words" label
         text = ( TextView ) view.findViewById( R.id.add_words);
@@ -319,6 +316,11 @@ public class MainActivity extends ActionBarActivity
         ed.commit();
     }
 
+    /**
+     * It crates an interface in the case when there aren't
+     * a dictionaries in DB
+     * @return
+     */
     View createNoDictionaryInterface()
     {
         // Inflate the layout for this fragment
@@ -335,6 +337,11 @@ public class MainActivity extends ActionBarActivity
         return view;
     }
 
+    /**
+     * It crates an interface in the case when there isn't
+     * a choosen dictionary
+     * @return
+     */
     View createChooseDictionaryInterface(  )
     {
         LayoutInflater inflater = getLayoutInflater();

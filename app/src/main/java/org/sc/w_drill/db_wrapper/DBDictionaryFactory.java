@@ -9,6 +9,7 @@ import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.dict.Dictionary;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  * Created by maxsh on 30.09.2014.
@@ -44,7 +45,7 @@ public class DBDictionaryFactory
     {
         ArrayList<Dictionary> list = new ArrayList<Dictionary>();
 
-        String statement = "select d.id, d.name, d.language, count( w.dict_id ) " +
+        String statement = "select d.id, d.name, d.language, count( w.dict_id ), d.uuid " +
                 "from dictionary d left outer join words w on d.id = w.dict_id " +
                 "group by d.id " +
                 "order by name";
@@ -58,7 +59,8 @@ public class DBDictionaryFactory
             String name = crs.getString( 1 );
             String lang = crs.getString( 2 );
             int count = crs.getInt( 3 );
-            list.add(  new Dictionary( id, name, lang, count ) );
+            String uuid = crs.getString( 4 );
+            list.add(  new Dictionary( id, name, uuid, lang, count ) );
         }
         crs.close();
         db.close();
@@ -76,6 +78,9 @@ public class DBDictionaryFactory
         ContentValues cv = new ContentValues();
         cv.put( "name", name );
         cv.put( "language", language );
+        String uuid = UUID.randomUUID().toString();
+        cv.put( "uuid", uuid );
+
         db.insert( WDdb.T_DICTIONARY, null, cv );
 
         String statement = "select max( id ) from dictionary";
@@ -86,7 +91,7 @@ public class DBDictionaryFactory
         crs.close();
         db.close();
 
-        Dictionary dict = new Dictionary( id, name, language );
+        Dictionary dict = new Dictionary( id, name, uuid, language );
 
         return dict;
     }
@@ -110,7 +115,7 @@ public class DBDictionaryFactory
     }
 
      public Dictionary getDictionaryById( int id ) {
-         String statement = "select d.id, d.name, d.language, count( w.dict_id ) " +
+         String statement = "select d.id, d.name, d.language, count( w.dict_id ), d.uuid " +
                  "from dictionary d left outer join words w on d.id = w.dict_id " +
                  "where d.id = ?";
 
@@ -120,13 +125,17 @@ public class DBDictionaryFactory
          Dictionary dict = null;
 
          if( crs.moveToNext() )
-             dict = new Dictionary(id, crs.getString(1), crs.getString(2), crs.getInt(3));
+         {
+             int cnt1 = internalGetWordsTo(  db, id, 0 ); // words to learn
+             int cnt2 = internalGetWordsTo( db, id, 1 ); // words to check
+             dict = new Dictionary(id, crs.getString(1), crs.getString(4), crs.getString(2), crs.getInt(3), cnt1, cnt2 );
+         }
          else
          {
              crs.close();
              db.close();
              String message = "Dictionary with ID " + id + " not found in a database";
-             Log.e( "[DBDictionaryFactory::getDictionaryById]", message );
+             Log.e("[DBDictionaryFactory::getDictionaryById]", message);
              throw new IllegalArgumentException( message );
          }
 
@@ -143,29 +152,27 @@ public class DBDictionaryFactory
      */
     public int getWordsTo( int dict_id, int stage )
     {
-        int count = -1;
+        SQLiteDatabase db = database.getReadableDatabase();
+        int count = internalGetWordsTo(db, dict_id, stage);
+        db.close();
+        return count;
+    }
+
+    private int internalGetWordsTo( SQLiteDatabase db, int dict_id, int stage )
+    {
+        int count = 0;
         String statement = "select count( id ) " +
                 "from words " +
                 "where dict_id = ? and stage = ?";
 
-        SQLiteDatabase db = database.getReadableDatabase();
         Cursor crs = db.rawQuery(statement, new String[] { Integer.toString( dict_id ), Integer.toString( stage ) });
 
         Dictionary dict = null;
 
         if( crs.moveToNext() )
             count = crs.getInt( 0 );
-        else
-        {
-            crs.close();
-            db.close();
-            String message = "Dictionary with ID " + dict_id + " not found in a database";
-            Log.e( "[DBDictionaryFactory::getWordsToLearnCount]", message );
-            throw new IllegalArgumentException( message );
-        }
 
         crs.close();
-        db.close();
         return count;
     }
 
@@ -203,5 +210,51 @@ public class DBDictionaryFactory
     public void move_and_delete( Dictionary destDict, Dictionary sourceDict )
     {
         throw new UnsupportedOperationException( "Dictionary::move_and_delete" );
+    }
+
+    /**
+     * It gets additional information such as a count of words for learning
+     * and a count of words for check up.
+     * @param dict
+     * @return
+     */
+    public Dictionary getAdditionalInfo ( Dictionary dict )
+    {
+        SQLiteDatabase db = database.getReadableDatabase();
+        int count = internalGetWordsTo( db, dict.getId(), STAGE_LEARN );
+        dict.setWordsToLear( count );
+        count = internalGetWordsTo( db, dict.getId(), STAGE_CHECK );
+        dict.setWordsToCheck(count);
+        db.close();
+        return dict;
+    }
+
+    public float getLearningEstimation(Dictionary dict )
+    {
+        String statement = "select count(*) from words where dict_id = ?";
+
+        SQLiteDatabase db = database.getReadableDatabase();
+
+        Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( dict.getId()).toString() } );
+
+        crs.moveToNext();
+
+        int count = crs.getInt( 0 );
+
+        crs.close();
+
+        statement = "select sum(*) from words where dict_id = ? and percent != 0";
+
+        crs = db.rawQuery( statement, new String[]{ Integer.valueOf( dict.getId()).toString() } );
+
+        crs.moveToNext();
+
+        int percent_count = crs.getInt( 0 );
+
+        crs.close();
+
+        float result = ((float) percent_count ) / count;
+
+        return 0;
     }
 }

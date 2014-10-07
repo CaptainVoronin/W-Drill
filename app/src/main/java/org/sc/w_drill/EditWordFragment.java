@@ -1,6 +1,8 @@
 package org.sc.w_drill;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,6 +20,7 @@ import org.sc.w_drill.dict.BaseWord;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.dict.Word;
+import org.sc.w_drill.dict.WordChecker;
 
 import java.util.Locale;
 
@@ -136,11 +139,27 @@ public class EditWordFragment extends Fragment
     private void saveWord()
     {
         int id;
+
+        if( !WordChecker.isCorrect( DBWordFactory.getInstance(database, activeDict), activeWord.getWord() ) )
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+
+            builder.setMessage( R.string.incorrect_word).setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+            {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User cancelled the dialog
+                }
+            }).setCancelable( true ).create().show();
+
+            return;
+        }
+
         if( ( id = activeWord.getId() ) != -1 ) {
             DBWordFactory.getInstance(database, activeDict).updateWord(activeWord);
         }
         else
         {
+            // TODO: There might be an exception. need to caught it
             id = DBWordFactory.getInstance(database, activeDict).insertWord(activeWord);
             activeWord.setId( id );
         }

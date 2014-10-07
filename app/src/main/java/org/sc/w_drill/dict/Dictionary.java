@@ -8,22 +8,38 @@ public class Dictionary {
     private int id;
     private String name;
     int word_count;
+    int words_to_learn;
+    int words_to_check;
     private String lang;
+    String uuid;
 
-    public Dictionary( int _id, String _name, String _lang, int _word_count )
+    public Dictionary( int _id, String _name, String _uuid, String _lang, int _word_count )
     {
         id = _id;
         name = _name;
         lang = _lang;
         word_count = _word_count;
+        uuid = _uuid;
     }
 
-    public Dictionary( int _id, String _name, String _lang )
+    public Dictionary( int _id, String _name, String _uuid, String _lang, int _word_count, int _words_to_learn, int _words_to_check )
+    {
+        id = _id;
+        name = _name;
+        lang = _lang;
+        word_count = _word_count;
+        words_to_learn = _words_to_learn;
+        words_to_check = _words_to_check;
+        uuid = _uuid;
+    }
+
+    public Dictionary( int _id, String _name, String _uuid, String _lang )
     {
         id = _id;
         name = _name;
         lang = _lang;
         word_count = 0;
+        uuid = _uuid;
     }
 
     @Override
@@ -40,6 +56,11 @@ public class Dictionary {
         return ((d.getId() == id ) && ( (d.getName().equalsIgnoreCase( name ))));
     }
 
+    public String getUUID()
+    {
+        return uuid;
+    }
+
     public int getId() {
         return id;
     }
@@ -54,5 +75,25 @@ public class Dictionary {
 
     public int getWordCount() {
         return word_count;
+    }
+
+    public int getWordsToLear( )
+    {
+        return words_to_learn;
+    }
+
+    public int getWordsToCheck()
+    {
+        return words_to_check;
+    }
+
+    public void setWordsToLear( int val )
+    {
+        words_to_learn = val;
+    }
+
+    public void setWordsToCheck( int val )
+    {
+        words_to_check = val;
     }
 }

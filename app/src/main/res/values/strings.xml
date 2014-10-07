@@ -37,6 +37,7 @@
     <string name="the_word">Слово</string>
     <string name="transcription">Транскрипция</string>
     <string name="edit_dict">Редактировать словарь</string>
+    <string name="incorrect_word">Такое слово не может быть использовано</string>
 
 
 </resources>

@@ -13,6 +13,7 @@ import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.dict.Word;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  * Created by maxsh on 30.09.2014.
@@ -80,6 +81,7 @@ public class DBWordFactory
         ContentValues cv = new ContentValues();
         cv.put( "word", word.getWord() );
         cv.put( "dict_id", dict.getId() );
+        cv.put( "uuid", UUID.randomUUID().toString() );
         db.insert( WDdb.T_WORDS, null, cv );
 
         String statement = "select max( id ) from words";
@@ -111,6 +113,8 @@ public class DBWordFactory
         {
             word = new Word( crs.getInt( 0 ), crs.getString( 1 ) );
         }
+        crs.close();
+        db.close();
         return word;
     }
 
@@ -130,5 +134,19 @@ public class DBWordFactory
 
         db.setTransactionSuccessful();
         db.endTransaction();
+        db.close();
+    }
+
+    public boolean findWord(String word)
+    {
+        boolean result = false;
+        String statement = "select 1 from words where dict_id = ? and word = ?";
+        SQLiteDatabase db = database.getReadableDatabase();
+
+        Cursor crs = db.rawQuery( statement, new String[] { Integer.valueOf( dict.getId() ).toString(), word  } );
+        result = crs.getCount() != 0;
+        crs.close();
+        db.close();
+        return result;
     }
 }
