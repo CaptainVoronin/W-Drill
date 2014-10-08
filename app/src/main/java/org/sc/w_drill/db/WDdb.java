@@ -9,12 +9,12 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class WDdb extends SQLiteOpenHelper
 {
-    public final static int SCHEME_VERSION = 7;
+    public final static int SCHEME_VERSION = 9;
 
     public final static String T_DICTIONARY = "dictionary";
     public final static String T_WORDS = "words";
     public final static String T_MEANINGS = "meanings";
-    public final static String T_EXAMPLE = "example";
+    public final static String T_EXAMPLE = "examples";
 
     final static String CREATE_DICTIONARY = "CREATE TABLE dictionary( id INTEGER PRIMARY KEY autoincrement, " +
             "uuid TEXT NOT NULL UNIQUE, " +
@@ -26,6 +26,7 @@ public class WDdb extends SQLiteOpenHelper
             "dict_id INTEGER NOT NULL, " +
             "uuid TEXT NOT NULL UNIQUE, " +
             "word TEXT NOT NULL UNIQUE, " +
+            "transcription TEXT, " +
             "stage INTEGER NOT NULL DEFAULT 0, " +
             " percent INTEGER NOT NULL DEFAULT 0," +
             " created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
@@ -49,9 +50,9 @@ public class WDdb extends SQLiteOpenHelper
 
     final static String CREATE_EXAMPLES ="CREATE TABLE " +
             "examples ( id INTEGER PRIMARY KEY autoincrement," +
-            "word_id INTEGER NOT NULL," +
+            "meaning_id INTEGER NOT NULL," +
             "example TEXT NOT NULL," +
-            "FOREIGN KEY ( word_id ) REFERENCES words ( id ) ON DELETE CASCADE );";
+            "FOREIGN KEY ( meaning_id ) REFERENCES meanings ( id ) ON DELETE CASCADE );";
 
 
     final static String DB_NAME = "wd.db";
@@ -81,6 +82,8 @@ public class WDdb extends SQLiteOpenHelper
         if( !needUpdate( oldVersion, newVersion ) )
             return;
 
+        db.execSQL("DROP TABLE IF EXISTS examples");
+        db.execSQL("DROP TABLE IF EXISTS meanings");
         db.execSQL("DROP TABLE IF EXISTS words");
         db.execSQL("DROP TABLE IF EXISTS dictionary");
         onCreate(db);

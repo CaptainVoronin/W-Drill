@@ -3,6 +3,7 @@ package org.sc.w_drill.db_wrapper;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.util.Log;
 
 import org.sc.w_drill.db.WDdb;
@@ -11,10 +12,11 @@ import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IBaseWord;
 import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
+import org.sc.w_drill.dict.Meaning;
 import org.sc.w_drill.dict.Word;
 import org.sc.w_drill.utils.DBPair;
 
-import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -91,10 +93,10 @@ public class DBWordFactory
             cv.put("word", word.getWord());
             cv.put("dict_id", dict.getId());
             cv.put("uuid", UUID.randomUUID().toString());
-            cv.put("transcription", word.transcription());
+            cv.put("transcription", word.getTranscription());
 
             db.beginTransaction();
-            db.insert(WDdb.T_WORDS, null, cv);
+            db.insertOrThrow(WDdb.T_WORDS, null, cv);
 
             String statement = "select max( id ) from words";
             Cursor crs = db.rawQuery(statement, null);
@@ -114,20 +116,25 @@ public class DBWordFactory
                     cv.put("word_id", Integer.valueOf(id).toString());
                     cv.put("meaning", m.meaning());
                     // TODO: Values: isFormal, etc aren't inserted
-                    db.insert(WDdb.T_MEANINGS, null, cv);
+                    db.insertOrThrow(WDdb.T_MEANINGS, null, cv);
+
+                    Cursor c = db.rawQuery( "select max ( id ) from words ", null );
+
+                    c.moveToNext();
+                    int meaning_id = c.getInt( 0 );
 
                     // insert examples
                     if( m.examples() != null )
                         for (DBPair example : m.examples())
                         {
                             cv.clear();
-                            cv.put("word_id", id);
+                            cv.put("meaning_id", meaning_id);
                             cv.put("example", example.getValue());
-                            db.insert(WDdb.T_EXAMPLE, null, cv);
+                            db.insertOrThrow(WDdb.T_EXAMPLE, null, cv);
                         }
                 }
             db.setTransactionSuccessful();
-        }catch ( Exception ex )
+        }catch ( SQLiteException ex )
         {
             Log.e( "[DBWordFactory::insertWord]", "Exception: " + ex.getMessage() );
             e = ex;
@@ -154,8 +161,16 @@ public class DBWordFactory
 
     public IWord getWord(int wordId)
     {
-        String statement = "select id, word, percent, stage from words where id = ?";
+
         SQLiteDatabase db = database.getReadableDatabase();
+        IWord word = internalGetWordBrief( db, wordId );
+        db.close();
+        return word;
+    }
+
+    private IWord internalGetWordBrief(SQLiteDatabase db, int wordId)
+    {
+        String statement = "select id, word, percent, stage from words where id = ?";
 
         Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( wordId ).toString()});
         ArrayList<BaseWord> words = new ArrayList<BaseWord>();
@@ -166,7 +181,35 @@ public class DBWordFactory
             word = new Word( crs.getInt( 0 ), crs.getString( 1 ) );
         }
         crs.close();
+        return word;
+    }
+
+    public IWord getWodEx( int wordId ) {
+        SQLiteDatabase db = database.getReadableDatabase();
+        IWord word = internalGetWordBrief(db, wordId );
+
+        String statement = "select id, meaning, is_formal, is_disapproving, is_rude from meanings where word_id = ?";
+        String examples = "select id, example from examples where meaning_id = ?";
+
+        Cursor crs = db.rawQuery(statement, new String[]{Integer.valueOf( wordId ).toString()});
+
+        if (crs.getCount() != 0) {
+            while (crs.moveToNext()) {
+                IMeaning m = new Meaning(crs.getInt(0), crs.getString(1));
+                word.meanings().add(m);
+                Cursor crs1 = db.rawQuery(examples, new String[]{Integer.valueOf(m.getId()).toString()});
+                if (crs.getCount() != 0) {
+                    while (crs1.moveToNext()) {
+                        DBPair pair = new DBPair(crs1.getInt(0), crs1.getString(1));
+                        m.examples().add(pair);
+                    }
+                    crs1.close();
+                }
+            }
+            crs.close();
+        }
         db.close();
+
         return word;
     }
 

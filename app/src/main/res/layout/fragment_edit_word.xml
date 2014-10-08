@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="text"
                 android:layout_weight="0.3"
-                android:id="@+id/transcription"/>
+                android:id="@+id/ed_transcription"/>
         </LinearLayout>
 
             <LinearLayout
@@ -54,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="textMultiLine"
                     android:ems="10"
-                    android:id="@+id/edMeaning"
+                    android:id="@+id/ed_meaning"
                     android:lines="2"/>
                 <TextView
                     android:layout_width="wrap_content"
@@ -65,7 +65,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="textMultiLine"
                     android:ems="10"
-                    android:id="@+id/edSample"
+                    android:id="@+id/ed_example"
                     android:lines="2"/>
             </LinearLayout>
 

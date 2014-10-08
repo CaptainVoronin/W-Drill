@@ -22,6 +22,12 @@ public class Meaning implements IMeaning
         meaning = _meaning;
     }
 
+    public Meaning( String _meaning  )
+    {
+        id = -1;
+        meaning = _meaning;
+    }
+
     public int getId()
     {
         return id;
@@ -54,20 +60,30 @@ public class Meaning implements IMeaning
     @Override
     public ArrayList<DBPair> examples()
     {
-        return examples;
+        return getExamples();
     }
 
     public void addExample( DBPair example )
     {
-        if( examples == null )
-            examples = new ArrayList<DBPair>();
-        examples.add( example );
+        getExamples().add( example );
     }
 
     public void addExample( int id, String value )
     {
+        getExamples().add( new DBPair( id, value ) );
+    }
+
+    public void addExample( String value )
+    {
+        addExample( -1, value );
+    }
+
+    private final ArrayList<DBPair> getExamples()
+    {
         if( examples == null )
             examples = new ArrayList<DBPair>();
-        examples.add( new DBPair( id, value ) );
+        return examples;
     }
+
+
 }

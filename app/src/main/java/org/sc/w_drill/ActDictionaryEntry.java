@@ -251,9 +251,9 @@ public class ActDictionaryEntry
             else
             {
                 if( learnWordsFragment == null )
-                    learnWordsFragment = new LearnWordsFragment();
+                    learnWordsFragment = LearnWordsFragment.newInstance(  activeDictionary.getId() );
                 Log.d("[ActDictionaryEntry]", "Get LearnWordsFragment instance");
-                learnWordsFragment.setLearnParams( activeDictionary, IBaseWord.LearnState.learn);
+                //learnWordsFragment.setLearnParams( activeDictionary, IBaseWord.LearnState.learn);
                 return ( Fragment ) learnWordsFragment;
             }
         }

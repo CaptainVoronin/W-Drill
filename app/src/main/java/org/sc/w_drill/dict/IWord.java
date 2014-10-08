@@ -8,5 +8,6 @@ import java.util.ArrayList;
 public interface IWord extends IBaseWord
 {
     public ArrayList<IMeaning> meanings();
-    public String transcription();
+    public String getTranscription();
+    public void   setTranscription( String value );
 }

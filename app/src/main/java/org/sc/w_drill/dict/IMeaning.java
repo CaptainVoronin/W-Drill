@@ -15,4 +15,5 @@ public interface IMeaning
     public boolean isDisapproving();
     public boolean isRude();
     public ArrayList<DBPair> examples();
+    public int getId();
 }

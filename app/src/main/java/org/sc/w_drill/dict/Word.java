@@ -29,21 +29,24 @@ public class Word implements IWord
     @Override
     public ArrayList<IMeaning> meanings()
     {
-        return meanings;
+        return getMeanings();
     }
 
     public void addMeaning( IMeaning meaning )
     {
-        if( meanings == null )
-            meanings = new ArrayList<IMeaning>();
-
-        meanings.add( meaning );
+        getMeanings().add( meaning );
     }
 
     @Override
-    public String transcription()
+    public String getTranscription()
     {
         return transcription;
+    }
+
+    @Override
+    public void setTranscription(String value)
+    {
+        transcription = value;
     }
 
     @Override
@@ -94,6 +97,14 @@ public class Word implements IWord
     public static Word getDummy()
     {
         return new Word( -1, "" );
+    }
+
+    private final ArrayList<IMeaning> getMeanings()
+    {
+        if( meanings == null )
+            meanings = new ArrayList<IMeaning>();
+
+        return meanings;
     }
 
 }

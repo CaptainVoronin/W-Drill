@@ -5,10 +5,53 @@
     tools:context="org.sc.w_drill.LearnWordsFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
-        style="@style/LargeTitleStyle"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Learn words, bitch!" />
+        android:layout_height="wrap_content"
+        android:layout_margin="8pt"
+        android:orientation="vertical">
+        <TextView
+            style="@style/LargeTitleStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="Learn words, \nbitch!"
+            android:id="@+id/word"
+            android:background="@drawable/rounded_rect"
+            />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:paddingTop="8pt">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dont_know"
+                android:id="@+id/dont_know"
+                android:layout_weight="0.5"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:id="@+id/i_know"
+                android:text="@string/i_know"/>
+        </LinearLayout>
+
+        <TextView
+            style="@style/LargeTitleStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="[...]"
+            android:layout_marginTop="16pt"
+            android:paddingTop="8pt"
+            android:paddingBottom="8pt"
+            android:id="@+id/meaning"
+            android:background="@drawable/rounded_rect"
+            />
+
+    </LinearLayout>
 
 </FrameLayout>

@@ -18,9 +18,12 @@ import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.dict.BaseWord;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
+import org.sc.w_drill.dict.Meaning;
 import org.sc.w_drill.dict.Word;
 import org.sc.w_drill.dict.WordChecker;
+import org.sc.w_drill.utils.DBPair;
 
 import java.util.Locale;
 
@@ -45,6 +48,7 @@ public class EditWordFragment extends Fragment
     private OnFragmentInteractionListener mListener;
     private boolean isVisible;
     private boolean needBringWord;
+    View rootView;
 
     public static EditWordFragment newInstance(  )
     {
@@ -61,30 +65,6 @@ public class EditWordFragment extends Fragment
         super.onCreate(savedInstanceState);
 
         database = new WDdb( getActivity().getApplicationContext() );
-
-        /*int dictId;
-        int wordId;
-        if (getArguments() != null)
-        {
-            dictId = getArguments().getInt(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME);
-            wordId = getArguments().getInt(DBWordFactory.WORD_ID_VALUE_NAME);
-
-
-
-            activeDict = DBDictionaryFactory.getInstance( database ).getDictionaryById( dictId );
-
-            if( wordId != -1 )
-            {
-                activeWord = DBWordFactory.getInstance( database, activeDict  ).getWord( wordId );
-                bringWordToScreen();
-            }
-            else
-                prepareForNewWord();
-        }
-        else
-        {
-            fatalError();
-        } */
     }
 
     private void prepareForNewWord()
@@ -95,6 +75,23 @@ public class EditWordFragment extends Fragment
     public void bringWordToScreen()
     {
         edWord.setText(activeWord.getWord());
+        ((EditText) rootView.findViewById(R.id.ed_transcription)).setText(activeWord.getTranscription());
+
+        if( activeWord.meanings().size() != 0 )
+            for( IMeaning m : activeWord.meanings() )
+            {
+                ((EditText) rootView.findViewById(R.id.ed_meaning)).setText(m.meaning());
+                if( m.examples().size() != 0 )
+                    for(DBPair p : m.examples() )
+                        ((EditText) rootView.findViewById(R.id.ed_example)).setText( p.getValue() );
+                else
+                    ((EditText) rootView.findViewById(R.id.ed_example)).setText( "" );
+            }
+        else {
+            ((EditText) rootView.findViewById(R.id.ed_meaning)).setText("");
+            ((EditText) rootView.findViewById(R.id.ed_example)).setText( "" );
+        }
+
         needBringWord = false;
     }
 
@@ -107,8 +104,8 @@ public class EditWordFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_edit_word, container, false);
-        Button btnOk = ( Button ) view.findViewById( R.id.btnOk );
+        rootView = inflater.inflate(R.layout.fragment_edit_word, container, false);
+        Button btnOk = ( Button ) rootView.findViewById( R.id.btnOk );
         btnOk.setOnClickListener(  new View.OnClickListener()
         {
             @Override
@@ -117,8 +114,8 @@ public class EditWordFragment extends Fragment
                 startSaveWord();
             }
         });
-        edWord = ( EditText ) view.findViewById( R.id.the_word );
-        return view;
+        edWord = ( EditText ) rootView.findViewById( R.id.the_word );
+        return rootView;
     }
 
     private void startSaveWord()
@@ -126,12 +123,26 @@ public class EditWordFragment extends Fragment
         /**
          * Gather information
          */
-        String word = String.valueOf(edWord.getText());
+        String word = String.valueOf(edWord.getText()).trim();
+
         // It's a dummy, obviously
         if( activeWord == null )
             activeWord = new Word( word );
         else
             activeWord.setWord( word );
+
+        String strMeaning = (( EditText )rootView.findViewById( R.id.ed_meaning )).getText().toString();
+
+        Meaning meaning = new Meaning( strMeaning.trim() );
+
+        String transc = (( EditText )rootView.findViewById( R.id.ed_transcription )).getText().toString().trim();
+
+        activeWord.setTranscription( transc  );
+
+        String example = (( EditText )rootView.findViewById( R.id.ed_example )).getText().toString();
+
+        meaning.addExample( example.trim() );
+        activeWord.meanings().add( meaning );
 
         saveWord();
     }
@@ -140,7 +151,7 @@ public class EditWordFragment extends Fragment
     {
         int id;
 
-        if( !WordChecker.isCorrect( DBWordFactory.getInstance(database, activeDict), activeWord.getWord() ) )
+        if( !WordChecker.isCorrect( DBWordFactory.getInstance(database, activeDict), activeWord ) )
         {
             AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
 
@@ -166,7 +177,7 @@ public class EditWordFragment extends Fragment
             }
             catch (Exception e)
             {
-                // TODO: It must be a correct exception habdler.
+                // TODO: It must be a correct exception handler.
                 e.printStackTrace();
             }
         }
@@ -234,7 +245,7 @@ public class EditWordFragment extends Fragment
 
     public void setActiveWord( int wordId )
     {
-        activeWord = DBWordFactory.getInstance( database, activeDict  ).getWord( wordId );
+        activeWord = DBWordFactory.getInstance( database, activeDict  ).getWodEx( wordId );
         needBringWord = true;
     }
 
