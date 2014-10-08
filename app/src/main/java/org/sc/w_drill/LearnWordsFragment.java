@@ -1,6 +1,8 @@
 package org.sc.w_drill;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -28,7 +30,12 @@ public class LearnWordsFragment extends Fragment
     public static final int CHECK_WORDS_WORDS_FROM_SET = 1;
     public static final int CHECK_WORDS_WORDS_FROM_DICT = 2; */
     public static final String LEARN_KIND = "LEARN_KIND";
-
+    /**
+     * It's the learning mode indicator.
+     * 0 - indicates that there are a limited set of words.
+     * 1 - check a whole entire if a dictionary.
+     */
+    public static final int LearnMode = 0;
 
     Dictionary activeDict;
     IBaseWord.LearnState learnStage;
@@ -144,7 +151,7 @@ public class LearnWordsFragment extends Fragment
             }
             else
             {
-                // TODO: Here is the place to call procedure "learn all words in a dictionary"
+                showWhatToToDialog();
             }
         } else {
             showMeaning();
@@ -154,6 +161,27 @@ public class LearnWordsFragment extends Fragment
                 btnIDontKnow.setText( getActivity().getApplicationContext().getString( R.string.go_next));
             confirmed = true;
         }
+    }
+
+    private void showWhatToToDialog()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+        builder.setMessage( R.string.no_more_words ).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        }).setPositiveButton( android.R.string.ok, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
+
+            }
+        });
+
+        builder.setCancelable(true);
+        builder.create();
+        builder.show();
     }
 
     @Override
