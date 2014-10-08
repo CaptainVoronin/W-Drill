@@ -29,13 +29,13 @@ public class LearnWordsFragment extends Fragment
     /*public static final int LEARN_WORDS = 0;
     public static final int CHECK_WORDS_WORDS_FROM_SET = 1;
     public static final int CHECK_WORDS_WORDS_FROM_DICT = 2; */
-    public static final String LEARN_KIND = "LEARN_KIND";
+    //public static final String LEARN_KIND = "LEARN_KIND";
     /**
      * It's the learning mode indicator.
      * 0 - indicates that there are a limited set of words.
      * 1 - check a whole entire if a dictionary.
      */
-    public static final int LearnMode = 0;
+    //public static final int LearnMode = 0;
 
     Dictionary activeDict;
     IBaseWord.LearnState learnStage;
@@ -95,16 +95,20 @@ public class LearnWordsFragment extends Fragment
         });
 
         getWordsSet();
-        IWord word = getNextWord();
-        if( word != null )
-            bringWordToScreen( word );
+        if( words != null )
+        {
+            IWord word = getNextWord();
+            if( word != null )
+                bringWordToScreen( word );
+        }
         return view;
     }
 
     private void getWordsSet()
     {
+        words = DBWordFactory.getInstance( database, dict ).getWordsToLearn();
         //DBWordFactory.getInstance( database, dict );
-        IWord word;
+     /*   IWord word;
         words = new ArrayList<IWord>();
 
         word = new Word( "buba" );
@@ -129,7 +133,7 @@ public class LearnWordsFragment extends Fragment
 
         word = new Word( "paltry" );
         word.meanings().add( new Meaning( "мелкий (переносн.), незначительный" ));
-        words.add( word );
+        words.add( word ); */
     }
 
     private void processButtonPush( boolean success )

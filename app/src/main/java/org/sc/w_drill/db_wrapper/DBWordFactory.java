@@ -161,7 +161,6 @@ public class DBWordFactory
 
     public IWord getWord(int wordId)
     {
-
         SQLiteDatabase db = database.getReadableDatabase();
         IWord word = internalGetWordBrief( db, wordId );
         db.close();
@@ -184,8 +183,8 @@ public class DBWordFactory
         return word;
     }
 
-    public IWord getWodEx( int wordId ) {
-        SQLiteDatabase db = database.getReadableDatabase();
+    private IWord internalGetWodEx( SQLiteDatabase db, int wordId )
+    {
         IWord word = internalGetWordBrief(db, wordId );
 
         String statement = "select id, meaning, is_formal, is_disapproving, is_rude from meanings where word_id = ?";
@@ -208,9 +207,41 @@ public class DBWordFactory
             }
             crs.close();
         }
-        db.close();
-
         return word;
+    }
+
+    public IWord getWodEx( int wordId ) {
+        SQLiteDatabase db = database.getReadableDatabase();
+        IWord word = internalGetWodEx( db, wordId );
+        db.close();
+        return word;
+    }
+
+    public ArrayList<IWord> getWordsToLearn()
+    {
+        ArrayList<Integer> ids = new ArrayList<Integer>();
+
+        SQLiteDatabase db = database.getReadableDatabase();
+        String statement = "select id from words where stage = 0 and dict_id = ?";
+        Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( dict.getId() ).toString()} );
+        while( crs.moveToNext() )
+        {
+            ids.add( crs.getInt( 0 ));
+        }
+        crs.close();
+
+        if( ids.size() == 0 )
+            return null;
+
+        ArrayList<IWord> words = new ArrayList<IWord>();
+
+        for( Integer id : ids )
+        {
+            IWord word = internalGetWodEx( db, id.intValue() );
+            words.add( word );
+        }
+        db.close();
+        return words;
     }
 
     public void deleteWords(ArrayList<Integer> selectedWords)
@@ -243,5 +274,16 @@ public class DBWordFactory
         crs.close();
         db.close();
         return result;
+    }
+
+    public void updatePercent( int wordId, int percent )
+    {
+        SQLiteDatabase db = database.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put( "percent", percent );
+
+        db.update( WDdb.T_WORDS, cv, "id = ?", new String [] {Integer.valueOf( wordId ).toString() } );
+
+        db.close();
     }
 }
