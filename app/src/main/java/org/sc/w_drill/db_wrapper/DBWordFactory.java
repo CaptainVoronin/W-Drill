@@ -15,8 +15,6 @@ import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.dict.Meaning;
 import org.sc.w_drill.dict.Word;
 import org.sc.w_drill.utils.DBPair;
-
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -222,7 +220,7 @@ public class DBWordFactory
         ArrayList<Integer> ids = new ArrayList<Integer>();
 
         SQLiteDatabase db = database.getReadableDatabase();
-        String statement = "select id from words where stage = 0 and dict_id = ?";
+        String statement = "select id from words where stage = 0 and dict_id = ? limit 10";
         Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( dict.getId() ).toString()} );
         while( crs.moveToNext() )
         {
@@ -285,5 +283,32 @@ public class DBWordFactory
         db.update( WDdb.T_WORDS, cv, "id = ?", new String [] {Integer.valueOf( wordId ).toString() } );
 
         db.close();
+    }
+
+    public void technicalInsert( SQLiteDatabase db, int dictId, String word, String meaning, String example )
+    {
+        ContentValues cv = new ContentValues();
+        cv.put("word", word);
+        cv.put("dict_id", dictId );
+        cv.put("uuid", UUID.randomUUID().toString());
+
+        int id = (int) db.insertOrThrow( WDdb.T_WORDS, null, cv);
+
+/*        String statement = "select max( id ) from words";
+        Cursor crs = db.rawQuery(statement, null);
+        crs.moveToNext();
+        int id = crs.getInt(0);
+        crs.close(); */
+
+        cv.clear();
+
+        cv.put("word_id", Integer.valueOf(id).toString());
+        cv.put("meaning", meaning);
+        id = (int) db.insertOrThrow(WDdb.T_MEANINGS, null, cv);
+
+        cv.clear();
+        cv.put("meaning_id", id);
+        cv.put("example", example);
+        db.insertOrThrow(WDdb.T_EXAMPLE, null, cv);
     }
 }

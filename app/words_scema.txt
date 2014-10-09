@@ -1,0 +1,32 @@
+CREATE TABLE words (
+_id integer primary key autoincrement,
+word text,
+desc text,
+translate text,
+reads integer not null default 0,
+rating integer not null default 0,
+collection_id integer not null default 0,
+is_session integer not null default 0,
+learned_time unsigned integer not null default 0,
+real_id,
+up datetime unsigned integer not null default 0,
+info text, is_delete unsigned integer not null default 0
+);
+
+
+CREATE TABLE words_collections (
+_id integer primary key autoincrement,
+collection text,
+language_id integer not null default 0,
+show_transcription integer not null default 0,
+author_name text,
+author_email text,
+author_homepage text,
+words_count integer not null default 0,
+real_id text,
+is_defined integer not null default 0,
+up datetime unsigned integer not null default 0,
+is_delete integer not null default0,
+last_look_time unsigned integer not null default 0,
+source_language_id unsigned integer not null default 6
+);

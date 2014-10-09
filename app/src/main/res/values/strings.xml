@@ -44,6 +44,6 @@
     <string name="i_know">Знаю.</string>
     <string name="go_next">Дальше</string>
     <string name="no_more_words">Слова для запоминания закончились. Перейти к проверке произвольных слов из словаря?</string>
-
+    <string name="title_activity_export_wirds">ExportWirdsActivity</string>
 
 </resources>

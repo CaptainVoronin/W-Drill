@@ -6,6 +6,14 @@
         android:title="@string/action_dict_list"
         android:orderInCategory="100"
         app:showAsAction="never" />
+    <item android:id="@+id/action_export"
+        android:title="Экспорт"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_import"
+        android:title="Импорт"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"

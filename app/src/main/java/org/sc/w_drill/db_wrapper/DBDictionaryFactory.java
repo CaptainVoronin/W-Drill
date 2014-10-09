@@ -81,7 +81,7 @@ public class DBDictionaryFactory
         String uuid = UUID.randomUUID().toString();
         cv.put( "uuid", uuid );
 
-        db.insert( WDdb.T_DICTIONARY, null, cv );
+        db.insertOrThrow(WDdb.T_DICTIONARY, null, cv);
 
         String statement = "select max( id ) from dictionary";
         Cursor crs = db.rawQuery( statement, null );
@@ -90,6 +90,37 @@ public class DBDictionaryFactory
         int id = crs.getInt( 0 );
         crs.close();
         db.close();
+
+        Dictionary dict = new Dictionary( id, name, uuid, language );
+
+        return dict;
+    }
+
+    /**
+     * this is special version for bulk operations
+     * It doesn't close database, so it is useful in transactions
+     * @param name
+     * @param language
+     * @param db
+     * @return
+     * @throws android.database.sqlite.SQLiteException
+     */
+    public Dictionary createNewSpec( String name, String language, SQLiteDatabase db ) throws android.database.sqlite.SQLiteException
+    {
+        ContentValues cv = new ContentValues();
+        cv.put( "name", name );
+        cv.put( "language", language );
+        String uuid = UUID.randomUUID().toString();
+        cv.put( "uuid", uuid );
+
+        int id = (int) db.insertOrThrow( WDdb.T_DICTIONARY, null, cv );
+
+        /*String statement = "select max( id ) from dictionary";
+        Cursor crs = db.rawQuery( statement, null );
+
+        crs.moveToNext();
+        int id = crs.getInt( 0 );
+        crs.close(); */
 
         Dictionary dict = new Dictionary( id, name, uuid, language );
 
