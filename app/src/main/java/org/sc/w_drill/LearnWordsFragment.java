@@ -107,33 +107,7 @@ public class LearnWordsFragment extends Fragment
     private void getWordsSet()
     {
         words = DBWordFactory.getInstance( database, dict ).getWordsToLearn();
-        //DBWordFactory.getInstance( database, dict );
-     /*   IWord word;
-        words = new ArrayList<IWord>();
 
-        word = new Word( "buba" );
-        word.meanings().add( new Meaning( "Буба это буба " ));
-        words.add( word );
-
-        word = new Word( "astonishment" );
-        word.meanings().add( new Meaning( "удивление" ));
-        words.add( word );
-
-        word = new Word( "accomplishment" );
-        word.meanings().add( new Meaning( "Завершение, успешное окончание" ));
-        words.add(  word  );
-
-        word = new Word( "decent" );
-        word.meanings().add( new Meaning( "достойный, пристойный" ));
-        words.add( word );
-
-        word = new Word( "pelt" );
-        word.meanings().add( new Meaning( "шкура, мех " ));
-        words.add( word );
-
-        word = new Word( "paltry" );
-        word.meanings().add( new Meaning( "мелкий (переносн.), незначительный" ));
-        words.add( word ); */
     }
 
     private void processButtonPush( boolean success )
@@ -142,11 +116,29 @@ public class LearnWordsFragment extends Fragment
             IWord word = getNextWord();
             if (word != null)
             {
+                int percent = activeWord.getLearnPercent();;
                 if( success )
+                {
                     Log.d("[LearnWordsFragment::fail]", "increase word's percents");
-                else
-                    Log.d("[LearnWordsFragment::fail]", "decrease word's percents");
 
+                    if( percent + 20 > 100 )
+                        percent = 100;
+                    else
+                        percent += 20;
+                }
+                else
+                {
+                    if( percent - 20 > 0 )
+                        percent = 0;
+                    else
+                        percent -= 20;
+
+                    Log.d("[LearnWordsFragment::fail]", "decrease word's percents");
+                }
+
+                activeWord.setLearnPercent( percent );
+                DBWordFactory.getInstance( database, dict )
+                        .updatePercent( activeWord.getId(), activeWord.getLearnPercent() );
                 btnIKnow.setText( getActivity().getApplicationContext().getString( R.string.i_know));
                 btnIDontKnow.setText( getActivity().getApplicationContext().getString( R.string.dont_know));
 

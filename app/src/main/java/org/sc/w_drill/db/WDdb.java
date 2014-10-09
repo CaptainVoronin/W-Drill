@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class WDdb extends SQLiteOpenHelper
 {
-    public final static int SCHEME_VERSION = 9;
+    public final static int SCHEME_VERSION = 10;
 
     public final static String T_DICTIONARY = "dictionary";
     public final static String T_WORDS = "words";
@@ -28,9 +28,10 @@ public class WDdb extends SQLiteOpenHelper
             "word TEXT NOT NULL UNIQUE, " +
             "transcription TEXT, " +
             "stage INTEGER NOT NULL DEFAULT 0, " +
-            " percent INTEGER NOT NULL DEFAULT 0," +
-            " created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
-            " updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
+            "percent INTEGER NOT NULL DEFAULT 0," +
+            "created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
+            "updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
+            "last_access TIMESTAMP," +
             "FOREIGN KEY(dict_id) REFERENCES dictionary( id ) ON DELETE CASCADE );";
 
     final static String CREATE_WORDS_UPDATE_TRIGGER = "CREATE TRIGGER au_words AFTER UPDATE ON words " +

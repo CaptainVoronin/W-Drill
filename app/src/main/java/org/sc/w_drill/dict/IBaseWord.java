@@ -10,7 +10,8 @@ public interface IBaseWord
     public int getId();
     public void setId( int id );
     public String getWord();
-    public int LearnPercent();
+    public int getLearnPercent();
+    public void setLearnPercent( int percent );
     public LearnState getLearnState();
     public void setLearnState( LearnState state );
 

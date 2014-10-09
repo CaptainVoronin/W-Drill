@@ -72,7 +72,7 @@ public class Word implements IWord
     }
 
     @Override
-    public int LearnPercent()
+    public int getLearnPercent()
     {
         return 0;
     }

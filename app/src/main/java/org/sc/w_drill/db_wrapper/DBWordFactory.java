@@ -278,9 +278,21 @@ public class DBWordFactory
     {
         SQLiteDatabase db = database.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put( "percent", percent );
+
+        if( percent == 100 )
+        {
+            cv.put( "percent", 0 );
+            cv.put( "stage",   1 );
+        }
+        else
+        {
+            cv.put( "percent", percent );
+        }
+        cv.put( "last_access", "CURRENT_TIMESTAMP" );
 
         db.update( WDdb.T_WORDS, cv, "id = ?", new String [] {Integer.valueOf( wordId ).toString() } );
+
+
 
         db.close();
     }

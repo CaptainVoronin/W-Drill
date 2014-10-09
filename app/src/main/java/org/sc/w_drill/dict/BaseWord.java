@@ -42,9 +42,15 @@ public class BaseWord implements IBaseWord
     }
 
     @Override
-    public int LearnPercent()
+    public int getLearnPercent()
     {
         return learnPercent;
+    }
+
+    @Override
+    public void setLearnPercent(int percent)
+    {
+        learnPercent = percent;
     }
 
     @Override

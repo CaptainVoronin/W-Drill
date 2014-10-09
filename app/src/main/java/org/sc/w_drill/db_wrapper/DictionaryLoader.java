@@ -108,7 +108,6 @@ public class DictionaryLoader
                     else if( node.getNodeName().equals( "description" ) )
                         example = getTextContent(node);
                 }
-                Log.d( "[Word]", word + " insert" );
                 if( word != null && word.length() != 0 ) {
                     instance.technicalInsert(db, dict.getId(), word, meaning, example);
                     count++;
