@@ -2,11 +2,8 @@ package org.sc.w_drill;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.zip.DataFormatException;
-import java.util.zip.Inflater;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -28,10 +25,6 @@ import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DictionaryLoader;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.ActiveDictionaryStateFragment;
-import org.xml.sax.SAXException;
-import org.xmlpull.v1.XmlPullParserException;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 
 public class MainActivity extends ActionBarActivity
@@ -247,39 +240,41 @@ public class MainActivity extends ActionBarActivity
 
         //Set the words-to-learn count
         text = ( TextView ) view.findViewById( R.id.words_to_learn);
-        text.setText( getString( R.string.words_to_learn, activeDict.getWordsToLear() ) );
-        text.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent( MainActivity.this, ActDictionaryEntry.class);
-                if( activeDict != null )
-                    intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
-                else
-                    intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
+        text.setText( getString( R.string.words_to_learn, activeDict.getWordsToLearn() ) );
+        if( activeDict.getWordsToLearn() != 0  )
+            text.setOnClickListener( new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent( MainActivity.this, ActDictionaryEntry.class);
+                    if( activeDict != null )
+                        intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
+                    else
+                        intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
 
-                intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WORDS_TO_STUDY );
+                    intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WORDS_TO_STUDY );
 
-                startActivity(intent);
-            }
-        });
+                    startActivity(intent);
+                }
+            });
 
         //Set the words-to-check count
         text = ( TextView ) view.findViewById( R.id.words_to_check);
-        text.setText( getString( R.string.words_to_check, activeDict.getWordsToLear() ) );
-        text.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent( MainActivity.this, ActDictionaryEntry.class);
-                if( activeDict != null )
-                    intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
-                else
-                    intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
+        text.setText( getString( R.string.words_to_check, activeDict.getWordsToCheck() ) );
+        if( activeDict.getWordsToCheck() != 0 )
+            text.setOnClickListener( new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent( MainActivity.this, ActDictionaryEntry.class);
+                    if( activeDict != null )
+                        intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
+                    else
+                        intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
 
-                intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WORDS_TO_LEARN );
+                    intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WORDS_TO_LEARN );
 
-                startActivity(intent);
-            }
-        });
+                    startActivity(intent);
+                }
+            });
 
         //Set the "add words" label
         text = ( TextView ) view.findViewById( R.id.add_words);

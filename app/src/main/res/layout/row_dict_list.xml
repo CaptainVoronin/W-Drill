@@ -38,7 +38,7 @@
                     android:id="@+id/row_dict_list_dict_word_count"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:text= "@string/row_dict_list_dict_word_count"/>
+                    android:text= "@string/row_dict_list_dict_word_count" />
                 </LinearLayout>
             </LinearLayout>
 

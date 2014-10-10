@@ -40,10 +40,12 @@
     <string name="incorrect_word">Такое слово не может быть использовано</string>
     <string name="word_meaning">Значение</string>
     <string name="usage_sample">Пример использования</string>
-    <string name="dont_know">Не знаю.</string>
-    <string name="i_know">Знаю.</string>
+    <string name="dont_know">Не знаю</string>
+    <string name="i_know">Знаю</string>
     <string name="go_next">Дальше</string>
-    <string name="no_more_words">Слова для запоминания закончились. Перейти к проверке произвольных слов из словаря?</string>
+    <string name="no_more_words">Слова для запоминания закончились. Перейти к проверке слов из словаря?</string>
     <string name="title_activity_export_wirds">ExportWirdsActivity</string>
+    <string name="word_learn_percent">%d%%</string>
+    <string name="word_is_learned">выучено</string>
 
 </resources>

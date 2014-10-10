@@ -77,7 +77,7 @@ public class Dictionary {
         return word_count;
     }
 
-    public int getWordsToLear( )
+    public int getWordsToLearn()
     {
         return words_to_learn;
     }

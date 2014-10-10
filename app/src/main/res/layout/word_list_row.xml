@@ -16,6 +16,7 @@
             <TextView
                 android:id="@+id/word_percent"
                 android:text="%(percent)"
-                android:gravity="right"/>
+                android:gravity="right"
+                android:paddingRight="12pt" />
         </TableRow>
 </LinearLayout>

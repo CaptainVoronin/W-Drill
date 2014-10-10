@@ -215,13 +215,20 @@ public class DBWordFactory
         return word;
     }
 
-    public ArrayList<IWord> getWordsToLearn()
+    public ArrayList<IWord> getWordsToLearn( int limit )
     {
         ArrayList<Integer> ids = new ArrayList<Integer>();
 
         SQLiteDatabase db = database.getReadableDatabase();
-        String statement = "select id from words where stage = 0 and dict_id = ? limit 10";
-        Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( dict.getId() ).toString()} );
+        String statement =
+        "select id, (julianday( 'now' ) - julianday( last_access )) as result " +
+                "from words where " +
+                "stage = 0 and " +
+                "dict_id = ? " +
+                "order by percent asc, result asc " +
+                "limit ?; ";
+
+        Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( dict.getId() ).toString(), Integer.valueOf( limit ).toString()} );
         while( crs.moveToNext() )
         {
             ids.add( crs.getInt( 0 ));

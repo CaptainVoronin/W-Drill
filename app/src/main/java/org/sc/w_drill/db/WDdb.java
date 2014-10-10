@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class WDdb extends SQLiteOpenHelper
 {
-    public final static int SCHEME_VERSION = 10;
+    public final static int SCHEME_VERSION = 12;
 
     public final static String T_DICTIONARY = "dictionary";
     public final static String T_WORDS = "words";
@@ -39,6 +39,13 @@ public class WDdb extends SQLiteOpenHelper
             "BEGIN " +
             " update words set updated = CURRENT_TIMESTAMP where id = old.id;" +
             "END;";
+
+    final static String CREATE_WORDS_UPDATE_TRIGGER1 = "CREATE TRIGGER au_update_percent AFTER UPDATE ON words " +
+            "WHEN old.percent <> new.percent " +
+            "BEGIN " +
+            "   update words set last_access = CURRENT_TIMESTAMP;" +
+            "END;";
+
 
     final static String CREATE_MEANINGS ="CREATE TABLE " +
             "meanings ( id INTEGER PRIMARY KEY autoincrement," +
@@ -72,6 +79,7 @@ public class WDdb extends SQLiteOpenHelper
         db.execSQL(CREATE_DICTIONARY);
         db.execSQL(CREATE_WORDS);
         db.execSQL(CREATE_WORDS_UPDATE_TRIGGER);
+        db.execSQL(CREATE_WORDS_UPDATE_TRIGGER1);
         db.execSQL(CREATE_MEANINGS);
         db.execSQL(CREATE_EXAMPLES);
     }
@@ -83,11 +91,19 @@ public class WDdb extends SQLiteOpenHelper
         if( !needUpdate( oldVersion, newVersion ) )
             return;
 
-        db.execSQL("DROP TABLE IF EXISTS examples");
-        db.execSQL("DROP TABLE IF EXISTS meanings");
-        db.execSQL("DROP TABLE IF EXISTS words");
-        db.execSQL("DROP TABLE IF EXISTS dictionary");
-        onCreate(db);
+        if( newVersion == 12 && oldVersion == 11 )
+        {
+            db.execSQL(CREATE_WORDS_UPDATE_TRIGGER1);
+        }
+        else
+        {
+            db.execSQL("DROP TABLE IF EXISTS examples");
+            db.execSQL("DROP TABLE IF EXISTS meanings");
+            db.execSQL("DROP TABLE IF EXISTS words");
+            db.execSQL("DROP TABLE IF EXISTS dictionary");
+            onCreate(db);
+        }
+
     }
 
     private boolean needUpdate( int oldVersion, int newVersion  )

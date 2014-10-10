@@ -74,7 +74,7 @@ public class Word implements IWord
     @Override
     public int getLearnPercent()
     {
-        return 0;
+        return percent;
     }
 
     public void setLearnPercent( int _percent )

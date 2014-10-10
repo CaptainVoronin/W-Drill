@@ -5,21 +5,17 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IBaseWord;
 import org.sc.w_drill.dict.IWord;
-import org.sc.w_drill.dict.Meaning;
-import org.sc.w_drill.dict.Word;
 
 import java.util.ArrayList;
 
@@ -106,48 +102,61 @@ public class LearnWordsFragment extends Fragment
 
     private void getWordsSet()
     {
-        words = DBWordFactory.getInstance( database, dict ).getWordsToLearn();
-
+        // TODO: There should be a limit of rows. Now it's the constant value - 10
+        words = DBWordFactory.getInstance( database, dict ).getWordsToLearn( 10 );
+        position = 0;
     }
 
     private void processButtonPush( boolean success )
     {
-        if (confirmed) {
+
+        if (confirmed)
+        {
+            // A user has confirmed his action
+            // So we must write new percent into database
+            int percent = activeWord.getLearnPercent();
+            if( success )
+            {
+                if( percent + 20 > 100 )
+                    percent = 100;
+                else
+                    percent += 20;
+            }
+            else
+            {
+                if( percent - 20 > 0 )
+                    percent = 0;
+                else
+                    percent -= 20;
+            }
+
+            activeWord.setLearnPercent( percent );
+            DBWordFactory.getInstance( database, dict )
+                    .updatePercent( activeWord.getId(), activeWord.getLearnPercent() );
+
+            // ...and get a new word for learning
             IWord word = getNextWord();
             if (word != null)
             {
-                int percent = activeWord.getLearnPercent();;
-                if( success )
-                {
-                    Log.d("[LearnWordsFragment::fail]", "increase word's percents");
-
-                    if( percent + 20 > 100 )
-                        percent = 100;
-                    else
-                        percent += 20;
-                }
-                else
-                {
-                    if( percent - 20 > 0 )
-                        percent = 0;
-                    else
-                        percent -= 20;
-
-                    Log.d("[LearnWordsFragment::fail]", "decrease word's percents");
-                }
-
-                activeWord.setLearnPercent( percent );
-                DBWordFactory.getInstance( database, dict )
-                        .updatePercent( activeWord.getId(), activeWord.getLearnPercent() );
+                // There is another one word
+                // Set buttons to default state
                 btnIKnow.setText( getActivity().getApplicationContext().getString( R.string.i_know));
                 btnIDontKnow.setText( getActivity().getApplicationContext().getString( R.string.dont_know));
 
+                // Bring the new word to the screen
                 bringWordToScreen(word);
                 confirmed = false;
             }
             else
             {
-                showWhatToToDialog();
+                // The current word set is empty
+                // Take the next set from DB
+                getWordsSet();
+
+                if( words == null && words.size() == 0 )
+                    showWhatToToDialog();
+                else
+                    processButtonPush( success );
             }
         } else {
             showMeaning();

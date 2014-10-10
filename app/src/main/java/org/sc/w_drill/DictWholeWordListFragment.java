@@ -21,6 +21,7 @@ import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.dict.BaseWord;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.dict.IBaseWord;
 import org.sc.w_drill.utils.AMutableFilter;
 import org.sc.w_drill.utils.FilterableList;
 import org.sc.w_drill.utils.IFilteredListChangeListener;
@@ -216,7 +217,6 @@ public class DictWholeWordListFragment extends Fragment
         {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
             View rowView = inflater.inflate(R.layout.word_list_row, parent, false);
             BaseWord word = words.get(position);
             rowView.setTag( Integer.valueOf( word.getId() ) );
@@ -228,7 +228,15 @@ public class DictWholeWordListFragment extends Fragment
             chb.setOnCheckedChangeListener( checkBoxClickListener );
 
             TextView text = ( TextView ) rowView.findViewById( R.id.word_percent );
-            text.setText( "5%" );
+
+            String txt;
+
+            if( word.getLearnState() == IBaseWord.LearnState.learn )
+                txt = getActivity().getApplicationContext().getString( R.string.word_learn_percent, word.getLearnPercent() );
+            else
+                txt = getActivity().getApplicationContext().getString( R.string.word_is_learned, word.getLearnPercent() );
+
+            text.setText( txt );
             return rowView;
         }
 
