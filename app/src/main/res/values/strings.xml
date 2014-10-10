@@ -47,5 +47,15 @@
     <string name="title_activity_export_wirds">ExportWirdsActivity</string>
     <string name="word_learn_percent">%d%%</string>
     <string name="word_is_learned">выучено</string>
+    <string name="all_words">все</string>
+    <string name="learned">выученные</string>
+    <string name="for_check">для проверки</string>
+    <string name="staff_for_show">Какие слова показывать:</string>
+    <string name="dlg_filter_title">Фильтр словаря</string>
+    <string name="alphabet">алфавитный</string>
+    <string name="per_percent">проценты</string>
+    <string name="last_access">дате изучения/проверки</string>
+    <string name="ascending">Возрастание</string>
+    <string name="descending">Убывание</string>
 
 </resources>

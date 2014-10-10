@@ -1,6 +1,7 @@
 package org.sc.w_drill;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,10 +12,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
@@ -27,7 +30,6 @@ import org.sc.w_drill.utils.FilterableList;
 import org.sc.w_drill.utils.IFilteredListChangeListener;
 
 import java.util.ArrayList;
-
 
 public class DictWholeWordListFragment extends Fragment
 {
@@ -46,6 +48,13 @@ public class DictWholeWordListFragment extends Fragment
     ArrayList<Integer> selectedWords;
     private CompoundButton.OnCheckedChangeListener checkBoxClickListener;
     private boolean operationButtonsVisible;
+    FilterDialog dlgFilter = null;
+
+    enum FilterType { ALL, FOR_LEARN, FOR_CHECK };
+
+    boolean orderAscending = false;
+
+    FilterType filterType;
 
     /**
      * Use this factory method to create a new instance of
@@ -64,6 +73,14 @@ public class DictWholeWordListFragment extends Fragment
     {
         // Required empty public constructor
     }
+
+    public void onFilterClick(View view)
+    {
+        if( dlgFilter == null )
+            dlgFilter = new FilterDialog( getActivity() );
+        dlgFilter.show();
+    }
+
 
     /**
      * This function must be called iff an instance
@@ -101,6 +118,7 @@ public class DictWholeWordListFragment extends Fragment
         }
         selectedWords = new ArrayList<Integer>();
         checkBoxClickListener = new CheckBoxClickListener();
+        filterType = FilterType.ALL;
         needRefresh = true;
     }
 
@@ -118,6 +136,15 @@ public class DictWholeWordListFragment extends Fragment
         edSearchPattern = (EditText) view.findViewById(R.id.search_pattern);
         isViewCreated = true;
         Log.d("[DictWholeListListener::onCreateView]", "Create view. Sincerely yours C.O.");
+        Button btn = ( Button ) view.findViewById( R.id.btnFilter );
+        btn.setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                onFilterClick(view);
+            }
+        });
         if (needRefresh)
             refreshList();
         return view;
@@ -145,7 +172,7 @@ public class DictWholeWordListFragment extends Fragment
         ArrayList<BaseWord> list;
         FilterableList<BaseWord> wordList;
 
-        list = DBWordFactory.getInstance(database, activeDict).getBriefList();
+        list = DBWordFactory.getInstance(database, activeDict).getBriefList( getDBFilterClause(filterType) );
         wordList = new FilterableList<BaseWord>();
         wordList.addAll( list );
 
@@ -372,5 +399,132 @@ public class DictWholeWordListFragment extends Fragment
         super.onDestroyView();
         needRefresh = true;
         isViewCreated = false;
+    }
+
+    public String getDBFilterClause( FilterType type  )
+    {
+        switch( type )
+        {
+            case ALL:
+                return null;
+            case FOR_LEARN:
+                return " stage = 0";
+            case FOR_CHECK:
+                return " stage = 1";
+            default:
+                return null;
+        }
+    }
+
+    class FilterDialog extends Dialog implements android.view.View.OnClickListener
+    {
+        public Activity activity;
+        public Button btnOk, btnCancel;
+        RadioButton rbAll, rbForLearn, rbForCheck;
+
+        public FilterDialog( Activity _activity )
+        {
+            super(_activity );
+            activity = _activity;
+        }
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState)
+        {
+            super.onCreate(savedInstanceState);
+            //requestWindowFeature(Window.FEATURE_NO_TITLE);
+            setTitle( R.string.dlg_filter_title );
+            setContentView(R.layout.dlg_words_filter);
+            rbAll = ( RadioButton ) findViewById( R.id.rbAll );
+            rbForLearn = ( RadioButton ) findViewById( R.id.rbLearned );
+            rbForCheck = ( RadioButton ) findViewById( R.id.rbForCheck );
+            setRadio();
+            btnOk = (Button) findViewById(R.id.btnOk);
+            btnCancel = (Button) findViewById(R.id.btnCancel);
+            btnOk.setOnClickListener(this);
+            btnCancel.setOnClickListener(this);
+        }
+
+        private void setRadio()
+        {
+            rbAll.setChecked( false );
+            rbForCheck.setChecked( false );
+            rbForLearn.setChecked( false );
+
+            switch( filterType )
+            {
+                case ALL:
+                    rbAll.setChecked( true );
+                    break;
+                case FOR_LEARN:
+                    rbForLearn.setChecked( true );
+                    break;
+                case FOR_CHECK:
+                    rbForCheck.setChecked( true );
+                    break;
+            }
+        }
+
+        @Override
+        public void onClick(View view)
+        {
+            dismiss();
+            DictWholeWordListFragment.FilterType newFilterType;
+            switch(view.getId() )
+            {
+                case R.id.btnOk:
+                {
+                    if( rbAll.isChecked() )
+                    {
+                        newFilterType = FilterType.ALL;
+                    } else if( rbForLearn.isChecked() )
+                    {
+                        newFilterType = FilterType.FOR_LEARN;
+                    } else if( rbForCheck.isChecked() )
+                    {
+                        newFilterType = FilterType.FOR_CHECK;
+                    }
+                    else
+                    {
+                        newFilterType = FilterType.ALL;
+                    }
+                    if( newFilterType != filterType )
+                    {
+                        filterType = newFilterType;
+                        setNeedRefresh();
+                        //refreshList();
+                    }
+                }
+                case R.id.btnCancel:
+                    break;
+            }
+        }
+    }
+
+    class OrderDialog extends Dialog implements android.view.View.OnClickListener
+    {
+
+        public OrderDialog(Context context)
+        {
+            super(context);
+        }
+
+        @Override
+        public void onClick(View view)
+        {
+            boolean directionAsc;
+
+            switch( view.getId() )
+            {
+                case R.id.btnAsc:
+                    directionAsc = true;
+                    break;
+                case R.id.btnDesc:
+                    directionAsc = false;
+                    break;
+            }
+
+
+        }
     }
 }

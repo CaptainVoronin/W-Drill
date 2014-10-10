@@ -50,9 +50,22 @@ public class DBWordFactory
         dict = _dict;
     }
 
-    public ArrayList<BaseWord> getBriefList()
+    public ArrayList<BaseWord> getBriefList( String whereSTMT, String orderSTMT )
     {
         String statement = "select id, word, percent, stage from words where dict_id = ?";
+        String addendum = " and %s";
+        String order = " order %s";
+
+        if( whereSTMT != null && whereSTMT.length() != 0 )
+        {
+            statement = String.format(statement + addendum, whereSTMT);
+        }
+
+        if( orderSTMT != null && orderSTMT.length() != 0 )
+        {
+            statement = String.format(statement +  order, orderSTMT);
+        }
+
         SQLiteDatabase db = database.getReadableDatabase();
 
         Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( dict.getId() ).toString()});
@@ -61,12 +74,13 @@ public class DBWordFactory
         while( crs.moveToNext() )
         {
             words.add( new BaseWord( crs.getInt( 0 ),
-                                     crs.getString( 1 ),
-                                     crs.getInt( 2 ),
-                                     crs.getInt( 3 ) == 0 ? IBaseWord.LearnState.learn : IBaseWord.LearnState.check ));
+                    crs.getString( 1 ),
+                    crs.getInt( 2 ),
+                    crs.getInt( 3 ) == 0 ? IBaseWord.LearnState.learn : IBaseWord.LearnState.check ));
         }
         return words;
     }
+
 
     public ArrayList<IWord> getExtList()
     {
