@@ -14,5 +14,7 @@ public interface IBaseWord
     public void setLearnPercent( int percent );
     public LearnState getLearnState();
     public void setLearnState( LearnState state );
-
+    public void setAvgTime( int time );
+    public int getAvgTime();
+    public int getAccessCount();
 }

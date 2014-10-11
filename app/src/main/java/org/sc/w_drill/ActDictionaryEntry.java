@@ -12,19 +12,14 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 //import android.support.v7.view.ActionMode;
-import android.util.Log;
 import android.view.ActionMode;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
-import org.sc.w_drill.dict.IBaseWord;
-
 
 public class ActDictionaryEntry
         extends ActionBarActivity
@@ -91,10 +86,11 @@ public class ActDictionaryEntry
         int entryKind = data.getIntExtra( ENTRY_KIND_PARAM_NAME, ADD_WORDS );
 
         // Set up the action bar.
+        //final ActionBar actionBar = getSupportActionBar();
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setTitle( activeDictionary.getName() );
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        //actionBar.setDisplayHomeAsUpEnabled(true);
 
 
         // Create the adapter that will return a fragment for each of the three

@@ -5,25 +5,21 @@ import java.util.ArrayList;
 /**
  * Created by Max on 10/4/2014.
  */
-public class Word implements IWord
+public class Word extends BaseWord implements IWord
 {
-    int id;
-    String word;
     ArrayList<IMeaning> meanings;
     String transcription;
-    LearnState state;
-    int percent;
+
+    public Word ( int _id, String _word, int _learnPercent, LearnState _state, int _avgTime, int _accessCount  )
+    {
+        super( _id, _word, _learnPercent, _state, _avgTime, _accessCount );
+        word = _word;
+    }
 
     public Word ( String _word )
     {
+        super( -1, _word, 0, LearnState.learn, 0, 0 );
         word = _word;
-        id = -1;
-    }
-
-    public Word ( int _id, String _word )
-    {
-        word = _word;
-        id = _id;
     }
 
     @Override
@@ -54,13 +50,13 @@ public class Word implements IWord
         word = _word;
     }
 
-    @Override
+/*    @Override
     public int getId()
     {
         return id;
-    }
+    } */
 
-    public void setId( int _id )
+    /*public void setId( int _id )
     {
         id = _id;
     }
@@ -92,11 +88,11 @@ public class Word implements IWord
     public void setLearnState(LearnState _state)
     {
         state = _state;
-    }
+    } */
 
     public static Word getDummy()
     {
-        return new Word( -1, "" );
+        return new Word( "" );
     }
 
     private final ArrayList<IMeaning> getMeanings()
@@ -106,5 +102,4 @@ public class Word implements IWord
 
         return meanings;
     }
-
 }

@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import org.sc.w_drill.db.WDdb;
@@ -126,7 +127,7 @@ public class MainActivity extends ActionBarActivity
     {
         // Set up the action bar.
         actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        //actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         return setupActiveDict( );
     }
 
@@ -227,9 +228,9 @@ public class MainActivity extends ActionBarActivity
 
         View view =  inflater.inflate(R.layout.active_dict_state_fragment, rootView, false );
 
-
         DBDictionaryFactory.getInstance( database ).getAdditionalInfo( activeDict );
-
+        actionBar.setTitle( activeDict.getName() );
+        setTitle( activeDict.getName() );
         // Set the active dictionary name
         TextView text = ( TextView ) view.findViewById( R.id.dict_name );
         text.setText( activeDict.getName() );

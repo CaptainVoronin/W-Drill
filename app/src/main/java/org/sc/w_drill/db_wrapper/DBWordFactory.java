@@ -52,9 +52,9 @@ public class DBWordFactory
 
     public ArrayList<BaseWord> getBriefList( String whereSTMT, String orderSTMT )
     {
-        String statement = "select id, word, percent, stage from words where dict_id = ?";
+        String statement = "select id, word, percent, stage, avg_time, access_count from words where dict_id = ?";
         String addendum = " and %s";
-        String order = " order %s";
+        String order = " order by %s";
 
         if( whereSTMT != null && whereSTMT.length() != 0 )
         {
@@ -66,6 +66,8 @@ public class DBWordFactory
             statement = String.format(statement +  order, orderSTMT);
         }
 
+        Log.d( "[DBWordFactory::getBriefList]", statement );
+
         SQLiteDatabase db = database.getReadableDatabase();
 
         Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( dict.getId() ).toString()});
@@ -76,7 +78,9 @@ public class DBWordFactory
             words.add( new BaseWord( crs.getInt( 0 ),
                     crs.getString( 1 ),
                     crs.getInt( 2 ),
-                    crs.getInt( 3 ) == 0 ? IBaseWord.LearnState.learn : IBaseWord.LearnState.check ));
+                    crs.getInt( 3 ) == 0 ? IBaseWord.LearnState.learn : IBaseWord.LearnState.check,
+                    crs.getInt( 4 ),
+                    crs.getInt( 5 )));
         }
         return words;
     }
@@ -181,7 +185,7 @@ public class DBWordFactory
 
     private IWord internalGetWordBrief(SQLiteDatabase db, int wordId)
     {
-        String statement = "select id, word, percent, stage from words where id = ?";
+        String statement = "select id, word, percent, stage, avg_time, access_count from words where id = ?";
 
         Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( wordId ).toString()});
         ArrayList<BaseWord> words = new ArrayList<BaseWord>();
@@ -189,13 +193,18 @@ public class DBWordFactory
 
         if( crs.moveToNext() )
         {
-            word = new Word( crs.getInt( 0 ), crs.getString( 1 ) );
+            word = new Word( crs.getInt( 0 ), // id
+                    crs.getString( 1 ),  // word
+                    crs.getInt( 2 ), // percent
+                    crs.getInt( 3 ) == 0 ? IBaseWord.LearnState.learn : IBaseWord.LearnState.check,  // stage
+                    crs.getInt( 4 ), // avg_time
+                    crs.getInt( 5 ) ); // access_time
         }
         crs.close();
         return word;
     }
 
-    private IWord internalGetWodEx( SQLiteDatabase db, int wordId )
+    private IWord internalGetWordEx(SQLiteDatabase db, int wordId)
     {
         IWord word = internalGetWordBrief(db, wordId );
 
@@ -224,7 +233,7 @@ public class DBWordFactory
 
     public IWord getWodEx( int wordId ) {
         SQLiteDatabase db = database.getReadableDatabase();
-        IWord word = internalGetWodEx( db, wordId );
+        IWord word = internalGetWordEx(db, wordId);
         db.close();
         return word;
     }
@@ -239,7 +248,7 @@ public class DBWordFactory
                 "from words where " +
                 "stage = 0 and " +
                 "dict_id = ? " +
-                "order by percent asc, result asc " +
+                "order by access_count asc, percent asc, result asc, avg_time desc " +
                 "limit ?; ";
 
         Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( dict.getId() ).toString(), Integer.valueOf( limit ).toString()} );
@@ -256,7 +265,7 @@ public class DBWordFactory
 
         for( Integer id : ids )
         {
-            IWord word = internalGetWodEx( db, id.intValue() );
+            IWord word = internalGetWordEx(db, id.intValue());
             words.add( word );
         }
         db.close();
@@ -295,7 +304,7 @@ public class DBWordFactory
         return result;
     }
 
-    public void updatePercent( int wordId, int percent )
+    public void updatePercentAndTime( int wordId, int percent, int time )
     {
         SQLiteDatabase db = database.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -303,17 +312,17 @@ public class DBWordFactory
         if( percent == 100 )
         {
             cv.put( "percent", 0 );
+            cv.put( "avg_time", 0 );
             cv.put( "stage",   1 );
         }
         else
         {
             cv.put( "percent", percent );
+            cv.put( "avg_time", time );
         }
         cv.put( "last_access", "CURRENT_TIMESTAMP" );
 
         db.update( WDdb.T_WORDS, cv, "id = ?", new String [] {Integer.valueOf( wordId ).toString() } );
-
-
 
         db.close();
     }

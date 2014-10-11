@@ -49,10 +49,14 @@ public class DictWholeWordListFragment extends Fragment
     private CompoundButton.OnCheckedChangeListener checkBoxClickListener;
     private boolean operationButtonsVisible;
     FilterDialog dlgFilter = null;
+    private OrderDialog orderDialog;
 
     enum FilterType { ALL, FOR_LEARN, FOR_CHECK };
+    enum OrderProperty{ ALPHABET, PERCENT, ACCESS_TIME };
 
-    boolean orderAscending = false;
+
+    boolean orderAscending = true;
+    OrderProperty orderProperty = OrderProperty.ALPHABET;
 
     FilterType filterType;
 
@@ -145,9 +149,26 @@ public class DictWholeWordListFragment extends Fragment
                 onFilterClick(view);
             }
         });
+        btn = ( Button ) view.findViewById( R.id.btnSortOrder );
+        btn.setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                onOrderClick();
+            }
+        });
+
         if (needRefresh)
             refreshList();
         return view;
+    }
+
+    private void onOrderClick()
+    {
+        if( orderDialog == null )
+            orderDialog = new OrderDialog( getActivity() );
+        orderDialog.show();
     }
 
     @Override
@@ -172,7 +193,9 @@ public class DictWholeWordListFragment extends Fragment
         ArrayList<BaseWord> list;
         FilterableList<BaseWord> wordList;
 
-        list = DBWordFactory.getInstance(database, activeDict).getBriefList( getDBFilterClause(filterType) );
+        list = DBWordFactory.getInstance(database, activeDict)
+                .getBriefList(getDBFilterClause(filterType), getOrderClause(orderAscending, orderProperty));
+
         wordList = new FilterableList<BaseWord>();
         wordList.addAll( list );
 
@@ -195,16 +218,6 @@ public class DictWholeWordListFragment extends Fragment
             needRefresh = true;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface DictWholeListListener
     {
         public void onWordSelected( int id );
@@ -504,6 +517,38 @@ public class DictWholeWordListFragment extends Fragment
     class OrderDialog extends Dialog implements android.view.View.OnClickListener
     {
 
+        RadioButton rbAlphabet, rbPercent, rbLastAccess;
+
+        protected void onCreate(Bundle savedInstanceState)
+        {
+            super.onCreate(savedInstanceState);
+            //requestWindowFeature(Window.FEATURE_NO_TITLE);
+            setTitle( R.string.dlg_order_title );
+            setContentView(R.layout.dlg_word_sort_order);
+            rbAlphabet = ( RadioButton ) findViewById( R.id.rbAlphabet );
+            rbPercent = ( RadioButton ) findViewById( R.id.rbPercent );
+            rbLastAccess = ( RadioButton ) findViewById( R.id.rbLastAccess );
+            Button btn = ( Button ) findViewById( R.id.btnAsc );
+            btn.setOnClickListener( this );
+            btn = ( Button ) findViewById( R.id.btnDesc );
+            btn.setOnClickListener( this );
+            setRadio();
+        }
+
+        private void setRadio()
+        {
+            rbAlphabet.setChecked( false );
+            rbPercent.setChecked( false );
+            rbLastAccess.setChecked( false );
+
+            if( orderProperty == OrderProperty.ALPHABET )
+                rbAlphabet.setChecked( true );
+            else if( orderProperty == OrderProperty.PERCENT )
+                rbPercent.setChecked( true );
+            if( orderProperty == OrderProperty.ACCESS_TIME )
+                rbLastAccess.setChecked( true );
+        }
+
         public OrderDialog(Context context)
         {
             super(context);
@@ -512,7 +557,9 @@ public class DictWholeWordListFragment extends Fragment
         @Override
         public void onClick(View view)
         {
-            boolean directionAsc;
+            dismiss();
+            boolean directionAsc = view.getId() == R.id.btnAsc;
+            OrderProperty order;
 
             switch( view.getId() )
             {
@@ -524,7 +571,49 @@ public class DictWholeWordListFragment extends Fragment
                     break;
             }
 
+            if( rbAlphabet.isChecked( )  )
+                order = OrderProperty.ALPHABET;
+            else if( rbPercent.isChecked() )
+                order = OrderProperty.PERCENT;
+            else if( rbLastAccess.isChecked( ) )
+                order = OrderProperty.ACCESS_TIME;
+            else
+                order = OrderProperty.ALPHABET;
 
+            if( order != orderProperty || orderAscending != directionAsc )
+            {
+                orderProperty = order;
+                orderAscending = directionAsc;
+                setNeedRefresh();
+            }
         }
+    }
+
+    String getOrderClause( boolean ascOrder, OrderProperty orderProperty )
+    {
+        String buff = "";
+
+        switch( orderProperty )
+        {
+            case ALPHABET:
+                buff += " word ";
+                break;
+            case PERCENT:
+                buff += " percent ";
+                break;
+            case ACCESS_TIME:
+                buff += " last_access ";
+                break;
+            default:
+                buff += " word ";
+                break;
+        }
+
+        if( ascOrder )
+            buff += " asc ";
+        else
+            buff += " desc ";
+
+        return buff;
     }
 }

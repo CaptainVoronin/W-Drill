@@ -9,13 +9,17 @@ public class BaseWord implements IBaseWord
     String word;
     int learnPercent;
     LearnState state;
+    int avgTime;
+    private int accessCount;
 
-    public BaseWord( int _id, String _word, int _learnPercent, LearnState _state )
+    public BaseWord( int _id, String _word, int _learnPercent, LearnState _state, int _avgTime, int _accessCount )
     {
         id = _id;
         word = _word;
         learnPercent = _learnPercent;
         state = _state;
+        avgTime = _avgTime;
+        accessCount = _accessCount;
     }
 
     @Override
@@ -65,4 +69,21 @@ public class BaseWord implements IBaseWord
         state = _state;
     }
 
+    @Override
+    public void setAvgTime(int time)
+    {
+        avgTime = time;
+    }
+
+    @Override
+    public int getAvgTime()
+    {
+        return avgTime;
+    }
+
+    @Override
+    public int getAccessCount()
+    {
+        return accessCount;
+    }
 }

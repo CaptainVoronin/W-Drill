@@ -9,10 +9,12 @@
         android:orientation="horizontal">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="fill_parent"
             android:layout_margin="8pt"
             android:layout_weight="0.7"
-            android:orientation="vertical">
+            android:padding="12pt"
+            android:orientation="vertical"
+            android:background="@drawable/shadow_layer">
             <TextView
                 style="@style/LargeTitleStyle"
                 android:layout_width="match_parent"
@@ -20,7 +22,14 @@
                 android:gravity="center_horizontal"
                 android:text="Learn words, \nbitch!"
                 android:id="@+id/word"
-                android:background="@drawable/rounded_rect"/>
+                android:paddingBottom="12pt"
+                />
+            <TextView
+                android:gravity="center_horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#aaa"/>
+
             <TextView
                 style="@style/LargeTitleStyle"
                 android:layout_width="match_parent"
@@ -30,8 +39,7 @@
                 android:layout_marginTop="16pt"
                 android:paddingTop="8pt"
                 android:paddingBottom="8pt"
-                android:id="@+id/meaning"
-                android:background="@drawable/rounded_rect"/>
+                android:id="@+id/meaning"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"

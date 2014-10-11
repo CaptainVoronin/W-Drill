@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class WDdb extends SQLiteOpenHelper
 {
-    public final static int SCHEME_VERSION = 12;
+    public final static int SCHEME_VERSION = 13;
 
     public final static String T_DICTIONARY = "dictionary";
     public final static String T_WORDS = "words";
@@ -29,6 +29,8 @@ public class WDdb extends SQLiteOpenHelper
             "transcription TEXT, " +
             "stage INTEGER NOT NULL DEFAULT 0, " +
             "percent INTEGER NOT NULL DEFAULT 0," +
+            "access_count INTEGER NOT NULL DEFAULT 0," +
+            "avg_time INTEGER NOT NULL DEFAULT 0," +
             "created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
             "updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
             "last_access TIMESTAMP," +
@@ -43,9 +45,8 @@ public class WDdb extends SQLiteOpenHelper
     final static String CREATE_WORDS_UPDATE_TRIGGER1 = "CREATE TRIGGER au_update_percent AFTER UPDATE ON words " +
             "WHEN old.percent <> new.percent " +
             "BEGIN " +
-            "   update words set last_access = CURRENT_TIMESTAMP;" +
+            "   update words set last_access = CURRENT_TIMESTAMP, access_count = old.access_count + 1 where id = old.id;" +
             "END;";
-
 
     final static String CREATE_MEANINGS ="CREATE TABLE " +
             "meanings ( id INTEGER PRIMARY KEY autoincrement," +
@@ -61,7 +62,6 @@ public class WDdb extends SQLiteOpenHelper
             "meaning_id INTEGER NOT NULL," +
             "example TEXT NOT NULL," +
             "FOREIGN KEY ( meaning_id ) REFERENCES meanings ( id ) ON DELETE CASCADE );";
-
 
     final static String DB_NAME = "wd.db";
 
@@ -91,19 +91,11 @@ public class WDdb extends SQLiteOpenHelper
         if( !needUpdate( oldVersion, newVersion ) )
             return;
 
-        if( newVersion == 12 && oldVersion == 11 )
-        {
-            db.execSQL(CREATE_WORDS_UPDATE_TRIGGER1);
-        }
-        else
-        {
-            db.execSQL("DROP TABLE IF EXISTS examples");
-            db.execSQL("DROP TABLE IF EXISTS meanings");
-            db.execSQL("DROP TABLE IF EXISTS words");
-            db.execSQL("DROP TABLE IF EXISTS dictionary");
-            onCreate(db);
-        }
-
+        db.execSQL("DROP TABLE IF EXISTS examples");
+        db.execSQL("DROP TABLE IF EXISTS meanings");
+        db.execSQL("DROP TABLE IF EXISTS words");
+        db.execSQL("DROP TABLE IF EXISTS dictionary");
+        onCreate(db);
     }
 
     private boolean needUpdate( int oldVersion, int newVersion  )

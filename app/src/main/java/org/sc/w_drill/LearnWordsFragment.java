@@ -21,6 +21,8 @@ import org.sc.w_drill.dict.IBaseWord;
 import org.sc.w_drill.dict.IWord;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class LearnWordsFragment extends Fragment
 {
@@ -51,6 +53,8 @@ public class LearnWordsFragment extends Fragment
     private boolean confirmed;
     private Button btnIKnow;
     private Button btnIDontKnow;
+    long deltaTime = 0;
+    Calendar start;
 
     public static LearnWordsFragment newInstance( int dictId )
     {
@@ -133,9 +137,12 @@ public class LearnWordsFragment extends Fragment
                     percent -= 20;
             }
 
+            int time = ( int ) ( Calendar.getInstance().getTimeInMillis() - start.getTimeInMillis() );
+
+            time = Math.round( ( activeWord.getAvgTime() + time ) / ( activeWord.getAccessCount() + 1 ) );
             activeWord.setLearnPercent( percent );
             DBWordFactory.getInstance( database, dict )
-                    .updatePercent( activeWord.getId(), activeWord.getLearnPercent() );
+                    .updatePercentAndTime( activeWord.getId(), activeWord.getLearnPercent(), time );
 
             // ...and get a new word for learning
             IWord word = getNextWord();
@@ -219,6 +226,7 @@ public class LearnWordsFragment extends Fragment
         clearMeaning();
         activeWord = word;
         wordPlace.setText( activeWord.getWord() );
+        start = Calendar.getInstance();
     }
 
     private void clearMeaning()

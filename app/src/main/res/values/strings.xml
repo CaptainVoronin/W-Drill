@@ -57,5 +57,6 @@
     <string name="last_access">дате изучения/проверки</string>
     <string name="ascending">Возрастание</string>
     <string name="descending">Убывание</string>
+    <string name="dlg_order_title">Порядок слов</string>
 
 </resources>
