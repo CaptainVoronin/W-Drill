@@ -265,7 +265,7 @@ public class MainActivity extends ActionBarActivity
             text.setOnClickListener( new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent( MainActivity.this, ActDictionaryEntry.class);
+                    Intent intent = new Intent( MainActivity.this, ActCheckWords.class);
                     if( activeDict != null )
                         intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
                     else

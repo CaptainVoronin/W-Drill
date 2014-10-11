@@ -3,10 +3,8 @@ package org.sc.w_drill;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +14,6 @@ import android.widget.EditText;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
-import org.sc.w_drill.dict.BaseWord;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
@@ -24,8 +21,6 @@ import org.sc.w_drill.dict.Meaning;
 import org.sc.w_drill.dict.Word;
 import org.sc.w_drill.dict.WordChecker;
 import org.sc.w_drill.utils.DBPair;
-
-import java.util.Locale;
 
 
 /**
@@ -129,7 +124,10 @@ public class EditWordFragment extends Fragment
         if( activeWord == null )
             activeWord = new Word( word );
         else
-            activeWord.setWord( word );
+        {
+            activeWord.setWord(word);
+            activeWord.meanings().clear();
+        }
 
         String strMeaning = (( EditText )rootView.findViewById( R.id.ed_meaning )).getText().toString();
 
@@ -165,12 +163,19 @@ public class EditWordFragment extends Fragment
             return;
         }
 
-        if( ( id = activeWord.getId() ) != -1 ) {
-            DBWordFactory.getInstance(database, activeDict).updateWord(activeWord);
+        if( ( id = activeWord.getId() ) != -1 )
+        {
+            try
+            {
+                DBWordFactory.getInstance(database, activeDict).updateWord(activeWord);
+            }catch( Exception e )
+            {
+                // TODO: It must be a correct exception handler.
+                e.printStackTrace();
+            }
         }
         else
         {
-
             try
             {
                 activeWord = DBWordFactory.getInstance(database, activeDict).insertWord(activeWord);
@@ -245,7 +250,7 @@ public class EditWordFragment extends Fragment
 
     public void setActiveWord( int wordId )
     {
-        activeWord = DBWordFactory.getInstance( database, activeDict  ).getWodEx( wordId );
+        activeWord = DBWordFactory.getInstance( database, activeDict  ).getWordEx(wordId);
         needBringWord = true;
     }
 

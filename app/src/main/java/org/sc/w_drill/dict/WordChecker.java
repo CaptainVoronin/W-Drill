@@ -26,8 +26,11 @@ public class WordChecker
         if( meaning.meaning().length() == 0 )
             return false;
 
-        if( factory.findWord( word.getWord() ) )
-            return false;
+        // YJis search is needed if only it's a new word
+        // in this case it has id = -1
+        if( word.getId() == -1 )
+            if( factory.findWord( word.getWord() ) )
+                return false;
 
         return true;
     }

@@ -49,6 +49,6 @@ public class WordRandomizer
     public IWord gerRandomWord()
     {
         int id = random.nextInt( ids.size()  ) - 1;
-        return DBWordFactory.getInstance( database, dict ).getWodEx( id );
+        return DBWordFactory.getInstance( database, dict ).getWordEx(id);
     }
 }

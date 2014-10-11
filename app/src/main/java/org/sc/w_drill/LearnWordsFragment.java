@@ -2,15 +2,12 @@ package org.sc.w_drill;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 import org.sc.w_drill.db.WDdb;
@@ -22,7 +19,6 @@ import org.sc.w_drill.dict.IWord;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 public class LearnWordsFragment extends Fragment
 {
@@ -78,7 +74,7 @@ public class LearnWordsFragment extends Fragment
         dict = DBDictionaryFactory.getInstance( database ).getDictionaryById( dictId );
 
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_leard_words, container, false);
+        View view = inflater.inflate(R.layout.fragment_learn_words, container, false);
         wordPlace = ( TextView ) view.findViewById( R.id.word );
         wordMeaning = ( TextView ) view.findViewById( R.id.meaning );
         btnIDontKnow = ( Button ) view.findViewById( R.id.dont_know );
@@ -246,4 +242,9 @@ public class LearnWordsFragment extends Fragment
     {
         wordMeaning.setText( activeWord.meanings().get(0).meaning() );
     }
- }
+
+    public IWord getActiveWord( )
+    {
+        return activeWord;
+    }
+}

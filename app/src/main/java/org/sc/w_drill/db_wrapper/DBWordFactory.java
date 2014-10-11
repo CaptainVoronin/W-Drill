@@ -44,6 +44,7 @@ public class DBWordFactory
     {
         return dict;
     }
+
     protected DBWordFactory(WDdb _db, Dictionary _dict)
     {
         database = _db;
@@ -85,7 +86,6 @@ public class DBWordFactory
         return words;
     }
 
-
     public ArrayList<IWord> getExtList()
     {
         return new ArrayList<IWord>();
@@ -124,31 +124,7 @@ public class DBWordFactory
             word.setId(id);
 
             // Now insert meanings
-
-            if( word.meanings() != null )
-                for (IMeaning m : word.meanings())
-                {
-                    cv.clear();
-                    cv.put("word_id", Integer.valueOf(id).toString());
-                    cv.put("meaning", m.meaning());
-                    // TODO: Values: isFormal, etc aren't inserted
-                    db.insertOrThrow(WDdb.T_MEANINGS, null, cv);
-
-                    Cursor c = db.rawQuery( "select max ( id ) from words ", null );
-
-                    c.moveToNext();
-                    int meaning_id = c.getInt( 0 );
-
-                    // insert examples
-                    if( m.examples() != null )
-                        for (DBPair example : m.examples())
-                        {
-                            cv.clear();
-                            cv.put("meaning_id", meaning_id);
-                            cv.put("example", example.getValue());
-                            db.insertOrThrow(WDdb.T_EXAMPLE, null, cv);
-                        }
-                }
+            putMeaningsAndExamples( db, word );
             db.setTransactionSuccessful();
         }catch ( SQLiteException ex )
         {
@@ -170,9 +146,62 @@ public class DBWordFactory
         return word;
     }
 
-    public void updateWord(IWord activeWord)
+    private void putMeaningsAndExamples( SQLiteDatabase db, IWord word ) throws SQLiteException
     {
+        ContentValues cv = new ContentValues();
 
+        if( word.meanings() != null )
+            for (IMeaning m : word.meanings())
+            {
+                cv.clear();
+                cv.put("word_id", Integer.valueOf( word.getId() ).toString());
+                cv.put("meaning", m.meaning());
+                // TODO: Values: isFormal, etc aren't inserted
+                int meaning_id = ( int ) db.insertOrThrow(WDdb.T_MEANINGS, null, cv);
+
+                // insert examples
+                if( m.examples() != null )
+                    for (DBPair example : m.examples())
+                    {
+                        cv.clear();
+                        cv.put("meaning_id", meaning_id);
+                        cv.put("example", example.getValue());
+                        db.insertOrThrow(WDdb.T_EXAMPLE, null, cv);
+                    }
+            }
+    }
+
+    public void updateWord(IWord word) throws Exception
+    {
+        Exception e = null;
+        SQLiteDatabase db = database.getWritableDatabase();
+
+        try
+        {
+            db.beginTransaction();
+            // Firstly, delete all meanings and examples
+            db.delete( WDdb.T_MEANINGS, " word_id = ? ", new String[] { Integer.valueOf( word.getId() ).toString() });
+
+            ContentValues cv = new ContentValues();
+
+            cv.put( "word", word.getWord() );
+            cv.put( "transcription", word.getTranscription() );
+            db.update( WDdb.T_WORDS, cv, " id = ?", new String[]{ Integer.valueOf( word.getId() ).toString()} );
+
+            putMeaningsAndExamples( db, word );
+
+            db.setTransactionSuccessful();
+        } catch( Exception ex )
+        {
+            e = ex;
+        }
+        finally
+        {
+            db.endTransaction();
+            db.close();
+            if( e != null )
+                throw e;
+        }
     }
 
     public IWord getWord(int wordId)
@@ -218,7 +247,7 @@ public class DBWordFactory
                 IMeaning m = new Meaning(crs.getInt(0), crs.getString(1));
                 word.meanings().add(m);
                 Cursor crs1 = db.rawQuery(examples, new String[]{Integer.valueOf(m.getId()).toString()});
-                if (crs.getCount() != 0) {
+                if (crs1.getCount() != 0) {
                     while (crs1.moveToNext()) {
                         DBPair pair = new DBPair(crs1.getInt(0), crs1.getString(1));
                         m.examples().add(pair);
@@ -231,7 +260,7 @@ public class DBWordFactory
         return word;
     }
 
-    public IWord getWodEx( int wordId ) {
+    public IWord getWordEx(int wordId) {
         SQLiteDatabase db = database.getReadableDatabase();
         IWord word = internalGetWordEx(db, wordId);
         db.close();
@@ -247,8 +276,9 @@ public class DBWordFactory
         "select id, (julianday( 'now' ) - julianday( last_access )) as result " +
                 "from words where " +
                 "stage = 0 and " +
+                //"result >= 1 and " +
                 "dict_id = ? " +
-                "order by access_count asc, percent asc, result asc, avg_time desc " +
+                "order by access_count asc, percent asc, result desc, avg_time desc " +
                 "limit ?; ";
 
         Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( dict.getId() ).toString(), Integer.valueOf( limit ).toString()} );
@@ -336,12 +366,6 @@ public class DBWordFactory
 
         int id = (int) db.insertOrThrow( WDdb.T_WORDS, null, cv);
 
-/*        String statement = "select max( id ) from words";
-        Cursor crs = db.rawQuery(statement, null);
-        crs.moveToNext();
-        int id = crs.getInt(0);
-        crs.close(); */
-
         cv.clear();
 
         cv.put("word_id", Integer.valueOf(id).toString());
@@ -352,5 +376,10 @@ public class DBWordFactory
         cv.put("meaning_id", id);
         cv.put("example", example);
         db.insertOrThrow(WDdb.T_EXAMPLE, null, cv);
+    }
+
+    public ArrayList<IWord> getWordsForCheck( )
+    {
+        return null;
     }
 }

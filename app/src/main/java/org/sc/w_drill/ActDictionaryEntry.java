@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.dict.IWord;
 
 public class ActDictionaryEntry
         extends ActionBarActivity
@@ -50,6 +51,7 @@ public class ActDictionaryEntry
     public static final int WORDS_TO_STUDY = 2;
     public static final int ADD_WORDS = 3;
 
+    MenuItem editItem;
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -143,11 +145,12 @@ public class ActDictionaryEntry
 
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.act_dictionaty_entry, menu);
+        boolean res = super.onCreateOptionsMenu( menu );
+        editItem = menu.findItem( R.id.action_edit );
         return true;
     }
 
@@ -159,7 +162,19 @@ public class ActDictionaryEntry
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
+        } else if( id == R.id.action_edit )
+        {
+            if( learnWordsFragment != null )
+            {
+                IWord word = learnWordsFragment.getActiveWord();
+                if( word != null )
+                {
+                    onWordSelected( word.getId() );
+                }
+            }
         }
+
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -167,7 +182,14 @@ public class ActDictionaryEntry
     public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
         // When the given tab is selected, switch to the corresponding page in
         // the ViewPager.
-        mViewPager.setCurrentItem(tab.getPosition());
+        int position = tab.getPosition();
+        if( editItem != null )
+            if( position == 1 || position == 2 )
+                editItem.setVisible( false );
+            else
+                editItem.setVisible( true );
+
+        mViewPager.setCurrentItem( position );
     }
 
     @Override

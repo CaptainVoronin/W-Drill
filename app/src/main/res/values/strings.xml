@@ -58,5 +58,6 @@
     <string name="ascending">Возрастание</string>
     <string name="descending">Убывание</string>
     <string name="dlg_order_title">Порядок слов</string>
+    <string name="title_activity_act_check_words">ActCheckWords</string>
 
 </resources>
