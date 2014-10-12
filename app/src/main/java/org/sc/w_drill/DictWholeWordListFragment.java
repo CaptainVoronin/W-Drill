@@ -289,6 +289,7 @@ public class DictWholeWordListFragment extends Fragment
 
     class OnWordClickListener implements View.OnClickListener
     {
+        // TODO: It doesn't work
         @Override
         public void onClick(View view)
         {

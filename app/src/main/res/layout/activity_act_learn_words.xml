@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="org.sc.w_drill.LearnWordsFragment">
+    tools:context="org.sc.w_drill.ActLearnWords">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -22,8 +22,16 @@
                 android:gravity="center_horizontal"
                 android:text="Learn words, \nbitch!"
                 android:id="@+id/word"
-                android:paddingBottom="12pt"
-                />
+                android:paddingBottom="12pt"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="New Text"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textStyle ="italic"
+                android:id="@+id/examples"/>
+
             <TextView
                 android:gravity="center_horizontal"
                 android:layout_width="match_parent"
@@ -36,11 +44,20 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:text="[...]"
-                android:layout_marginTop="16pt"
                 android:paddingTop="8pt"
                 android:paddingBottom="8pt"
                 android:id="@+id/meaning"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Medium Text"
+                android:id="@+id/transcription"
+                android:layout_gravity="center_horizontal"/>
+
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

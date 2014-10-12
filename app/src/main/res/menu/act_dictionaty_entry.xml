@@ -3,11 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="org.sc.w_drill.ActDictionaryEntry" >
 
-    <item android:id="@+id/action_edit"
-          android:orderInCategory="100"
-          app:showAsAction="always"
-          android:icon="@android:drawable/ic_menu_edit"/>
-
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"

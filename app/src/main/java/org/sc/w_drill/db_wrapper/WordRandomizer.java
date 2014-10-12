@@ -20,16 +20,25 @@ public class WordRandomizer
     Dictionary dict;
     int interval;
     Random random;
+    String statement = "select id from words where dict_id = ? ";
+
     public WordRandomizer( WDdb _db, Dictionary _dict )
     {
         ids = new ArrayList<Integer>();
         database = _db;
+        dict = _dict;
+    }
+
+    public void init( String whereStatement )
+    {
+        statement = statement + " and " + whereStatement;
+        init();
     }
 
     public void init() throws ArrayIndexOutOfBoundsException
     {
         SQLiteDatabase db = database.getReadableDatabase();
-        String statement = "select id from words where dict_id = ?";
+
         Cursor crs = db.rawQuery( statement, new String[] { Integer.valueOf( dict.getId() ).toString()} );
 
         while( crs.moveToNext() )
@@ -46,9 +55,12 @@ public class WordRandomizer
         random = new Random();
     }
 
-    public IWord gerRandomWord()
+    public IWord gerRandomWord() throws ArrayIndexOutOfBoundsException
     {
-        int id = random.nextInt( ids.size()  ) - 1;
-        return DBWordFactory.getInstance( database, dict ).getWordEx(id);
+        int id = ids.get( random.nextInt( ids.size() ) ).intValue();
+        IWord word = DBWordFactory.getInstance( database, dict ).getWordEx(id);
+        if( word == null )
+            throw new ArrayIndexOutOfBoundsException( "For ID " + id );
+        return word;
     }
 }

@@ -29,15 +29,28 @@
         </activity>
         <activity
             android:name=".ActDictionaryEntry"
-            android:label="@string/title_activity_act_dictionary_entry" >
+            android:label="@string/title_activity_act_dictionary_entry"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.sc.w_drill.MainActivity" />
+
         </activity>
         <activity
             android:name=".ExportWordsActivity"
-            android:label="@string/title_activity_export_wirds" >
+            android:label="@string/title_activity_export_words" >
         </activity>
         <activity
             android:name=".ActCheckWords"
             android:label="@string/title_activity_act_check_words"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.sc.w_drill.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ActLearnWords"
+            android:label="@string/title_activity_act_learn_words"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

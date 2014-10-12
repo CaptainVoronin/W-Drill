@@ -339,16 +339,17 @@ public class DBWordFactory
         SQLiteDatabase db = database.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
-        if( percent == 100 )
+        cv.put( "percent", percent );
+
+        if( percent >= 100 )
         {
-            cv.put( "percent", 0 );
             cv.put( "avg_time", 0 );
-            cv.put( "stage",   1 );
+            cv.put( "stage", 1 );
         }
         else
         {
-            cv.put( "percent", percent );
             cv.put( "avg_time", time );
+            cv.put( "stage", 0 );
         }
         cv.put( "last_access", "CURRENT_TIMESTAMP" );
 

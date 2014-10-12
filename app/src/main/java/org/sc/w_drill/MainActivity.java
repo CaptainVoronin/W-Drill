@@ -33,6 +33,7 @@ public class MainActivity extends ActionBarActivity
 
     public static final int CODE_ActNewDictionary  = 0;
     public static final int CODE_ActDictionaryList = 1;
+    public static final int CODE_ActDictionaryEntry = 2;
 
     /**
      * База данных приложения
@@ -246,7 +247,7 @@ public class MainActivity extends ActionBarActivity
             text.setOnClickListener( new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent( MainActivity.this, ActDictionaryEntry.class);
+                    Intent intent = new Intent( MainActivity.this, ActLearnWords.class);
                     if( activeDict != null )
                         intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
                     else

@@ -110,6 +110,18 @@ public class EditWordFragment extends Fragment
             }
         });
         edWord = ( EditText ) rootView.findViewById( R.id.the_word );
+
+        Bundle args = getArguments();
+        if( args != null )
+        {
+            int id = args.getInt(DBWordFactory.WORD_ID_VALUE_NAME, -1);
+            if( id != -1 )
+            {
+                setActiveWord(id);
+                bringWordToScreen();
+            }
+        }
+
         return rootView;
     }
 
@@ -168,6 +180,7 @@ public class EditWordFragment extends Fragment
             try
             {
                 DBWordFactory.getInstance(database, activeDict).updateWord(activeWord);
+                mListener.onWordUpdated( activeWord.getId() );
             }catch( Exception e )
             {
                 // TODO: It must be a correct exception handler.
@@ -229,6 +242,7 @@ public class EditWordFragment extends Fragment
     public interface OnFragmentInteractionListener {
 
         public void onWordAdded( int id );
+        public void onWordUpdated( int id );
     }
 
     @Override
