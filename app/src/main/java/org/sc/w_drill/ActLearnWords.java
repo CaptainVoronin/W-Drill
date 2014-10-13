@@ -46,6 +46,8 @@ public class ActLearnWords extends ActionBarActivity
     WDdb database;
 
     ArrayList<IWord> words;
+    ArrayList<WordTmpStats> wordStats;
+
     int position = 0;
     private boolean confirmed;
     private Button btnIKnow;
@@ -131,6 +133,14 @@ public class ActLearnWords extends ActionBarActivity
     {
         // TODO: There should be a limit of rows. Now it's the constant value - 10
         words = DBWordFactory.getInstance( database, activeDict ).getWordsToLearn( 10 );
+        WordTmpStats stat;
+        for( IWord w : words )
+        {
+            stat = new WordTmpStats(w.getId());
+            stat.avgTime = w.getAvgTime();
+            wordStats.add( stat );
+        }
+
         position = 0;
     }
 
@@ -141,7 +151,18 @@ public class ActLearnWords extends ActionBarActivity
         {
             // A user has confirmed his action
             // So we must write new percent into database
+            WordTmpStats stat = null;
+
+            for( WordTmpStats s : wordStats )
+                if( s.id == activeWord.getId() )
+                {
+                    stat = s;
+                    break;
+                }
+
             int percent = activeWord.getLearnPercent();
+            stat.attempts++;
+
             if( success )
             {
                 if( percent + 20 > 100 )
@@ -155,6 +176,7 @@ public class ActLearnWords extends ActionBarActivity
                     percent = 0;
                 else
                     percent -= 20;
+                stat.faults++;
             }
 
             int time = ( int ) ( Calendar.getInstance().getTimeInMillis() - start.getTimeInMillis() );
@@ -163,6 +185,9 @@ public class ActLearnWords extends ActionBarActivity
             activeWord.setLearnPercent( percent );
             DBWordFactory.getInstance( database, activeDict )
                     .updatePercentAndTime( activeWord.getId(), activeWord.getLearnPercent(), time );
+
+            // TODO: there should be some rule to remove word from list
+            // 'cause it's impossible repeate learning five time
 
             // ...and get a new word for learning
             IWord word = getNextWord();
@@ -184,7 +209,7 @@ public class ActLearnWords extends ActionBarActivity
                 getWordsSet();
 
                 if( words == null || words.size() == 0 )
-                    showWhatToToDialog();
+                    showWhatToDoDialog();
                 else
                     processButtonPush( success );
             }
@@ -198,7 +223,7 @@ public class ActLearnWords extends ActionBarActivity
         }
     }
 
-    private void showWhatToToDialog()
+    private void showWhatToDoDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder( this );
         builder.setMessage( R.string.no_more_words ).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -210,7 +235,9 @@ public class ActLearnWords extends ActionBarActivity
             @Override
             public void onClick(DialogInterface dialogInterface, int i)
             {
-
+                Intent intent = new Intent( ActLearnWords.this, ActCheckWords.class );
+                intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
+                startActivity( intent );
             }
         });
 
@@ -297,5 +324,22 @@ public class ActLearnWords extends ActionBarActivity
 
             bringWordToScreen(activeWord);
         }
+    }
+
+    class WordTmpStats
+    {
+        public int id;
+
+        public WordTmpStats( int _id )
+        {
+            id = _id;
+            avgTime = 0;
+            attempts = 0;
+            faults = 0;
+        }
+
+        public int avgTime;
+        public int attempts;
+        public int faults;
     }
 }
