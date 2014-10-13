@@ -19,13 +19,32 @@
         android:layout_height="1dp"
         android:background="#aaa"/>
 
-    <EditText
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/editText"
+        android:orientation="horizontal"
         android:layout_marginTop="6pt"
-        android:layout_marginLeft="12pt"
-        android:layout_marginRight="12pt"
-        android:layout_gravity="center_horizontal"/>
+        android:gravity="left">
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/word_answer"
+            android:layout_weight="0.7"
+            android:maxLines="1"
+            android:inputType="text" />
+        <Button
+            style="@style/button_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dont_know"
+            android:text="\?"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Word"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/tvWord" />
 
 </LinearLayout>

@@ -56,7 +56,25 @@ public class WordRandomizer
         random = new Random();
     }
 
-    public IWord gerRandomWord() throws ArrayIndexOutOfBoundsException
+    public IWord getRandomWord( IWord notThis) throws ArrayIndexOutOfBoundsException
+    {
+        IWord word;
+        Integer iid;
+
+        while( notThis.getId() ==  ( iid = ids.get( random.nextInt( ids.size() ) ).intValue() ) )
+        {
+            // empty body
+        }
+
+        word = DBWordFactory.getInstance( database, dict ).getWordEx( iid.intValue() );
+        if( word == null )
+            throw new ArrayIndexOutOfBoundsException( "For ID " + iid );
+
+        return word;
+    }
+
+
+    public IWord getRandomWord() throws ArrayIndexOutOfBoundsException
     {
         Collections.shuffle( ids, random );
         int id = ids.get( random.nextInt( ids.size() ) ).intValue();
@@ -64,6 +82,22 @@ public class WordRandomizer
         if( word == null )
             throw new ArrayIndexOutOfBoundsException( "For ID " + id );
         return word;
+    }
+
+    public ArrayList<IWord> getAllInOrder()
+    {
+        IWord word;
+        ArrayList<IWord> words = new ArrayList<IWord>();
+
+        for( Integer id : ids ) {
+            int iid = id.intValue();
+            word = DBWordFactory.getInstance(database, dict).getWordEx( iid );
+            if (word == null)
+                throw new ArrayIndexOutOfBoundsException("For ID " + id);
+            words.add( word );
+        }
+
+        return words;
     }
 
     public int getAvalableElementsSize()

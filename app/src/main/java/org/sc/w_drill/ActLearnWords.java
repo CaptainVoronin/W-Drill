@@ -183,7 +183,7 @@ public class ActLearnWords extends ActionBarActivity
                 // Take the next set from DB
                 getWordsSet();
 
-                if( words == null && words.size() == 0 )
+                if( words == null || words.size() == 0 )
                     showWhatToToDialog();
                 else
                     processButtonPush( success );

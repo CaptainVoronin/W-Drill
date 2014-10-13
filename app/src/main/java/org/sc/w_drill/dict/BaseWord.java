@@ -86,4 +86,18 @@ public class BaseWord implements IBaseWord
     {
         return accessCount;
     }
+
+    @Override
+    public boolean equals( Object obj )
+    {
+        if( obj == null )
+            return false;
+
+        if( !(obj instanceof IBaseWord) )
+            return false;
+
+        IBaseWord d = ( IBaseWord ) obj;
+
+        return ((d.getId() == id ) && ( (d.getWord().equalsIgnoreCase( word ))));
+    }
 }

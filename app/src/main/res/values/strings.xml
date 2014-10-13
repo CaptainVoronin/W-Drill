@@ -61,5 +61,6 @@
     <string name="title_activity_act_check_words">ActCheckWords</string>
     <string name="title_activity_act_learn_words">Изучение слов</string>
     <string name="w_name">Название</string>
+    <string name="msg_not_enough_words_for_check">Недостаточно выученных слов для проведения проверки</string>
 
 </resources>

@@ -1,6 +1,5 @@
 package org.sc.w_drill.db_wrapper;
 
-import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.dict.IWord;
 
 import java.util.ArrayList;
@@ -24,31 +23,53 @@ public class RandomArrayUniqWords
      */
     public static ArrayList<IWord> make(ArrayList<IWord> initialArray, WordRandomizer randomiser, int upperLimit)
             throws RandomizerException {
+
+        IWord word;
+
         int initalSize = upperLimit - initialArray.size();
 
         if( initalSize <= 0 )
             throw new IllegalArgumentException( "Incorrect value for upper limit" );
 
-        if( initalSize > randomiser.getAvalableElementsSize() )
+        if( upperLimit > randomiser.getAvalableElementsSize() )
             throw new RandomizerException( initalSize, randomiser.getAvalableElementsSize() );
-
-        IWord word;
-
-        while ( initalSize >= 0 )
+        else if( upperLimit == randomiser.getAvalableElementsSize() )
         {
-            word = randomiser.gerRandomWord();
+            ArrayList<IWord> words = new ArrayList<IWord>();
+            words.addAll( randomiser.getAllInOrder() );
             for( IWord w : initialArray )
-                if( w.getId() == word.getId() )
-                {
-                    break;
-                }
-                else
-                {
-                    initialArray.add( word );
+                words.remove( w );
+            initialArray.addAll( words );
+        }
+        else {
+            ArrayList<IWord> words = new ArrayList<IWord>();
+
+            boolean exists = false;
+
+            while (initalSize > 0) {
+                word = randomiser.getRandomWord();
+                exists = false;
+
+                for (IWord w : initialArray)
+                    if (w.getId() == word.getId()) {
+                        exists = true;
+                        break;
+                    }
+
+                for (IWord w : words)
+                    if (w.getId() == word.getId()) {
+                        exists = true;
+                        break;
+                    }
+
+                if (!exists) {
+                    words.add(word);
                     initalSize--;
                 }
-        }
+            }
 
+            initialArray.addAll(words);
+        }
         Collections.shuffle( initialArray );
 
         return initialArray;

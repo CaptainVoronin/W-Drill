@@ -17,4 +17,7 @@ public interface IBaseWord
     public void setAvgTime( int time );
     public int getAvgTime();
     public int getAccessCount();
+
+    @Override
+    public boolean equals( Object obj );
 }

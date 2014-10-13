@@ -29,8 +29,9 @@ public class ActDictionaryEntry
         EditWordFragment.OnFragmentInteractionListener,
         DictWholeWordListFragment.DictWholeListListener
 {
-
     public static final int RESULT_WORD_UPDATED = Activity.RESULT_FIRST_USER + 1;
+    private static final int ADD_WORDS_FRAGMENT_INDEX = 0 ;
+    private static final int WHILE_LIST_FRAGMENT_INDEX = 1;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -136,10 +137,10 @@ public class ActDictionaryEntry
         switch (entryKind)
         {
             case ActDictionaryEntry.ADD_WORDS:
-                getSupportActionBar().setSelectedNavigationItem(0);
+                getSupportActionBar().setSelectedNavigationItem( ADD_WORDS_FRAGMENT_INDEX );
                 break;
             case ActDictionaryEntry.WHOLE_LIST_ENTRY:
-                getSupportActionBar().setSelectedNavigationItem(1);
+                getSupportActionBar().setSelectedNavigationItem( WHILE_LIST_FRAGMENT_INDEX);
                 break;
         }
     }
@@ -209,7 +210,7 @@ public class ActDictionaryEntry
     public void onWordSelected(int id)
     {
         editWordFragment.setActiveWord(id);
-        getSupportActionBar().setSelectedNavigationItem(1);
+        getSupportActionBar().setSelectedNavigationItem(ADD_WORDS_FRAGMENT_INDEX);
     }
 
     @Override
@@ -240,7 +241,7 @@ public class ActDictionaryEntry
         @Override
         public Fragment getItem(int position)
         {
-            if (position == 0)
+            if (position == ADD_WORDS_FRAGMENT_INDEX)
             {
                 if (editWordFragment == null)
                 {
@@ -278,9 +279,9 @@ public class ActDictionaryEntry
             Locale l = Locale.getDefault();
             switch (position)
             {
-                case 0:
+                case ADD_WORDS_FRAGMENT_INDEX:
                     return getString(R.string.add_words).toUpperCase(l);
-                case 1:
+                case WHILE_LIST_FRAGMENT_INDEX:
                     return getString(R.string.whole_word_list).toUpperCase(l);
             }
             return null;
