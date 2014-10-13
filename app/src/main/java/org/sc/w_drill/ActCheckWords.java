@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -15,6 +14,8 @@ import android.widget.TextView;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
+import org.sc.w_drill.db_wrapper.RandomArrayUniqWords;
+import org.sc.w_drill.db_wrapper.RandomizerException;
 import org.sc.w_drill.db_wrapper.WordRandomizer;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IWord;
@@ -89,16 +90,23 @@ public class ActCheckWords extends ActionBarActivity {
 
     void changeWord()
     {
-        activeWord = getWord();
-        if( activeView != null )
-            rootView.removeView( activeView );
-        activeView = getView();
-        rootView.addView( activeView );
-        rootView.refreshDrawableState();
+        try {
+            activeWord = getWord();
+            if (activeView != null)
+                rootView.removeView(activeView);
+            activeView = getView();
+            rootView.addView(activeView);
+        } catch( RandomizerException ex )
+        {
+            showError( ex.getMessage() );
+        }
     }
 
-    private View getView()
-    {
+    private void showError(String message) {
+
+    }
+
+    private View getView() throws RandomizerException {
         if( activeWord.getLearnPercent() > 200 )
         {
             mode = Mode.CHOISE;
@@ -116,8 +124,7 @@ public class ActCheckWords extends ActionBarActivity {
         return randomizer.gerRandomWord();
     }
 
-    View getChooseOptionView()
-    {
+    View getChooseOptionView() throws RandomizerException {
 
         //if( chooseOptionView == null )
         //{
@@ -174,11 +181,8 @@ public class ActCheckWords extends ActionBarActivity {
         subset.add( activeWord );
         IWord word;
 
-        // TODO: it's wrong method there can be duplicates
-        for( int i = 0; i < 3; i++ )
-            subset.add( randomizer.gerRandomWord() );
 
-        arrayRandomizer.stir( subset );
+        subset = RandomArrayUniqWords.make(subset, randomizer, 4);
 
         TextView tv = ( TextView ) chooseOptionView.findViewById( R.id.word_for_check );
         tv.setText( activeWord.getWord() );
@@ -268,8 +272,6 @@ public class ActCheckWords extends ActionBarActivity {
         if( reinit )
             randomizer.init(  whereSTMT );
     }
-
-
 
     void compareWords( String word  )
     {

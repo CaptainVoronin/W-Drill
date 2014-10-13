@@ -446,7 +446,6 @@ public class DictWholeWordListFragment extends Fragment
         protected void onCreate(Bundle savedInstanceState)
         {
             super.onCreate(savedInstanceState);
-            //requestWindowFeature(Window.FEATURE_NO_TITLE);
             setTitle( R.string.dlg_filter_title );
             setContentView(R.layout.dlg_words_filter);
             rbAll = ( RadioButton ) findViewById( R.id.rbAll );

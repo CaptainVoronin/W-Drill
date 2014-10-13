@@ -18,7 +18,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import org.sc.w_drill.db.WDdb;
@@ -28,10 +28,8 @@ import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.ActiveDictionaryStateFragment;
 
 
-public class MainActivity extends ActionBarActivity
+public class MainActivity extends ActionBarActivity implements DlgDictionary.OnDictionaryOkClickListener
 {
-
-    public static final int CODE_ActNewDictionary  = 0;
     public static final int CODE_ActDictionaryList = 1;
     public static final int CODE_ActDictionaryEntry = 2;
 
@@ -167,8 +165,19 @@ public class MainActivity extends ActionBarActivity
             case R.id.action_import:
                 importDictionary();
                 break;
+            case R.id.action_new_dict:
+            {
+                showNewDictionaryDialog();
+            }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showNewDictionaryDialog()
+    {
+        DlgDictionary dlg = new DlgDictionary( this );
+        dlg.setOkListsner( this );
+        dlg.show();
     }
 
     private void importDictionary()
@@ -205,7 +214,6 @@ public class MainActivity extends ActionBarActivity
         int id;
         switch( requestCode )
         {
-            case CODE_ActNewDictionary:
             case CODE_ActDictionaryList:
                 if( data != null )
                     id = data.getIntExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1 );
@@ -375,10 +383,9 @@ public class MainActivity extends ActionBarActivity
         TextView text = ( TextView ) view.findViewById( R.id.msg_goto_new_dictionary );
         text.setOnClickListener( new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Intent intent = new Intent( MainActivity.this, ActNewDictionary.class);
-                intent.putExtra( ActNewDictionary.CANCELABLE_PAR_NAME, false );
-                startActivityForResult(intent, CODE_ActNewDictionary);
+            public void onClick(View view)
+            {
+                showNewDictionaryDialog();
             }
         });
         return view;
@@ -410,4 +417,9 @@ public class MainActivity extends ActionBarActivity
         return view;
     }
 
+    @Override
+    public void onNewDictOkClick(int dictId)
+    {
+        detectState( dictId );
+    }
 }

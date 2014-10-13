@@ -8,6 +8,7 @@ import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IWord;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 /**
@@ -57,10 +58,16 @@ public class WordRandomizer
 
     public IWord gerRandomWord() throws ArrayIndexOutOfBoundsException
     {
+        Collections.shuffle( ids, random );
         int id = ids.get( random.nextInt( ids.size() ) ).intValue();
         IWord word = DBWordFactory.getInstance( database, dict ).getWordEx(id);
         if( word == null )
             throw new ArrayIndexOutOfBoundsException( "For ID " + id );
         return word;
+    }
+
+    public int getAvalableElementsSize()
+    {
+        return ids.size();
     }
 }

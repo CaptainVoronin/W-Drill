@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class WDdb extends SQLiteOpenHelper
 {
-    public final static int SCHEME_VERSION = 13;
+    public final static int SCHEME_VERSION = 14;
 
     public final static String T_DICTIONARY = "dictionary";
     public final static String T_WORDS = "words";
@@ -25,7 +25,7 @@ public class WDdb extends SQLiteOpenHelper
             "words( id INTEGER PRIMARY KEY autoincrement, " +
             "dict_id INTEGER NOT NULL, " +
             "uuid TEXT NOT NULL UNIQUE, " +
-            "word TEXT NOT NULL UNIQUE, " +
+            "word TEXT NOT NULL, " +
             "transcription TEXT, " +
             "stage INTEGER NOT NULL DEFAULT 0, " +
             "percent INTEGER NOT NULL DEFAULT 0," +
@@ -34,6 +34,7 @@ public class WDdb extends SQLiteOpenHelper
             "created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
             "updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
             "last_access TIMESTAMP," +
+            "CONSTRAINT uniq_within_dict UNIQUE ( word, dict_id ) ON CONFLICT ROLLBACK," +
             "FOREIGN KEY(dict_id) REFERENCES dictionary( id ) ON DELETE CASCADE );";
 
     final static String CREATE_WORDS_UPDATE_TRIGGER = "CREATE TRIGGER au_words AFTER UPDATE ON words " +
@@ -85,8 +86,8 @@ public class WDdb extends SQLiteOpenHelper
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        //проверяете какая версия сейчас и делаете апдейт
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
+    {
 
         if( !needUpdate( oldVersion, newVersion ) )
             return;

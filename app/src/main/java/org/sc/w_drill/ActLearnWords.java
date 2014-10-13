@@ -127,7 +127,6 @@ public class ActLearnWords extends ActionBarActivity
         return super.onOptionsItemSelected(item);
     }
 
-
     private void getWordsSet()
     {
         // TODO: There should be a limit of rows. Now it's the constant value - 10

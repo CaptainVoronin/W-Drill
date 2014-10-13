@@ -10,7 +10,7 @@
     <string name="title_activity_act_new_dictionary">Создание нового словаря</string>
     <string name="new_dictionary_comment">Создание нового словаря</string>
     <string name="enter_dict_name_prompt">Название словаря</string>
-    <string name="language">Язык</string>
+    <string name="w_language">Язык</string>
     <string name="now_dicts_click_to_create_one">Словарей пока нет. Нажмите, чтобы перейти к созданию словаря.</string>
     <string name="dict_name_already_exists">Словарь с таким названием уже существует</string>
     <string name="title_activity_act_dictionary_list">Список словарей</string>
@@ -22,7 +22,7 @@
     <string name="action_dict_list">Словари</string>
     <string name="action_move_and_delete">Перести слова и удалить</string>
     <string name="action_delete">Удалить</string>
-    <string name="action_new_dictionary">Новый словарь</string>
+    <string name="txt_new_dictionary">Новый словарь</string>
     <string name="delete_dictionary_question">Вы действитиельно хотите удалить словарь %s?</string>
     <string name="current_dict_info" formatted="false">%s (%s)</string>
     <string name="msg_have_to_choose_dict">Необходимо выбрать словарь</string>
@@ -60,5 +60,6 @@
     <string name="dlg_order_title">Порядок слов</string>
     <string name="title_activity_act_check_words">ActCheckWords</string>
     <string name="title_activity_act_learn_words">Изучение слов</string>
+    <string name="w_name">Название</string>
 
 </resources>

@@ -4,7 +4,7 @@
     tools:context="org.sc.w_drill.ActDictionaryList" >
 
     <item android:id="@+id/action_new_dictionary"
-        android:title="@string/action_new_dictionary"
+        android:title="@string/txt_new_dictionary"
         android:orderInCategory="100"
         app:showAsAction="never" />
 

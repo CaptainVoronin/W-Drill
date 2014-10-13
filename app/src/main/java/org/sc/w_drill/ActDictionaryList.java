@@ -24,7 +24,8 @@ import org.sc.w_drill.dict.Dictionary;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActDictionaryList extends ActionBarActivity {
+public class ActDictionaryList extends ActionBarActivity implements DlgDictionary.OnDictionaryOkClickListener
+{
 
     WDdb db;
 
@@ -71,7 +72,7 @@ public class ActDictionaryList extends ActionBarActivity {
         int id = item.getItemId();
         if (id == R.id.action_new_dictionary)
         {
-            goToNewDictionaryActivity( true );
+            goShowNewDictionaryDialog();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -94,20 +95,15 @@ public class ActDictionaryList extends ActionBarActivity {
      * This function makes a transition to an activity,
      * which creates a new dictionary.
      */
-    protected void goToNewDictionaryActivity( boolean cancelable )
+    protected void goShowNewDictionaryDialog()
     {
-        Intent intent = new Intent( this, ActNewDictionary.class );
-        intent.putExtra( ActNewDictionary.CANCELABLE_PAR_NAME, cancelable );
-        startActivityForResult( intent, MainActivity.CODE_ActNewDictionary );
+        DlgDictionary dlg = new DlgDictionary( this );
+        dlg.setOkListsner( this );
+        dlg.show();
     }
 
-    protected void onActivityResult (int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case MainActivity.CODE_ActNewDictionary:
-                if (resultCode == Activity.RESULT_OK)
-                    prepareList();
-                return;
-        }
+    protected void onActivityResult (int requestCode, int resultCode, Intent data)
+    {
     }
 
     private void prepareList()
@@ -131,6 +127,12 @@ public class ActDictionaryList extends ActionBarActivity {
 
         listDicts.setOnItemClickListener(new OnDictItemClickListener());
         listDicts.setOnItemLongClickListener(new OnDictItemLongClickListener());
+    }
+
+    @Override
+    public void onNewDictOkClick(int dictId)
+    {
+        prepareList();
     }
 
     /**
@@ -186,7 +188,7 @@ public class ActDictionaryList extends ActionBarActivity {
             // a simple click should send us to ActNewDictionary activity
             else
             {
-                goToNewDictionaryActivity( false );
+                goShowNewDictionaryDialog();
             }
         }
     }
