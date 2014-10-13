@@ -252,11 +252,12 @@ public class DBWordFactory
                         DBPair pair = new DBPair(crs1.getInt(0), crs1.getString(1));
                         m.examples().add(pair);
                     }
-                    crs1.close();
+
                 }
+                crs1.close();
             }
-            crs.close();
         }
+        crs.close();
         return word;
     }
 
