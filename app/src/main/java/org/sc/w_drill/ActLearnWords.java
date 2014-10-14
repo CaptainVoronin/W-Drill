@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,8 +18,8 @@ import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IBaseWord;
 import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
+import org.sc.w_drill.utils.CircularArrayList;
 import org.sc.w_drill.utils.DBPair;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -44,16 +45,13 @@ public class ActLearnWords extends ActionBarActivity
     TextView wordTranscription;
     TextView wordExample;
     WDdb database;
-
-    ArrayList<IWord> words;
     ArrayList<WordTmpStats> wordStats;
-
-    int position = 0;
     private boolean confirmed;
     private Button btnIKnow;
     private Button btnIDontKnow;
     long deltaTime = 0;
     Calendar start;
+    CircularArrayList<IWord> words = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +93,7 @@ public class ActLearnWords extends ActionBarActivity
         getWordsSet();
         if( words != null )
         {
-            IWord word = getNextWord();
+            IWord word = words.next();
             if( word != null )
                 bringWordToScreen( word );
         }
@@ -131,17 +129,41 @@ public class ActLearnWords extends ActionBarActivity
 
     private void getWordsSet()
     {
-        // TODO: There should be a limit of rows. Now it's the constant value - 10
-        words = DBWordFactory.getInstance( database, activeDict ).getWordsToLearn( 10 );
         WordTmpStats stat;
-        for( IWord w : words )
-        {
-            stat = new WordTmpStats(w.getId());
-            stat.avgTime = w.getAvgTime();
-            wordStats.add( stat );
-        }
 
-        position = 0;
+        // TODO: There should be a limit of rows. Now it's the constant value - 10
+        ArrayList<IWord> wrd = DBWordFactory.getInstance( database, activeDict ).getWordsToLearn( 10 );
+
+        if( wrd == null )
+        {
+            words = null;
+            showMessageAndExit(getString(R.string.txt_no_words_to_learn));
+        }
+        else {
+            words = new CircularArrayList( wrd);
+
+            wordStats = new ArrayList<WordTmpStats>();
+            for (IWord w : wrd)
+            {
+                stat = new WordTmpStats(w.getId());
+                stat.avgTime = w.getAvgTime();
+                wordStats.add(stat);
+            }
+        }
+    }
+
+    private void showMessageAndExit(String string)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder( this );
+        builder.setMessage( string ).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                finish();
+            }
+        });
+
+        builder.setCancelable(true);
+        builder.create();
+        builder.show();
     }
 
     private void processButtonPush( boolean success )
@@ -172,11 +194,11 @@ public class ActLearnWords extends ActionBarActivity
             }
             else
             {
-                if( percent - 20 > 0 )
+                if( percent - 20 < 0 )
                     percent = 0;
                 else
                     percent -= 20;
-                stat.faults++;
+                stat.attempts--;
             }
 
             int time = ( int ) ( Calendar.getInstance().getTimeInMillis() - start.getTimeInMillis() );
@@ -188,11 +210,24 @@ public class ActLearnWords extends ActionBarActivity
 
             // TODO: there should be some rule to remove word from list
             // 'cause it's impossible repeate learning five time
+            if ( stat.attempts >= 1 )
+            {
+                if( words.remove( activeWord ) )
+                    Log.d("[ActLearnWords::getNextWord]", "Word id " + activeWord.getId() + " was removed"  );
+                else
+                    Log.e("[ActLearnWords::getNextWord]", "Word id " + activeWord.getId() + " wasn't found in list!"  );
+
+                if( wordStats.remove( stat ) )
+                    Log.d("[ActLearnWords::getNextWord]", "Stat id " + activeWord.getId() + " was removed"  );
+                else
+                    Log.e("[ActLearnWords::getNextWord]", "Stat id " + activeWord.getId() + " wasn't found in list!");
+            }
 
             // ...and get a new word for learning
-            IWord word = getNextWord();
-            if (word != null)
+
+            if ( words.size() != 0 )
             {
+                IWord word = words.next();
                 // There is another one word
                 // Set buttons to default state
                 btnIKnow.setText(getString(R.string.i_know));
@@ -225,10 +260,13 @@ public class ActLearnWords extends ActionBarActivity
 
     private void showWhatToDoDialog()
     {
+        // TODO: This dialog can be shown if there are a words for checking
+
         AlertDialog.Builder builder = new AlertDialog.Builder( this );
         builder.setMessage( R.string.no_more_words ).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User cancelled the dialog
+                finish();
             }
         }).setPositiveButton( android.R.string.ok, new DialogInterface.OnClickListener()
         {
@@ -276,14 +314,6 @@ public class ActLearnWords extends ActionBarActivity
         wordMeaning.setText( "[...]" );
         wordTranscription.setText("");
         wordExample.setText("");
-    }
-
-    IWord getNextWord()
-    {
-        if( position + 1 > words.size() )
-            return null;
-        else
-            return words.get( position++ );
     }
 
     void showMeaning()

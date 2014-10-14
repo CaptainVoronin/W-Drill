@@ -13,7 +13,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.ActionMode;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,7 +20,6 @@ import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.dict.Dictionary;
-import org.sc.w_drill.dict.IWord;
 
 public class ActDictionaryEntry
         extends ActionBarActivity
@@ -30,6 +28,7 @@ public class ActDictionaryEntry
         DictWholeWordListFragment.DictWholeListListener
 {
     public static final int RESULT_WORD_UPDATED = Activity.RESULT_FIRST_USER + 1;
+    public static final int DICTIONARY_CHANGED = Activity.RESULT_FIRST_USER + 2;
     private static final int ADD_WORDS_FRAGMENT_INDEX = 0 ;
     private static final int WHILE_LIST_FRAGMENT_INDEX = 1;
 
@@ -48,6 +47,7 @@ public class ActDictionaryEntry
 
     public static final String ENTRY_KIND_PARAM_NAME = "ENTRY_KIND_PARAM_NAME";
     public static final String UPDATED_WORD_ID_PARAM_NAME = "UPDATED_WORD_ID_PARAM_NAME";
+    public static final String WORDS_ADDED_PARAM_NAME = "WORDS_ADDED_PARAM_NAME";
 
     public static final int WHOLE_LIST_ENTRY = 0;
     public static final int WORDS_TO_LEARN = 1;
@@ -61,10 +61,12 @@ public class ActDictionaryEntry
 
     WDdb database;
 
-    Dictionary activeDictionary;
+    Dictionary activeDict;
     int wordId = -1;
     private ActionMode actionMode;
     private int updatedWordId = -1;
+    private boolean wordsAdded = false;
+    private boolean wordsDeleted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -82,7 +84,7 @@ public class ActDictionaryEntry
         {
             dictId = data.getIntExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
             if (dictId != -1)
-                activeDictionary = DBDictionaryFactory.getInstance(database).getDictionaryById(dictId);
+                activeDict = DBDictionaryFactory.getInstance(database).getDictionaryById(dictId);
             else
                 fatalError();
 
@@ -96,7 +98,7 @@ public class ActDictionaryEntry
         // Set up the action bar.
         //final ActionBar actionBar = getSupportActionBar();
         final ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle(activeDictionary.getName());
+        actionBar.setTitle(activeDict.getName());
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
@@ -198,6 +200,8 @@ public class ActDictionaryEntry
         {
             dictWholeWordListFragment.setNeedRefresh();
         }
+
+        wordsAdded = true;
     }
 
     @Override
@@ -211,6 +215,12 @@ public class ActDictionaryEntry
     {
         editWordFragment.setActiveWord(id);
         getSupportActionBar().setSelectedNavigationItem(ADD_WORDS_FRAGMENT_INDEX);
+    }
+
+    @Override
+    public void onWordsDeleted()
+    {
+        wordsDeleted = true;
     }
 
     @Override
@@ -254,7 +264,7 @@ public class ActDictionaryEntry
                     }
                 }
 
-                editWordFragment.setParams(activeDictionary.getId(), -1);
+                editWordFragment.setParams(activeDict.getId(), -1);
                 return (Fragment) editWordFragment;
             }
             else
@@ -262,7 +272,7 @@ public class ActDictionaryEntry
                 if (dictWholeWordListFragment == null)
                     dictWholeWordListFragment = DictWholeWordListFragment.newInstance();
 
-                dictWholeWordListFragment.setDict(activeDictionary);
+                dictWholeWordListFragment.setDict(activeDict);
                 return (Fragment) dictWholeWordListFragment;
             }
         }
@@ -330,12 +340,20 @@ public class ActDictionaryEntry
 
     public void onBackPressed()
     {
+        Intent resultData = new Intent();
+
         if (updatedWordId != -1)
         {
-            Intent resultData = new Intent();
             resultData.putExtra(UPDATED_WORD_ID_PARAM_NAME, Integer.valueOf(updatedWordId));
             setResult(RESULT_WORD_UPDATED, resultData);
         }
+
+        if( wordsAdded || wordsDeleted )
+        {
+            resultData.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, Integer.valueOf(activeDict.getId()));
+            setResult(DICTIONARY_CHANGED, resultData);
+        }
+
         super.onBackPressed();
     }
 }

@@ -20,14 +20,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:text="Learn words, \nbitch!"
+                android:text="[...]"
                 android:id="@+id/word"
                 android:paddingBottom="12pt"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="New Text"
+                android:text="..."
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textStyle ="italic"
                 android:id="@+id/examples"/>
@@ -52,7 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Medium Text"
+                android:text="[...]"
                 android:id="@+id/transcription"
                 android:layout_gravity="center_horizontal"/>
 

@@ -19,6 +19,7 @@ import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.db_wrapper.RandomArrayUniqWords;
+import org.sc.w_drill.db_wrapper.RandomizerEmptyException;
 import org.sc.w_drill.db_wrapper.RandomizerException;
 import org.sc.w_drill.db_wrapper.WordRandomizer;
 import org.sc.w_drill.dict.Dictionary;
@@ -63,7 +64,14 @@ public class ActCheckWords extends ActionBarActivity {
 
         activeDict = DBDictionaryFactory.getInstance( database ).getDictionaryById( dictId );
         randomizer = new WordRandomizer( database, activeDict );
-        randomizer.init( whereSTMT );
+        try {
+            randomizer.init(whereSTMT);
+        }
+        catch( RandomizerEmptyException ex )
+        {
+            showErrorEndExit( "Нет слов для проверки по графику" );
+            return;
+        }
         subset = new ArrayList<IWord>();
         arrayRandomizer = new ArrayListRandomizer<IWord>();
         changeWord();
@@ -103,15 +111,15 @@ public class ActCheckWords extends ActionBarActivity {
             rootView.addView(activeView);
         } catch( RandomizerException ex )
         {
-            showError( getString( R.string.msg_not_enough_words_for_check ) );
+            showErrorEndExit(getString(R.string.msg_not_enough_words_for_check));
         }
         catch ( Exception ex )
         {
-            showError( ex.getMessage() );
+            showErrorEndExit(ex.getMessage());
         }
     }
 
-    private void showError(String message)
+    private void showErrorEndExit(String message)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder( this );
         builder.setMessage(message).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -321,8 +329,13 @@ public class ActCheckWords extends ActionBarActivity {
         DBWordFactory.getInstance( database, activeDict )
                 .updatePercentAndTime( activeWord.getId(), percent, 0 );
 
-        if( reinit )
-            randomizer.init(  whereSTMT );
+        try {
+            if (reinit)
+                randomizer.init(whereSTMT);
+        } catch( RandomizerEmptyException ex )
+        {
+            showErrorEndExit( getString( R.string.txt_no_words_to_check ) );
+        }
     }
 
     void compareWords( String word )

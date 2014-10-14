@@ -32,6 +32,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 {
     public static final int CODE_ActDictionaryList = 1;
     public static final int CODE_ActDictionaryEntry = 2;
+    public static final int CODE_ActSettings = 3;
 
     /**
      * База данных приложения
@@ -148,18 +149,20 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
+        Intent intent;
         switch ( id )
         {
             case R.id.action_settings:
+                intent = new Intent(this, ActSettings.class);
+                startActivityForResult(intent, CODE_ActSettings);
                 return true;
             case R.id.action_dict_list:
             {
-                Intent intent = new Intent(this, ActDictionaryList.class);
+                intent = new Intent(this, ActDictionaryList.class);
                 startActivityForResult(intent, CODE_ActDictionaryList);
             }
             case R.id.action_export:
-                Intent intent = new Intent(this, ExportWordsActivity.class);
+                intent = new Intent(this, ExportWordsActivity.class);
                 startActivity(intent);
                 break;
             case R.id.action_import:
@@ -225,6 +228,17 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
                         id = activeDict.getId();
                 }
                 detectState( id );
+                break;
+            case CODE_ActDictionaryEntry:
+                if( data != null )
+                {
+                    // Here we are interested in changing of a dictionary
+                    if( resultCode == ActDictionaryEntry.DICTIONARY_CHANGED )
+                    {
+                        id = data.getIntExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1 );
+                        detectState( id );
+                    }
+                }
                 break;
             default:
                 break;
@@ -299,7 +313,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
                 intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.ADD_WORDS );
 
-                startActivity(intent);
+                startActivityForResult(intent, CODE_ActDictionaryEntry);
             }
         });
 
@@ -317,7 +331,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
                 intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WHOLE_LIST_ENTRY );
 
-                startActivity(intent);
+                startActivityForResult(intent, CODE_ActDictionaryEntry);
             }
         });
 

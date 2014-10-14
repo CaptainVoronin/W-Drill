@@ -30,13 +30,13 @@ public class WordRandomizer
         dict = _dict;
     }
 
-    public void init( String whereStatement )
+    public void init( String whereStatement ) throws RandomizerEmptyException
     {
         statement = statement + " and " + whereStatement;
         init();
     }
 
-    public void init() throws ArrayIndexOutOfBoundsException
+    public void init() throws RandomizerEmptyException
     {
         SQLiteDatabase db = database.getReadableDatabase();
 
@@ -51,7 +51,7 @@ public class WordRandomizer
         db.close();
 
         if( ids.size() == 0 || ids.size() == 1 )
-            throw new ArrayIndexOutOfBoundsException( );
+            throw new RandomizerEmptyException();
 
         random = new Random();
     }

@@ -2,8 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="org.sc.w_drill.DictWholeWordListFragment"
-    android:onClick="OnFilterClick">
+    tools:context="org.sc.w_drill.DictWholeWordListFragment">
 
     <LinearLayout
         android:layout_width="match_parent"

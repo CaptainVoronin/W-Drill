@@ -20,12 +20,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ActNewDictionary"
-            android:label="@string/title_activity_act_new_dictionary" >
-        </activity>
-        <activity
             android:name=".ActDictionaryList"
-            android:label="@string/title_activity_act_dictionary_list" >
+            android:label="@string/title_activity_act_dictionary_list"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.sc.w_drill.MainActivity" />
         </activity>
         <activity
             android:name=".ActDictionaryEntry"
@@ -34,7 +34,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.sc.w_drill.MainActivity" />
-
         </activity>
         <activity
             android:name=".ExportWordsActivity"
@@ -55,6 +54,10 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.sc.w_drill.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ActSettings"
+            android:label="@string/title_activity_act_settings" >
         </activity>
     </application>
 

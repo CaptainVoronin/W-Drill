@@ -277,7 +277,7 @@ public class DBWordFactory
         "select id, (julianday( 'now' ) - julianday( last_access )) as result " +
                 "from words where " +
                 "stage = 0 and " +
-                "result >= 1 and " +
+                "( result >= 0.08 or last_access IS NULL ) and  " +
                 "dict_id = ? " +
                 "order by access_count asc, percent asc, result desc, avg_time desc " +
                 "limit ?; ";
@@ -303,23 +303,39 @@ public class DBWordFactory
         return words;
     }
 
-    public void deleteWords(ArrayList<Integer> selectedWords)
-    {
-        SQLiteDatabase db = database.getWritableDatabase();
-        db.beginTransaction();
+    public int deleteWords(ArrayList<Integer> selectedWords) throws SQLiteException {
         int cnt = 0;
-        for( Integer val : selectedWords ) {
-            if( db.delete(WDdb.T_WORDS, "id=?", new String[]{val.toString()}) != 0 )
-                cnt++;
-            else
-                Log.w("[DBWordFactory::deleteWords]", "Word with id " + val.toString() + " wasn't delete");
+        SQLiteDatabase db = database.getWritableDatabase();
+        SQLiteException ex = null;
+        try
+        {
+            db.beginTransaction();
+
+            for (Integer val : selectedWords)
+            {
+                if (db.delete(WDdb.T_WORDS, "id=?", new String[]{val.toString()}) != 0)
+                    cnt++;
+                else
+                    Log.w("[DBWordFactory::deleteWords]", "Word with id " + val.toString() + " wasn't delete");
+            }
+
+            Log.w("[DBWordFactory::deleteWords]", "Was deleted " + cnt + " from " + selectedWords.size());
+
+            db.setTransactionSuccessful();
         }
-
-        Log.w("[DBWordFactory::deleteWords]", "Was deleted " + cnt + " from " + selectedWords.size() );
-
-        db.setTransactionSuccessful();
-        db.endTransaction();
-        db.close();
+        catch ( SQLiteException e )
+        {
+            ex = e;
+            e.printStackTrace();
+        }
+        finally
+        {
+            db.endTransaction();
+            db.close();
+            if( ex != null )
+                throw ex;
+        }
+        return cnt;
     }
 
     public boolean findWord(String word)

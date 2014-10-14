@@ -221,6 +221,7 @@ public class DictWholeWordListFragment extends Fragment
     public interface DictWholeListListener
     {
         public void onWordSelected( int id );
+        public void onWordsDeleted( );
         public void onStatActionModeForWordList();
         public void onFinishActionModeForWordList();
     }
@@ -403,9 +404,15 @@ public class DictWholeWordListFragment extends Fragment
 
     public void deleteSelected()
     {
-        DBWordFactory.getInstance( database, activeDict ).deleteWords( selectedWords );
+        int cnt = DBWordFactory.getInstance( database, activeDict ).deleteWords( selectedWords );
         selectedWords.clear();
-        refreshList();
+
+        if( cnt != 0 )
+        {
+            if( mListener != null )
+                mListener.onWordsDeleted( );
+            refreshList();
+        }
     }
 
     public void onDestroyView ()
