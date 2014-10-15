@@ -258,13 +258,17 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         TextView text = ( TextView ) view.findViewById( R.id.dict_name );
         text.setText( activeDict.getName() );
 
+        // Set the dictionary lang
+        text = ( TextView ) view.findViewById( R.id.tvDictLang );
+        text.setText( activeDict.getLang() );
+
         // Set the word count
         text = ( TextView ) view.findViewById( R.id.word_count);
-        text.setText( getString( R.string.words_total, activeDict.getWordCount() ) );
+        text.setText( Integer.valueOf( activeDict.getWordCount() ).toString() );
 
         //Set the words-to-learn count
-        text = ( TextView ) view.findViewById( R.id.words_to_learn);
-        text.setText( getString( R.string.words_to_learn, activeDict.getWordsToLearn() ) );
+        text = ( TextView ) view.findViewById( R.id.words_for_learn);
+        text.setText( Integer.valueOf( activeDict.getWordsToLearn() ).toString() );
         if( activeDict.getWordsToLearn() != 0  )
             text.setOnClickListener( new View.OnClickListener() {
                 @Override
@@ -282,8 +286,8 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
             });
 
         //Set the words-to-check count
-        text = ( TextView ) view.findViewById( R.id.words_to_check);
-        text.setText( getString( R.string.words_to_check, activeDict.getWordsToCheck() ) );
+        text = ( TextView ) view.findViewById( R.id.words_for_check);
+        text.setText( Integer.valueOf( activeDict.getWordsToCheck() ).toString() );
         if( activeDict.getWordsToCheck() != 0 )
             text.setOnClickListener( new View.OnClickListener() {
                 @Override

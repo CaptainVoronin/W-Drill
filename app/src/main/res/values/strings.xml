@@ -27,9 +27,9 @@
     <string name="current_dict_info" formatted="false">%s (%s)</string>
     <string name="msg_have_to_choose_dict">Необходимо выбрать словарь</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="words_total">Всего слов — %s</string>
-    <string name="words_to_learn">Слов для запоминания — %s</string>
-    <string name="words_to_check">Слов для проверки — %s</string>
+    <string name="txt_words_total">Всего слов</string>
+    <string name="txt_words_for_learn">Слов для запоминания</string>
+    <string name="txt_words_for_check">Слов для проверки</string>
     <string name="row_dict_list_dict_word_count">всего слов — %s</string>
     <string name="dict_has_to_be_supplemented_with_words">Словарь необходимо пополнить словами</string>
     <string name="title_activity_act_dictionary_entry">ActDictionaryEntry</string>
@@ -65,5 +65,6 @@
     <string name="txt_no_words_to_learn">Нет слов для изучения</string>
     <string name="txt_no_words_to_check">Нет слов для проверки</string>
     <string name="nothing_to_do">Пока нет слов ни для изучения, ни для проверки.</string>
+    <string name="w_dictionary">Словарь</string>
 
 </resources>

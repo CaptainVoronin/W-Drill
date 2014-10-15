@@ -80,7 +80,7 @@ public class ActiveDictionaryStateFragment extends Fragment
         if( activeDict.getWordCount() != 0 )
         {
             text = ( TextView ) view.findViewById( R.id.word_count );
-            text.setText( getActivity().getResources().getString( R.string.words_total, activeDict.getWordCount() ) );
+            text.setText( getActivity().getResources().getString( R.string.txt_words_total, activeDict.getWordCount() ) );
             text.setOnClickListener( new View.OnClickListener()
             {
                 @Override
@@ -93,8 +93,8 @@ public class ActiveDictionaryStateFragment extends Fragment
             int cnt = DBDictionaryFactory.getInstance( database )
                     .getWordsTo(activeDict.getId(), DBDictionaryFactory.STAGE_LEARN);
 
-            text = (TextView) view.findViewById(R.id.words_to_learn);
-            text.setText(getActivity().getResources().getString(R.string.words_to_learn, cnt));
+            text = (TextView) view.findViewById(R.id.words_for_learn);
+            text.setText(getActivity().getResources().getString(R.string.txt_words_for_learn, cnt));
 
             text.setOnClickListener( new View.OnClickListener()
             {
@@ -109,8 +109,8 @@ public class ActiveDictionaryStateFragment extends Fragment
             cnt = DBDictionaryFactory.getInstance(database)
                     .getWordsTo(activeDict.getId(), DBDictionaryFactory.STAGE_CHECK);
 
-            text = (TextView) view.findViewById(R.id.words_to_check);
-            text.setText(getActivity().getResources().getString(R.string.words_to_check, cnt));
+            text = (TextView) view.findViewById(R.id.words_for_check);
+            text.setText(getActivity().getResources().getString(R.string.txt_words_for_check, cnt));
 
             text.setOnClickListener( new View.OnClickListener()
             {
@@ -119,8 +119,6 @@ public class ActiveDictionaryStateFragment extends Fragment
                 {
                     Log.d( "[MainActivity]", "Go to check words");
                     mListener.goToDictionaryEntry(activeDict.getId(), ActDictionaryEntry.WORDS_TO_STUDY);
-
-
                 }
             });
 

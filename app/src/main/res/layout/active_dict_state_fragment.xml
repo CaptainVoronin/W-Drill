@@ -1,36 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="8pt">
 
     <TextView
-        style="@style/LargeTitleStyle"
+        style="@style/SubHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/dict_name" />
+        android:textColor="@color/TextLtGray"
+        android:text="@string/w_dictionary"/>
 
     <TextView
-        style="@style/LargeTitleStyle"
+        style="@style/ExtrLargeTitleStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/words_total"
-        android:id="@+id/word_count" />
+        android:text="Название словаря"
+        android:id="@+id/dict_name"/>
 
     <TextView
-        style="@style/LargeTitleStyle"
+        style="@style/SubHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/words_to_learn"
-        android:id="@+id/words_to_learn" />
+        android:text="язык словаря"
+        android:textStyle="italic"
+        android:id="@+id/tvDictLang"/>
 
     <TextView
-        style="@style/LargeTitleStyle"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:gravity="center_horizontal"
+        android:background="#aaa"/>
+
+    <TableLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/words_to_check"
-        android:id="@+id/words_to_check" />
+        android:layout_marginTop="6pt"
+        android:layout_marginBottom="12pt"
+        android:layout_marginLeft="6pt">
+
+        <TableRow android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="6pt">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/LargeTitleStyle"
+                android:id="@+id/txt1"
+                android:text="@string/txt_words_total"/>
+
+            <TextView
+                android:paddingLeft="6pt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/LargeTitleStyle"
+                android:id="@+id/word_count"
+                android:text=""/>
+        </TableRow>
+
+        <TableRow android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingBottom="6pt">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/LargeTitleStyle"
+                android:id="@+id/txt2"
+                android:text="@string/txt_words_for_learn"/>
+
+            <TextView
+                android:paddingLeft="6pt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/LargeTitleStyle"
+                android:id="@+id/words_for_learn"
+                android:text=""/>
+
+        </TableRow>
+        <TableRow android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingBottom="6pt">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/LargeTitleStyle"
+                android:id="@+id/txt3"
+                android:text="@string/txt_words_for_check"/>
+
+            <TextView
+                android:paddingLeft="6pt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/LargeTitleStyle"
+                android:id="@+id/words_for_check"
+                android:text=""/>
+        </TableRow>
+
+    </TableLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:gravity="center_horizontal"
+        android:background="#aaa"/>
 
     <TextView
         style="@style/LargeTitleStyle"
