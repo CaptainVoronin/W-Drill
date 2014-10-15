@@ -64,5 +64,6 @@
     <string name="msg_not_enough_words_for_check">Недостаточно выученных слов для проведения проверки</string>
     <string name="txt_no_words_to_learn">Нет слов для изучения</string>
     <string name="txt_no_words_to_check">Нет слов для проверки</string>
+    <string name="nothing_to_do">Пока нет слов ни для изучения, ни для проверки.</string>
 
 </resources>

@@ -243,8 +243,16 @@ public class ActLearnWords extends ActionBarActivity
                 // Take the next set from DB
                 getWordsSet();
 
-                if( words == null || words.size() == 0 )
-                    showWhatToDoDialog();
+                if( words == null || words.size() == 0 ) {
+                    // If there are words for learning
+                    // we'll make a transition.
+                    if( DBDictionaryFactory.getInstance( database ).getWordsTo( activeDict.getId(), DBDictionaryFactory.STAGE_CHECK ) != 0 )
+                        showWhatToDoDialog();
+                    else
+                    {
+                        showNothingToDoDialog();
+                    }
+                }
                 else
                     processButtonPush( success );
             }
@@ -256,6 +264,21 @@ public class ActLearnWords extends ActionBarActivity
                 btnIDontKnow.setText( getString( R.string.go_next));
             confirmed = true;
         }
+    }
+
+    private void showNothingToDoDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder( this );
+        builder.setMessage( R.string.nothing_to_do ).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+                finish();
+            }
+        });
+
+        builder.setCancelable(true);
+        builder.create();
+        builder.show();
+
     }
 
     private void showWhatToDoDialog()

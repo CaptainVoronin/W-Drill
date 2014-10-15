@@ -5,6 +5,11 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="ExtrLargeTitleStyle">
+        <item name="android:color">@color/TextGray</item>
+        <item name="android:textSize">20pt</item>
+    </style>
+
     <style name="LargeTitleStyle">
         <item name="android:color">@color/TextGray</item>
         <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>

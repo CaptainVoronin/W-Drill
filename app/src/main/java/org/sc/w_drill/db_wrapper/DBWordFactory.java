@@ -395,9 +395,4 @@ public class DBWordFactory
         cv.put("example", example);
         db.insertOrThrow(WDdb.T_EXAMPLE, null, cv);
     }
-
-    public ArrayList<IWord> getWordsForCheck( )
-    {
-        return null;
-    }
 }

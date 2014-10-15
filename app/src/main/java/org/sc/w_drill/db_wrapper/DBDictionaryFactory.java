@@ -127,7 +127,6 @@ public class DBDictionaryFactory
         return dict;
     }
 
-
     /**
      * Проверяет наличие названия словаря в БД
      * @param name имя, которое надо проверить
@@ -157,8 +156,8 @@ public class DBDictionaryFactory
 
          if( crs.moveToNext() )
          {
-             int cnt1 = internalGetWordsTo(  db, id, 0 ); // words to learn
-             int cnt2 = internalGetWordsTo( db, id, 1 ); // words to check
+             int cnt1 = internalGetWordsToLearn(  db, id ); // words to learn
+             int cnt2 = internalGetWordsToCheck( db, id ); // words to check
              dict = new Dictionary(id, crs.getString(1), crs.getString(4), crs.getString(2), crs.getInt(3), cnt1, cnt2 );
          }
          else
@@ -184,19 +183,46 @@ public class DBDictionaryFactory
     public int getWordsTo( int dict_id, int stage )
     {
         SQLiteDatabase db = database.getReadableDatabase();
-        int count = internalGetWordsTo(db, dict_id, stage);
+        int count;
+        if( stage == 0 )
+            count = internalGetWordsToLearn(db, dict_id);
+        else
+            count = internalGetWordsToCheck(db, dict_id);
+
         db.close();
         return count;
     }
 
-    private int internalGetWordsTo( SQLiteDatabase db, int dict_id, int stage )
+    private int internalGetWordsToCheck( SQLiteDatabase db, int dict_id )
     {
         int count = 0;
         String statement = "select count( id ) " +
                 "from words " +
-                "where dict_id = ? and stage = ?";
+                "where dict_id = ? and stage = 1";
 
-        Cursor crs = db.rawQuery(statement, new String[] { Integer.toString( dict_id ), Integer.toString( stage ) });
+        Cursor crs = db.rawQuery(statement, new String[] { Integer.toString( dict_id ) });
+
+        Dictionary dict = null;
+
+        if( crs.moveToNext() )
+            count = crs.getInt( 0 );
+
+        crs.close();
+        return count;
+    }
+
+    private int internalGetWordsToLearn( SQLiteDatabase db, int dict_id )
+    {
+        int count = 0;
+        //TODO: There should be a parameter which contains a time interval
+        // between learning sessions. Now it's hardcoded with value 0.08 - two hours.
+        String statement = "select count( id ), julianday( 'now' ) - julianday( last_access ) as result " +
+                "from words " +
+                "where dict_id = ? " +
+                " and stage = 0 " +
+                " and ( result >= 0.08 or last_access IS NULL ) ";
+
+        Cursor crs = db.rawQuery(statement, new String[] { Integer.toString( dict_id ) });
 
         Dictionary dict = null;
 
@@ -252,9 +278,9 @@ public class DBDictionaryFactory
     public Dictionary getAdditionalInfo ( Dictionary dict )
     {
         SQLiteDatabase db = database.getReadableDatabase();
-        int count = internalGetWordsTo( db, dict.getId(), STAGE_LEARN );
+        int count = internalGetWordsToLearn( db, dict.getId() );
         dict.setWordsToLear( count );
-        count = internalGetWordsTo( db, dict.getId(), STAGE_CHECK );
+        count = internalGetWordsToCheck( db, dict.getId() );
         dict.setWordsToCheck(count);
         db.close();
         return dict;
