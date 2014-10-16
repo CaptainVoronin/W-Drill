@@ -2,4 +2,9 @@
 <resources>
     <color name="TextGray">#ddd</color>
     <color name="TextLtGray">#aaa</color>
+    <color name="DkBrown">#6a5a47</color>
+    <color name="MidBrown">#8c7d66</color>
+    <color name="Brown">#94866e</color>
+    <color name="Beige">#dfdcd3</color>
+    <color name="LtBeige">#f4f5ef</color>
 </resources>

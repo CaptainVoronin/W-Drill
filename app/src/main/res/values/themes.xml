@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <style name="W_DrillTheme" parent="@style/Theme.AppCompat">
+        <item name="android:actionBarStyle">@style/WDActionBar</item>
+        <item name="android:windowBackground">@color/MidBrown</item>
+        <item name="android:actionBarTabTextStyle">@style/WDActionBarTabText</item>
+        <item name="android:actionBarTabStyle">@style/WDActionBarTabStyle</item>
+        <item name="android:checkboxStyle">@style/WDCheckBoxStyle</item>
+        <item name="android:buttonStyle">@style/WDButtonStyle</item>
+    </style>
+
+    <style name="WDButtonStyle" parent="@android:style/Widget.Holo.Light.Button">
+        <item name="android:background">@color/DkBrown</item>
+        <item name="android:textColor">@color/LtBeige</item>
+    </style>
+
+    <style name="WDCheckBoxStyle" parent="android:Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/grey_round_rect</item>
+    </style>
+
+    <style name="WDActionBar"
+        parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:titleTextStyle">@style/MyActionBarTitleText</item>
+        <item name="titleTextStyle">@style/MyActionBarTitleText</item>
+        <item name="android:background">@color/MidBrown</item>
+        <item name="background">@color/MidBrown</item>
+    </style>
+
+    <style name="MyActionBarTitleText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/LtBeige</item>
+        <item name="android:textSize">12pt</item>
+    </style>
+
+    <style name="WDActionBarTabText"
+        parent="@android:style/Widget.Holo.ActionBar.TabText">
+        <item name="android:textColor">@color/LtBeige</item>
+    </style>
+
+    <style parent="@android:style/Widget.Holo.Light.ActionBar.TabView" name="WDActionBarTabStyle">
+        <item name="android:background">@color/DkBrown</item>
+    </style>
+
+</resources>

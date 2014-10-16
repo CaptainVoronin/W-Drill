@@ -6,7 +6,7 @@
     </style>
 
     <style name="ExtrLargeTitleStyle">
-        <item name="android:color">@color/TextGray</item>
+        <item name="android:color">@color/DkBrown</item>
         <item name="android:textSize">20pt</item>
     </style>
 
