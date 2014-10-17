@@ -5,6 +5,16 @@ package org.sc.w_drill.dict;
  */
 public enum EPartOfSpeech
 {
-    adjective, adverb, conjunction, determiner, interjection, noun, preposition, pronoun, verb
+    adj, adv, conj, interj, noun, prep, pron, verb;
 
+    public static boolean check(String sample)
+    {
+        for( Object s : EPartOfSpeech.values() )
+        {
+            if( s.toString().equals( sample ) )
+                return true;
+        }
+
+        return false;
+    }
 }

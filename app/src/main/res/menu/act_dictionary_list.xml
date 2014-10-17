@@ -6,6 +6,6 @@
     <item android:id="@+id/action_new_dictionary"
         android:title="@string/txt_new_dictionary"
         android:orderInCategory="100"
-        app:showAsAction="never" />
+        app:showAsAction="always" />
 
 </menu>

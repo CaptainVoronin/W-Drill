@@ -7,4 +7,17 @@
     <color name="Brown">#94866e</color>
     <color name="Beige">#dfdcd3</color>
     <color name="LtBeige">#f4f5ef</color>
+    <color name="transparent">#ffffffff</color>
+    <color name="lp0">#FFF0EBE7</color>
+    <color name="lp20">#FFF4E2BF</color>
+    <color name="lp40">#FFFFDE97</color>
+    <color name="lp60">#FFFFD994</color>
+    <color name="lp80">#FFFFCC66</color>
+    <color name="lp100">#FFEEB860</color>
+    <color name="cp0">#DAE7C9</color>
+    <color name="cp20">#C9E4D2</color>
+    <color name="cp40">#ADD7B4</color>
+    <color name="cp60">#8CD1A5</color>
+    <color name="cp80">#6ABA9A</color>
+    <color name="cp100">#00BBA6</color>
 </resources>

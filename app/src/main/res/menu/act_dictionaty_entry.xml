@@ -3,6 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="org.sc.w_drill.ActDictionaryEntry" >
 
+    <item android:id="@+id/action_save"
+          android:orderInCategory="100"
+          app:showAsAction="always"
+          android:icon="@android:drawable/ic_menu_save"/>
+
+    <item android:id="@+id/action_clear"
+          android:orderInCategory="100"
+          app:showAsAction="always"
+          android:icon="@android:drawable/ic_menu_close_clear_cancel"/>
+
+
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"

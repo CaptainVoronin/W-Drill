@@ -156,6 +156,7 @@ public class DBWordFactory
                 cv.clear();
                 cv.put("word_id", Integer.valueOf( word.getId() ).toString());
                 cv.put("meaning", m.meaning());
+                cv.put( "part_of_speech", m.partOFSpeech() );
                 // TODO: Values: isFormal, etc aren't inserted
                 int meaning_id = ( int ) db.insertOrThrow(WDdb.T_MEANINGS, null, cv);
 
@@ -237,7 +238,7 @@ public class DBWordFactory
     {
         IWord word = internalGetWordBrief(db, wordId );
 
-        String statement = "select id, meaning, is_formal, is_disapproving, is_rude from meanings where word_id = ?";
+        String statement = "select id, meaning, is_formal, is_disapproving, is_rude, part_of_speech from meanings where word_id = ?";
         String examples = "select id, example from examples where meaning_id = ?";
 
         Cursor crs = db.rawQuery(statement, new String[]{Integer.valueOf( wordId ).toString()});
@@ -245,6 +246,7 @@ public class DBWordFactory
         if (crs.getCount() != 0) {
             while (crs.moveToNext()) {
                 IMeaning m = new Meaning(crs.getInt(0), crs.getString(1));
+                m.setPartOfSpeech( crs.getString(5) );
                 word.meanings().add(m);
                 Cursor crs1 = db.rawQuery(examples, new String[]{Integer.valueOf(m.getId()).toString()});
                 if (crs1.getCount() != 0) {

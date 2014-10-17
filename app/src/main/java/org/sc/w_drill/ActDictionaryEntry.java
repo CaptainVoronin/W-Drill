@@ -16,6 +16,9 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
@@ -67,6 +70,8 @@ public class ActDictionaryEntry
     private int updatedWordId = -1;
     private boolean wordsAdded = false;
     private boolean wordsDeleted = false;
+    MenuItem btnSave, btnClear;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -96,12 +101,13 @@ public class ActDictionaryEntry
         int entryKind = data.getIntExtra(ENTRY_KIND_PARAM_NAME, ADD_WORDS);
 
         // Set up the action bar.
-        //final ActionBar actionBar = getSupportActionBar();
+
         final ActionBar actionBar = getSupportActionBar();
+
+        // TODO: Change the title
         actionBar.setTitle(activeDict.getName());
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         actionBar.setDisplayHomeAsUpEnabled(true);
-
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -158,6 +164,26 @@ public class ActDictionaryEntry
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.act_dictionaty_entry, menu);
         boolean res = super.onCreateOptionsMenu(menu);
+        btnSave = ( MenuItem ) menu.findItem(  R.id.action_save );
+        btnSave.setOnMenuItemClickListener( new MenuItem.OnMenuItemClickListener()
+        {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem)
+            {
+                editWordFragment.startSaveWord();
+                return true;
+            }
+        });
+        btnClear = ( MenuItem ) menu.findItem(  R.id.action_clear );
+        btnClear.setOnMenuItemClickListener( new MenuItem.OnMenuItemClickListener()
+        {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem)
+            {
+                editWordFragment.clear();
+                return true;
+            }
+        });
         return true;
     }
 
@@ -180,12 +206,27 @@ public class ActDictionaryEntry
     {
         // When the given tab is selected, switch to the corresponding page in
         // the ViewPager.
-        mViewPager.setCurrentItem(tab.getPosition());
+        int pos = tab.getPosition();
+
+        if( btnSave != null )
+            if( pos == 0 )
+            {
+                btnSave.setVisible(true);
+                btnClear.setVisible(true);
+            }
+            else
+            {
+                btnSave.setVisible(false);
+                btnClear.setVisible(false);
+            }
+
+        mViewPager.setCurrentItem( pos );
     }
 
     @Override
     public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction)
     {
+
     }
 
     @Override
@@ -263,7 +304,6 @@ public class ActDictionaryEntry
                         editWordFragment.setArguments(args);
                     }
                 }
-
                 editWordFragment.setParams(activeDict.getId(), -1);
                 return (Fragment) editWordFragment;
             }

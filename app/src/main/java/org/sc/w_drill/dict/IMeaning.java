@@ -9,7 +9,8 @@ import java.util.ArrayList;
  */
 public interface IMeaning
 {
-//    public EPartOfSpeech partOFSpeech();
+    public String partOFSpeech();
+    public void setPartOfSpeech( String part );
     public String meaning();
     public boolean isFormal();
     public boolean isDisapproving();

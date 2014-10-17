@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class WDdb extends SQLiteOpenHelper
 {
-    public final static int SCHEME_VERSION = 14;
+    public final static int SCHEME_VERSION = 15;
 
     public final static String T_DICTIONARY = "dictionary";
     public final static String T_WORDS = "words";
@@ -53,6 +53,7 @@ public class WDdb extends SQLiteOpenHelper
             "meanings ( id INTEGER PRIMARY KEY autoincrement," +
             "word_id INTEGER NOT NULL," +
             "meaning TEXT NOT NULL," +
+            "part_of_speech TEXT, " +
             "is_formal INTEGER NOT NULL DEFAULT 0," +
             "is_disapproving INTEGER NOT NULL DEFAULT 0," +
             "is_rude INTEGER NOT NULL DEFAULT 0," +

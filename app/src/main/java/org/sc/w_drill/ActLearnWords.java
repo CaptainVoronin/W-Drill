@@ -3,13 +3,15 @@ package org.sc.w_drill;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
+import android.view.MotionEvent;
 import android.widget.TextView;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
@@ -20,6 +22,10 @@ import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.utils.CircularArrayList;
 import org.sc.w_drill.utils.DBPair;
+import org.sc.w_drill.utils.LearnColors;
+import org.sc.w_drill.utils.PartsOfSpeech;
+import org.sc.w_drill.utils.Triangle;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -44,19 +50,25 @@ public class ActLearnWords extends ActionBarActivity
     TextView wordMeaning;
     TextView wordTranscription;
     TextView wordExample;
+    TextView tvKnow, tvDontKnow;
     WDdb database;
     ArrayList<WordTmpStats> wordStats;
     private boolean confirmed;
-    private Button btnIKnow;
-    private Button btnIDontKnow;
     long deltaTime = 0;
     Calendar start;
     CircularArrayList<IWord> words = null;
+    Triangle learnIndicator;
+    LearnColors learnColors;
+    PartsOfSpeech partsOS;
+    TextView tvPartOfSpeech;
+    private GestureDetectorCompat mDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_act_learn_words);
+
+        mDetector = new GestureDetectorCompat(this, new MyGestureListener());
 
         int dictId = getIntent().getIntExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1 );
         database = new WDdb( getApplicationContext() );
@@ -64,31 +76,22 @@ public class ActLearnWords extends ActionBarActivity
 
         int wordId = getIntent().getIntExtra( ActDictionaryEntry.UPDATED_WORD_ID_PARAM_NAME, -1 );
 
+        tvKnow = ( TextView ) findViewById( R.id.tv_iknow );
+        tvDontKnow = ( TextView ) findViewById( R.id.tv_idontknow );
+
         wordPlace = ( TextView ) findViewById( R.id.word );
         wordMeaning = ( TextView ) findViewById( R.id.meaning );
-        btnIDontKnow = ( Button ) findViewById( R.id.dont_know );
+
         wordTranscription = ( TextView ) findViewById( R.id.transcription );
         wordExample = ( TextView ) findViewById( R.id.examples );
 
-        btnIDontKnow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                processButtonPush(false);
-            }
-        });
+        tvPartOfSpeech = ( TextView ) findViewById( R.id.tv_part_of_speech );
 
-        btnIKnow = ( Button ) findViewById( R.id.i_know );
-        btnIKnow.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                processButtonPush(true);
-            }
-        });
+        learnIndicator = ( Triangle ) findViewById( R.id.learnIndicator );
 
-        if( wordId != -1 )
-        {
+        learnColors = LearnColors.getInstance( getApplicationContext() );
 
-        }
+        partsOS = PartsOfSpeech.getInstance( getApplicationContext() );
 
         getWordsSet();
         if( words != null )
@@ -166,7 +169,7 @@ public class ActLearnWords extends ActionBarActivity
         builder.show();
     }
 
-    private void processButtonPush( boolean success )
+    private void processUserAnswer(boolean success)
     {
 
         if (confirmed)
@@ -183,6 +186,7 @@ public class ActLearnWords extends ActionBarActivity
                 }
 
             int percent = activeWord.getLearnPercent();
+
             stat.attempts++;
 
             if( success )
@@ -230,9 +234,8 @@ public class ActLearnWords extends ActionBarActivity
                 IWord word = words.next();
                 // There is another one word
                 // Set buttons to default state
-                btnIKnow.setText(getString(R.string.i_know));
-                btnIDontKnow.setText(getString(R.string.dont_know));
-
+                tvKnow.setText( R.string.i_know );
+                tvDontKnow.setText( R.string.i_dontknow );
                 // Bring the new word to the screen
                 bringWordToScreen(word);
                 confirmed = false;
@@ -254,14 +257,18 @@ public class ActLearnWords extends ActionBarActivity
                     }
                 }
                 else
-                    processButtonPush( success );
+                {
+                    confirmed = false;
+                    bringWordToScreen(words.next());
+                }
             }
         } else {
             showMeaning();
+
             if( success )
-                btnIKnow.setText( getString( R.string.go_next));
+                tvKnow.setText( getString( R.string.go_next));
             else
-                btnIDontKnow.setText( getString( R.string.go_next));
+                tvDontKnow.setText( getString( R.string.go_next));
             confirmed = true;
         }
     }
@@ -291,14 +298,14 @@ public class ActLearnWords extends ActionBarActivity
                 // User cancelled the dialog
                 finish();
             }
-        }).setPositiveButton( android.R.string.ok, new DialogInterface.OnClickListener()
+        }).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialogInterface, int i)
             {
-                Intent intent = new Intent( ActLearnWords.this, ActCheckWords.class );
-                intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
-                startActivity( intent );
+                Intent intent = new Intent(ActLearnWords.this, ActCheckWords.class);
+                intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
+                startActivity(intent);
             }
         });
 
@@ -312,6 +319,7 @@ public class ActLearnWords extends ActionBarActivity
         clearMeaning();
         activeWord = word;
         wordPlace.setText( activeWord.getWord() );
+        learnIndicator.setColor( learnColors.getColor(activeWord) );
 
         if( activeWord.getTranscription() != null && activeWord.getTranscription().length() != 0 )
             wordTranscription.setTag( activeWord.getTranscription() );
@@ -337,11 +345,14 @@ public class ActLearnWords extends ActionBarActivity
         wordMeaning.setText( "[...]" );
         wordTranscription.setText("");
         wordExample.setText("");
+        tvPartOfSpeech.setText( "" );
     }
 
     void showMeaning()
     {
-        wordMeaning.setText( activeWord.meanings().get(0).meaning() );
+        IMeaning m = activeWord.meanings().get(0);
+        tvPartOfSpeech.setText(  partsOS.getName( m.partOFSpeech() ) );
+        wordMeaning.setText( m.meaning() );
     }
 
     public IWord getActiveWord( )
@@ -394,5 +405,77 @@ public class ActLearnWords extends ActionBarActivity
         public int avgTime;
         public int attempts;
         public int faults;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        this.mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+    enum Direction { UP, DOWN, LEFT, RIGHT, NONE };
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener
+    {
+        private static final String DEBUG_TAG = "Gestures";
+
+        @Override
+        public boolean onFling(MotionEvent event1, MotionEvent event2,
+                               float velocityX, float velocityY)
+        {
+            //Log.d(DEBUG_TAG, "onFling: " + event1.toString()+event2.toString());
+            //Log.d(DEBUG_TAG, "onFling: vX=" + velocityX + " velocityY=" + velocityY);
+
+            float x1 = event1.getRawX();
+            float y1 = event1.getRawY();
+            float x2 = event2.getRawX();
+            float y2 = event2.getRawY();
+            Direction d = getDirection( x1, y1, x2, y2 );
+
+            if( d == Direction.UP )
+                processUserAnswer(true);
+            else if( d == Direction.DOWN )
+                processUserAnswer(false);
+
+            return true;
+        }
+
+        Direction getDirection( float x1, float y1, float x2, float y2)
+        {
+            Direction d = Direction.NONE;
+            float delta = 50;
+            float tg;
+            double ang;
+
+            if( Math.abs( Math.abs( x1 ) - Math.abs( x2 ) ) < 0.0001 )
+                ang = 90;
+            else
+            {
+                tg = -1 * (y2 - y1) / (x2 - x1);
+                ang = Math.atan(tg) * 57.295;
+            }
+
+            // Firstly, it needs to detect horizontal or
+            // vertical movement. It depends on angle
+
+            if( Math.abs ( ang ) > 50 )
+            {
+                // This is an area of vertical movements
+                if( y1 > y2 )
+                    d = Direction.UP;
+                else
+                    d = Direction.DOWN;
+
+            } else if ( Math.abs ( ang ) < 30 )
+            {
+                // This is an area of horizontal movements
+                if( x1 > x2 )
+                    d = Direction.LEFT;
+                else
+                    d = Direction.RIGHT;
+            }
+
+            return d;
+        }
     }
 }

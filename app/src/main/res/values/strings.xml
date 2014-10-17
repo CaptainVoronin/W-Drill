@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">W-Drill</string>
+    <string name="app_name">Scholar</string>
     <string name="learn_words">Учить</string>
     <string name="check_words">Проверять</string>
     <string name="add_words">Добавить слова</string>
@@ -22,7 +22,7 @@
     <string name="action_dict_list">Словари</string>
     <string name="action_move_and_delete">Перести слова и удалить</string>
     <string name="action_delete">Удалить</string>
-    <string name="txt_new_dictionary">Новый словарь</string>
+    <string name="txt_new_dictionary">Создать</string>
     <string name="delete_dictionary_question">Вы действитиельно хотите удалить словарь %s?</string>
     <string name="current_dict_info" formatted="false">%s (%s)</string>
     <string name="msg_have_to_choose_dict">Необходимо выбрать словарь</string>
@@ -32,7 +32,7 @@
     <string name="txt_words_for_check">Слов для проверки</string>
     <string name="row_dict_list_dict_word_count">всего слов — %s</string>
     <string name="dict_has_to_be_supplemented_with_words">Словарь необходимо пополнить словами</string>
-    <string name="title_activity_act_dictionary_entry">ActDictionaryEntry</string>
+    <string name="title_activity_act_dictionary_entry">Содержимое словаря</string>
     <string name="whole_word_list">Весь словарь</string>
     <string name="the_word">Слово</string>
     <string name="transcription">Транскрипция</string>
@@ -58,7 +58,7 @@
     <string name="ascending">Возрастание</string>
     <string name="descending">Убывание</string>
     <string name="dlg_order_title">Порядок слов</string>
-    <string name="title_activity_act_check_words">ActCheckWords</string>
+    <string name="title_activity_act_check_words">Проверяем слова</string>
     <string name="title_activity_act_learn_words">Изучение слов</string>
     <string name="w_name">Название</string>
     <string name="msg_not_enough_words_for_check">Недостаточно выученных слов для проведения проверки</string>
@@ -66,5 +66,13 @@
     <string name="txt_no_words_to_check">Нет слов для проверки</string>
     <string name="nothing_to_do">Пока нет слов ни для изучения, ни для проверки.</string>
     <string name="w_dictionary">Словарь</string>
+    <string name="i_dontknow">Не знаю</string>
+    <string name="noun">сущ.</string>
+    <string name="adj">прил.</string>
+    <string name="verb">гл.</string>
+    <string name="adv">прич.</string>
+    <string name="pron">мест.</string>
+    <string name="conj">союз</string>
+    <string name="interj">межд.</string>
 
 </resources>

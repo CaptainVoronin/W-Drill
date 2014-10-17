@@ -27,7 +27,6 @@ import org.sc.w_drill.db_wrapper.DictionaryLoader;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.ActiveDictionaryStateFragment;
 
-
 public class MainActivity extends ActionBarActivity implements DlgDictionary.OnDictionaryOkClickListener
 {
     public static final int CODE_ActDictionaryList = 1;
@@ -168,10 +167,6 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
             case R.id.action_import:
                 importDictionary();
                 break;
-            case R.id.action_new_dict:
-            {
-                showNewDictionaryDialog();
-            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -268,7 +263,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
         //Set the words-to-learn count
         text = ( TextView ) view.findViewById( R.id.words_for_learn);
-        text.setText( Integer.valueOf( activeDict.getWordsToLearn() ).toString() );
+        text.setText( Integer.valueOf( activeDict.getWordsToLearn() ).toString() + "\t>");
         if( activeDict.getWordsToLearn() != 0  )
             text.setOnClickListener( new View.OnClickListener() {
                 @Override
@@ -287,7 +282,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
         //Set the words-to-check count
         text = ( TextView ) view.findViewById( R.id.words_for_check);
-        text.setText( Integer.valueOf( activeDict.getWordsToCheck() ).toString() );
+        text.setText( Integer.valueOf( activeDict.getWordsToCheck() ).toString() + "\t>" );
         if( activeDict.getWordsToCheck() != 0 )
             text.setOnClickListener( new View.OnClickListener() {
                 @Override

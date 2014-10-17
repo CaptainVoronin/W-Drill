@@ -144,7 +144,6 @@ public class ActiveDictionaryStateFragment extends Fragment
                 }
             });
 
-
         }
         else
         {

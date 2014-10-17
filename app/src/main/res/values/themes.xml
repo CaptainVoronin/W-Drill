@@ -8,6 +8,24 @@
         <item name="android:actionBarTabStyle">@style/WDActionBarTabStyle</item>
         <item name="android:checkboxStyle">@style/WDCheckBoxStyle</item>
         <item name="android:buttonStyle">@style/WDButtonStyle</item>
+        <item name="android:textViewStyle">@style/WDTextViewStyle</item>
+        <item name="android:editTextStyle">@style/WDEditTextStyle</item>
+        <item name="android:listViewStyle">@style/WDListViewStyle</item>
+    </style>
+
+    <style name="WDListViewStyle" parent="@android:style/Widget.Holo.Light.ListView">
+        <item name="android:divider">@drawable/list_divider</item>
+        <item name="android:dividerHeight">1px</item>
+    </style>
+
+    <style name="WDEditTextStyle" parent="@android:style/Widget.Holo.Light.EditText">
+        <item name="android:textColor">@color/DkBrown</item>
+        <item name="android:background">@drawable/edit_text_bckg</item>
+        <item name="android:padding">2pt</item>
+    </style>
+
+    <style name="WDTextViewStyle" parent="@android:style/Widget.Holo.Light.TextView">
+        <item name="android:textColor">@color/DkBrown</item>
     </style>
 
     <style name="WDButtonStyle" parent="@android:style/Widget.Holo.Light.Button">

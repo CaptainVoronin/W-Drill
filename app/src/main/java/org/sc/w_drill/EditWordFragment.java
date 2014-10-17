@@ -8,19 +8,25 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.dict.EPartOfSpeech;
 import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.dict.Meaning;
 import org.sc.w_drill.dict.Word;
 import org.sc.w_drill.dict.WordChecker;
 import org.sc.w_drill.utils.DBPair;
+import org.sc.w_drill.utils.PartsOfSpeech;
+
+import java.util.ArrayList;
 
 
 /**
@@ -34,7 +40,6 @@ import org.sc.w_drill.utils.DBPair;
  */
 public class EditWordFragment extends Fragment
 {
-
     private Dictionary activeDict;
     private IWord activeWord;
     WDdb database;
@@ -44,6 +49,8 @@ public class EditWordFragment extends Fragment
     private boolean isVisible;
     private boolean needBringWord;
     View rootView;
+    Spinner listPartOfSpeech;
+    PartsOfSpeech parts;
 
     public static EditWordFragment newInstance(  )
     {
@@ -76,6 +83,9 @@ public class EditWordFragment extends Fragment
             for( IMeaning m : activeWord.meanings() )
             {
                 ((EditText) rootView.findViewById(R.id.ed_meaning)).setText(m.meaning());
+                int index = parts.indexOf( m.partOFSpeech() );
+                listPartOfSpeech.setSelection( index );
+
                 if( m.examples().size() != 0 )
                     for(DBPair p : m.examples() )
                         ((EditText) rootView.findViewById(R.id.ed_example)).setText( p.getValue() );
@@ -100,16 +110,12 @@ public class EditWordFragment extends Fragment
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_edit_word, container, false);
-        Button btnOk = ( Button ) rootView.findViewById( R.id.btnOk );
-        btnOk.setOnClickListener(  new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                startSaveWord();
-            }
-        });
         edWord = ( EditText ) rootView.findViewById( R.id.the_word );
+        listPartOfSpeech = ( Spinner ) rootView.findViewById( R.id.listPartOfSpeech );
+        parts = PartsOfSpeech.getInstance( getActivity().getApplicationContext() );
+        String[] items = parts.getNames();
+        listPartOfSpeech.setAdapter( new ArrayAdapter<String>( getActivity().getApplicationContext(),
+                android.R.layout.simple_spinner_dropdown_item, items ) );
 
         Bundle args = getArguments();
         if( args != null )
@@ -125,7 +131,7 @@ public class EditWordFragment extends Fragment
         return rootView;
     }
 
-    private void startSaveWord()
+    public void startSaveWord()
     {
         /**
          * Gather information
@@ -151,6 +157,18 @@ public class EditWordFragment extends Fragment
 
         String example = (( EditText )rootView.findViewById( R.id.ed_example )).getText().toString();
 
+        String name = ( String ) listPartOfSpeech.getSelectedItem();
+
+        String code = parts.getCode( name );
+
+        if(EPartOfSpeech.check( code ))
+            meaning.setPartOfSpeech( code );
+        else
+        {
+            showError( "Internal error. The code wasn't found" );
+            return;
+        }
+
         meaning.addExample( example.trim() );
         activeWord.meanings().add( meaning );
 
@@ -163,15 +181,7 @@ public class EditWordFragment extends Fragment
 
         if( !WordChecker.isCorrect( DBWordFactory.getInstance(database, activeDict), activeWord ) )
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-
-            builder.setMessage( R.string.incorrect_word).setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int id) {
-                    // User cancelled the dialog
-                }
-            }).setCancelable( true ).create().show();
-
+            showError( getString( R.string.incorrect_word ) );
             return;
         }
 
@@ -207,9 +217,7 @@ public class EditWordFragment extends Fragment
          */
         mListener.onWordAdded( id );
 
-        activeWord = new Word("");
-
-        bringWordToScreen();
+        clear();
     }
 
     @Override
@@ -227,6 +235,13 @@ public class EditWordFragment extends Fragment
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public void clear()
+    {
+        activeWord = new Word("");
+
+        bringWordToScreen();
     }
 
     /**
@@ -276,5 +291,17 @@ public class EditWordFragment extends Fragment
             activeWord = DBWordFactory.getInstance( database, activeDict  ).getWord( wordId );
         else
             activeWord = Word.getDummy();
+    }
+
+    void showError( String message )
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+
+        builder.setMessage( message ).setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+        {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        }).setCancelable( true ).create().show();
     }
 }

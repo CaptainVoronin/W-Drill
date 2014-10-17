@@ -15,6 +15,7 @@ public class Meaning implements IMeaning
     boolean isDisapproving;
     boolean isRude;
     ArrayList<DBPair> examples;
+    private String partOS;
 
     public Meaning( int _id, String _meaning  )
     {
@@ -31,6 +32,18 @@ public class Meaning implements IMeaning
     public int getId()
     {
         return id;
+    }
+
+    @Override
+    public String partOFSpeech()
+    {
+        return partOS;
+    }
+
+    @Override
+    public void setPartOfSpeech(String part)
+    {
+        partOS = part;
     }
 
     @Override
@@ -84,6 +97,4 @@ public class Meaning implements IMeaning
             examples = new ArrayList<DBPair>();
         return examples;
     }
-
-
 }

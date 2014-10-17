@@ -1,0 +1,16 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/lib/org.sc.w_drill.utils"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <org.sc.w_drill.utils.Triangle
+        android:background="#ccc"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:paddingLeft="20dp"
+        android:paddingBottom="40dp"
+        app:dimension="24sp"
+        app:color="#33b5e5"/>
+
+</FrameLayout>

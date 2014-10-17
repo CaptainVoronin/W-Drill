@@ -7,83 +7,98 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/the_word" />
-            <EditText
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:layout_weight="0.3"
-                android:id="@+id/the_word"/>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/transcription" />
+        android:orientation="vertical"
+        android:layout_margin="6pt"
+        android:padding="12pt"
+        android:background="@drawable/shadow_layer"
+        android:layout_gravity="center_horizontal|bottom">
 
-            <EditText
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:layout_weight="0.3"
-                android:id="@+id/ed_transcription"/>
-        </LinearLayout>
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:layout_height="wrap_content"
+            <TableRow
                 android:layout_width="match_parent"
-                android:orientation="vertical"
-                android:id="@+id/meanings_table">
+                android:layout_height="wrap_content">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/word_meaning"/>
+                    style="@style/Header3"
+                    android:text="@string/the_word" />
                 <EditText
-                    android:layout_width="match_parent"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"
-                    android:ems="10"
-                    android:id="@+id/ed_meaning"
-                    android:lines="2"/>
+                    android:inputType="text"
+                    android:layout_weight="0.7"
+                    style="@style/Header3"
+                    android:id="@+id/the_word"/>
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/usage_sample"/>
+                    style="@style/Header3"
+                    android:text="@string/transcription" />
                 <EditText
-                    android:layout_width="match_parent"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"
-                    android:ems="10"
-                    android:id="@+id/ed_example"
-                    android:lines="2"/>
-            </LinearLayout>
+                    android:inputType="text"
+                    style="@style/Header3"
+                    android:layout_weight="0.3"
+                    android:id="@+id/ed_transcription"/>
+            </TableRow>
+        </TableLayout>
+        <!-- It's the part of a meaning -->
 
         <LinearLayout
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_horizontal">
-            <Button
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/meanings_table">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <Spinner
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/listPartOfSpeech">
+                </Spinner>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/Header3"
+                        android:text="@string/word_meaning"/>
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine"
+                        android:ems="10"
+                        android:id="@+id/ed_meaning"
+                        android:lines="2"/>
+                </LinearLayout>
+
+            </LinearLayout>
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id = "@+id/btnOk"
-                android:text="@android:string/ok" />
-            <Button
-                android:layout_width="wrap_content"
+                style="@style/Header3"
+                android:text="@string/usage_sample"/>
+            <EditText
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id = "@+id/btnCancel"
-                android:text="@android:string/cancel" />
+                android:inputType="textMultiLine"
+                android:ems="10"
+                android:id="@+id/ed_example"
+                android:lines="2"/>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

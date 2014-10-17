@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="parts_of_speech">
+        <item name="1">@string/noun</item>
+        <item name="2">@string/adj</item>
+        <item name="3">@string/verb</item>
+        <item name="4">@string/adv</item>
+        <item name="5">@string/pron</item>
+        <item name="6">@string/conj</item>
+        <item name="7">@string/interj</item>
+    </string-array>
+</resources>
