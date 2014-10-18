@@ -16,8 +16,6 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
@@ -27,8 +25,8 @@ import org.sc.w_drill.dict.Dictionary;
 public class ActDictionaryEntry
         extends ActionBarActivity
         implements ActionBar.TabListener,
-        EditWordFragment.OnFragmentInteractionListener,
-        DictWholeWordListFragment.DictWholeListListener
+        FragmentEditWord.OnFragmentInteractionListener,
+        FragmentDictWordList.DictWholeListListener
 {
     public static final int RESULT_WORD_UPDATED = Activity.RESULT_FIRST_USER + 1;
     public static final int DICTIONARY_CHANGED = Activity.RESULT_FIRST_USER + 2;
@@ -45,8 +43,8 @@ public class ActDictionaryEntry
      */
     SectionsPagerAdapter mSectionsPagerAdapter;
 
-    EditWordFragment editWordFragment;
-    DictWholeWordListFragment dictWholeWordListFragment;
+    FragmentEditWord fragmentEditWord;
+    FragmentDictWordList fragmentDictWordList;
 
     public static final String ENTRY_KIND_PARAM_NAME = "ENTRY_KIND_PARAM_NAME";
     public static final String UPDATED_WORD_ID_PARAM_NAME = "UPDATED_WORD_ID_PARAM_NAME";
@@ -170,7 +168,7 @@ public class ActDictionaryEntry
             @Override
             public boolean onMenuItemClick(MenuItem menuItem)
             {
-                editWordFragment.startSaveWord();
+                fragmentEditWord.startSaveWord();
                 return true;
             }
         });
@@ -180,7 +178,7 @@ public class ActDictionaryEntry
             @Override
             public boolean onMenuItemClick(MenuItem menuItem)
             {
-                editWordFragment.clear();
+                fragmentEditWord.clear();
                 return true;
             }
         });
@@ -237,9 +235,9 @@ public class ActDictionaryEntry
     @Override
     public void onWordAdded(int id)
     {
-        if (dictWholeWordListFragment != null)
+        if (fragmentDictWordList != null)
         {
-            dictWholeWordListFragment.setNeedRefresh();
+            fragmentDictWordList.setNeedRefresh();
         }
 
         wordsAdded = true;
@@ -254,7 +252,7 @@ public class ActDictionaryEntry
     @Override
     public void onWordSelected(int id)
     {
-        editWordFragment.setActiveWord(id);
+        fragmentEditWord.setActiveWord(id);
         getSupportActionBar().setSelectedNavigationItem(ADD_WORDS_FRAGMENT_INDEX);
     }
 
@@ -294,26 +292,26 @@ public class ActDictionaryEntry
         {
             if (position == ADD_WORDS_FRAGMENT_INDEX)
             {
-                if (editWordFragment == null)
+                if (fragmentEditWord == null)
                 {
-                    editWordFragment = EditWordFragment.newInstance();
+                    fragmentEditWord = FragmentEditWord.newInstance();
                     if (wordId != -1)
                     {
                         Bundle args = new Bundle();
                         args.putInt(DBWordFactory.WORD_ID_VALUE_NAME, wordId);
-                        editWordFragment.setArguments(args);
+                        fragmentEditWord.setArguments(args);
                     }
                 }
-                editWordFragment.setParams(activeDict.getId(), -1);
-                return (Fragment) editWordFragment;
+                fragmentEditWord.setParams(activeDict.getId(), -1);
+                return (Fragment) fragmentEditWord;
             }
             else
             {
-                if (dictWholeWordListFragment == null)
-                    dictWholeWordListFragment = DictWholeWordListFragment.newInstance();
+                if (fragmentDictWordList == null)
+                    fragmentDictWordList = FragmentDictWordList.newInstance();
 
-                dictWholeWordListFragment.setDict(activeDict);
-                return (Fragment) dictWholeWordListFragment;
+                fragmentDictWordList.setDict(activeDict);
+                return (Fragment) fragmentDictWordList;
             }
         }
 
@@ -361,7 +359,7 @@ public class ActDictionaryEntry
             switch (menuItem.getItemId())
             {
                 case R.id.bnt_delete_words:
-                    dictWholeWordListFragment.deleteSelected();
+                    fragmentDictWordList.deleteSelected();
                     break;
                 default:
                     break;

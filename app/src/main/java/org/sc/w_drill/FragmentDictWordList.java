@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,10 +27,11 @@ import org.sc.w_drill.dict.IBaseWord;
 import org.sc.w_drill.utils.AMutableFilter;
 import org.sc.w_drill.utils.FilterableList;
 import org.sc.w_drill.utils.IFilteredListChangeListener;
+import org.sc.w_drill.utils.LearnColors;
 
 import java.util.ArrayList;
 
-public class DictWholeWordListFragment extends Fragment
+public class FragmentDictWordList extends Fragment
 {
 
     Dictionary activeDict;
@@ -67,13 +67,13 @@ public class DictWholeWordListFragment extends Fragment
      * @return A new instance of fragment DictWholeWordListFragment.
      */
 
-    public static DictWholeWordListFragment newInstance(  )
+    public static FragmentDictWordList newInstance(  )
     {
-        DictWholeWordListFragment fragment = new DictWholeWordListFragment();
+        FragmentDictWordList fragment = new FragmentDictWordList();
         return fragment;
     }
 
-    public DictWholeWordListFragment()
+    public FragmentDictWordList()
     {
         // Required empty public constructor
     }
@@ -139,7 +139,6 @@ public class DictWholeWordListFragment extends Fragment
 
         edSearchPattern = (EditText) view.findViewById(R.id.search_pattern);
         isViewCreated = true;
-        Log.d("[DictWholeListListener::onCreateView]", "Create view. Sincerely yours C.O.");
         Button btn = ( Button ) view.findViewById( R.id.btnFilter );
         btn.setOnClickListener( new View.OnClickListener()
         {
@@ -204,7 +203,7 @@ public class DictWholeWordListFragment extends Fragment
         searchTextWatcher = new SearchTextWatcher( wordList );
         edSearchPattern.addTextChangedListener( searchTextWatcher );
 
-        WordListAdapter adapter = new WordListAdapter(getActivity().getApplicationContext(), wordList);
+        WordListAdapter adapter = new WordListAdapter(getActivity(), wordList);
         wordList.addListener( adapter );
         listWords.setAdapter( adapter );
         needRefresh = false;
@@ -259,7 +258,10 @@ public class DictWholeWordListFragment extends Fragment
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View rowView = inflater.inflate(R.layout.word_list_row, parent, false);
+
             BaseWord word = words.get(position);
+            int color = LearnColors.getInstance( getActivity() ).getColor( word.getLearnState(), word.getLearnPercent() );
+            rowView.setBackgroundColor( color );
             rowView.setTag( Integer.valueOf( word.getId() ) );
             rowView.setOnClickListener( onClick );
 
@@ -489,7 +491,7 @@ public class DictWholeWordListFragment extends Fragment
         public void onClick(View view)
         {
             dismiss();
-            DictWholeWordListFragment.FilterType newFilterType;
+            FragmentDictWordList.FilterType newFilterType;
             switch(view.getId() )
             {
                 case R.id.btnOk:

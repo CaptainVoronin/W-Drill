@@ -79,6 +79,14 @@ public class LearnColors
             return getCheckPercent( percent );
     }
 
+    public int getColor( IWord.LearnState state, int percent )
+    {
+        if ( state == IWord.LearnState.learn  )
+            return getLeanColor( percent );
+        else
+            return getCheckPercent( percent );
+    }
+
     private int getCheckPercent(int percent)
     {
         int color = colors.get( R.color.cp0 );

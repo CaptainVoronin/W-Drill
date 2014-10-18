@@ -20,6 +20,7 @@ public class Word extends BaseWord implements IWord
     {
         super( -1, _word, 0, LearnState.learn, 0, 0 );
         word = _word;
+        addMeaning( new Meaning( "" ) );
     }
 
     @Override
@@ -49,46 +50,6 @@ public class Word extends BaseWord implements IWord
     public void setWord(String _word) {
         word = _word;
     }
-
-/*    @Override
-    public int getId()
-    {
-        return id;
-    } */
-
-    /*public void setId( int _id )
-    {
-        id = _id;
-    }
-
-    @Override
-    public String getWord()
-    {
-        return word;
-    }
-
-    @Override
-    public int getLearnPercent()
-    {
-        return percent;
-    }
-
-    public void setLearnPercent( int _percent )
-    {
-        percent = _percent;
-    }
-
-    @Override
-    public LearnState getLearnState()
-    {
-        return state;
-    }
-
-    @Override
-    public void setLearnState(LearnState _state)
-    {
-        state = _state;
-    } */
 
     public static Word getDummy()
     {

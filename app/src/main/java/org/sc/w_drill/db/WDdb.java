@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class WDdb extends SQLiteOpenHelper
 {
-    public final static int SCHEME_VERSION = 15;
+    public final static int SCHEME_VERSION = 16;
 
     public final static String T_DICTIONARY = "dictionary";
     public final static String T_WORDS = "words";
@@ -19,7 +19,8 @@ public class WDdb extends SQLiteOpenHelper
     final static String CREATE_DICTIONARY = "CREATE TABLE dictionary( id INTEGER PRIMARY KEY autoincrement, " +
             "uuid TEXT NOT NULL UNIQUE, " +
             "name TEXT NOT NULL UNIQUE, " +
-            "language TEXT NOT NULL  );";
+            "language TEXT NOT NULL," +
+            "type INTEGER NOT NULL DEFAULT 0 );";
 
     final static String CREATE_WORDS = "CREATE TABLE " +
             "words( id INTEGER PRIMARY KEY autoincrement, " +
@@ -34,6 +35,8 @@ public class WDdb extends SQLiteOpenHelper
             "created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
             "updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
             "last_access TIMESTAMP," +
+            "picture_file TEXT," +
+            "sound_file TEXT," +
             "CONSTRAINT uniq_within_dict UNIQUE ( word, dict_id ) ON CONFLICT ROLLBACK," +
             "FOREIGN KEY(dict_id) REFERENCES dictionary( id ) ON DELETE CASCADE );";
 
@@ -93,11 +96,20 @@ public class WDdb extends SQLiteOpenHelper
         if( !needUpdate( oldVersion, newVersion ) )
             return;
 
+/*        String stmt = "alter table words add picture_file TEXT;";
+        db.execSQL( stmt );
+
+        stmt = "alter table words add sound_file TEXT;";
+        db.execSQL( stmt );
+
+        stmt = "alter table dictionary add type INTEGER NOT NULL DEFAULT 0;";
+        db.execSQL( stmt );
+
         db.execSQL("DROP TABLE IF EXISTS examples");
         db.execSQL("DROP TABLE IF EXISTS meanings");
         db.execSQL("DROP TABLE IF EXISTS words");
         db.execSQL("DROP TABLE IF EXISTS dictionary");
-        onCreate(db);
+        onCreate(db);*/
     }
 
     private boolean needUpdate( int oldVersion, int newVersion  )

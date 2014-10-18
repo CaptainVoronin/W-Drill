@@ -21,12 +21,14 @@ public class Meaning implements IMeaning
     {
         id = _id;
         meaning = _meaning;
+        partOS = EPartOfSpeech.noun.toString();
     }
 
     public Meaning( String _meaning  )
     {
         id = -1;
         meaning = _meaning;
+        partOS = EPartOfSpeech.noun.toString();
     }
 
     public int getId()

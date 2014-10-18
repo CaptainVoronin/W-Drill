@@ -215,7 +215,7 @@ public class DBWordFactory
 
     private IWord internalGetWordBrief(SQLiteDatabase db, int wordId)
     {
-        String statement = "select id, word, percent, stage, avg_time, access_count from words where id = ?";
+        String statement = "select id, word, percent, stage, avg_time, access_count, transcription from words where id = ?";
 
         Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( wordId ).toString()});
         ArrayList<BaseWord> words = new ArrayList<BaseWord>();
@@ -229,6 +229,7 @@ public class DBWordFactory
                     crs.getInt( 3 ) == 0 ? IBaseWord.LearnState.learn : IBaseWord.LearnState.check,  // stage
                     crs.getInt( 4 ), // avg_time
                     crs.getInt( 5 ) ); // access_time
+            word.setTranscription( crs.getString( 6 ) );
         }
         crs.close();
         return word;

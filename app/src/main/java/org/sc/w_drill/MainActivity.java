@@ -32,6 +32,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     public static final int CODE_ActDictionaryList = 1;
     public static final int CODE_ActDictionaryEntry = 2;
     public static final int CODE_ActSettings = 3;
+    private static final int CODE_ActLearnWords = 4;
 
     /**
      * База данных приложения
@@ -235,6 +236,10 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
                     }
                 }
                 break;
+            case CODE_ActLearnWords:
+                if( resultCode == Activity.RESULT_OK )
+                    detectState( activeDict.getId() );
+                break;
             default:
                 break;
         }
@@ -247,8 +252,6 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         View view =  inflater.inflate(R.layout.active_dict_state_fragment, rootView, false );
 
         DBDictionaryFactory.getInstance( database ).getAdditionalInfo( activeDict );
-        actionBar.setTitle( activeDict.getName() );
-        setTitle( activeDict.getName() );
         // Set the active dictionary name
         TextView text = ( TextView ) view.findViewById( R.id.dict_name );
         text.setText( activeDict.getName() );
@@ -276,7 +279,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
                     intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WORDS_TO_STUDY );
 
-                    startActivity(intent);
+                    startActivityForResult(intent, CODE_ActLearnWords);
                 }
             });
 

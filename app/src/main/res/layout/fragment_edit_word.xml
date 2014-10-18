@@ -2,16 +2,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="org.sc.w_drill.EditWordFragment">
+    tools:context="org.sc.w_drill.FragmentEditWord">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_margin="6pt"
-        android:padding="12pt"
-        android:background="@drawable/shadow_layer"
-        android:layout_gravity="center_horizontal|bottom">
+        android:orientation="vertical">
 
         <TableLayout
             android:layout_width="match_parent"
@@ -23,7 +19,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    style="@style/Header3"
+                    style="@style/Header3Strong"
                     android:text="@string/the_word" />
                 <EditText
                     android:layout_width="fill_parent"
@@ -31,7 +27,7 @@
                     android:inputType="text"
                     android:layout_weight="0.7"
                     style="@style/Header3"
-                    android:id="@+id/the_word"/>
+                    android:id="@+id/ed_word"/>
             </TableRow>
 
             <TableRow
@@ -41,7 +37,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    style="@style/Header3"
+                    style="@style/Header3Strong"
                     android:text="@string/transcription" />
                 <EditText
                     android:layout_width="fill_parent"
@@ -52,53 +48,25 @@
                     android:id="@+id/ed_transcription"/>
             </TableRow>
         </TableLayout>
-        <!-- It's the part of a meaning -->
+        <!-- It's the part of a meanings -->
 
         <LinearLayout
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:orientation="vertical"
+            android:layout_gravity="top"
+            android:padding="6pt"
             android:id="@+id/meanings_table">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Spinner
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/listPartOfSpeech">
-                </Spinner>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Header3"
-                        android:text="@string/word_meaning"/>
-                    <EditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textMultiLine"
-                        android:ems="10"
-                        android:id="@+id/ed_meaning"
-                        android:lines="2"/>
-                </LinearLayout>
-
-            </LinearLayout>
-            <TextView
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="right">
+            <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/Header3"
-                android:text="@string/usage_sample"/>
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
-                android:ems="10"
-                android:id="@+id/ed_example"
-                android:lines="2"/>
+                android:src="@android:drawable/ic_menu_add"
+                android:id="@+id/btnAddMeaning"/>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

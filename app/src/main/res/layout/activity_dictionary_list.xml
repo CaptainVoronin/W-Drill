@@ -11,14 +11,12 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:baselineAligned="false"
-        android:layout_margin="8pt"
-        android:background="@drawable/shadow_layer"
         android:id="@+id/rootLayout">
 
         <ListView
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/listDictionaries"
             android:layout_alignParentLeft="true"

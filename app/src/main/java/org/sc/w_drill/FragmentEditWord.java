@@ -8,9 +8,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import org.sc.w_drill.db.WDdb;
@@ -23,7 +23,6 @@ import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.dict.Meaning;
 import org.sc.w_drill.dict.Word;
 import org.sc.w_drill.dict.WordChecker;
-import org.sc.w_drill.utils.DBPair;
 import org.sc.w_drill.utils.PartsOfSpeech;
 
 import java.util.ArrayList;
@@ -32,18 +31,20 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link EditWordFragment.OnFragmentInteractionListener} interface
+ * {@link FragmentEditWord.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link EditWordFragment#newInstance} factory method to
+ * Use the {@link FragmentEditWord#newInstance} factory method to
  * create an instance of this fragment.
  *
  */
-public class EditWordFragment extends Fragment
+public class FragmentEditWord extends Fragment
+        implements MeaningEditView.OnRemoveMeaningViewClickListener
 {
     private Dictionary activeDict;
     private IWord activeWord;
     WDdb database;
     EditText edWord;
+    EditText edTranscription;
 
     private OnFragmentInteractionListener mListener;
     private boolean isVisible;
@@ -51,14 +52,17 @@ public class EditWordFragment extends Fragment
     View rootView;
     Spinner listPartOfSpeech;
     PartsOfSpeech parts;
+    LinearLayout viewContainer;
+    ArrayList<MeaningEditView> meaningViewList;
+    ImageButton btnAddMeaning;
 
-    public static EditWordFragment newInstance(  )
+    public static FragmentEditWord newInstance(  )
     {
-        EditWordFragment fragment = new EditWordFragment();
+        FragmentEditWord fragment = new FragmentEditWord();
         return fragment;
     }
 
-    public EditWordFragment() {
+    public FragmentEditWord() {
         // Required empty public constructor
     }
 
@@ -67,6 +71,8 @@ public class EditWordFragment extends Fragment
         super.onCreate(savedInstanceState);
 
         database = new WDdb( getActivity().getApplicationContext() );
+        meaningViewList = new ArrayList<MeaningEditView>();
+
     }
 
     private void prepareForNewWord()
@@ -77,24 +83,22 @@ public class EditWordFragment extends Fragment
     public void bringWordToScreen()
     {
         edWord.setText(activeWord.getWord());
-        ((EditText) rootView.findViewById(R.id.ed_transcription)).setText(activeWord.getTranscription());
+        edTranscription.setText(activeWord.getTranscription());
 
         if( activeWord.meanings().size() != 0 )
-            for( IMeaning m : activeWord.meanings() )
+        {
+            meaningViewList.clear();
+            viewContainer.removeAllViews();
+            boolean removable = false;
+            for (IMeaning m : activeWord.meanings())
             {
-                ((EditText) rootView.findViewById(R.id.ed_meaning)).setText(m.meaning());
-                int index = parts.indexOf( m.partOFSpeech() );
-                listPartOfSpeech.setSelection( index );
-
-                if( m.examples().size() != 0 )
-                    for(DBPair p : m.examples() )
-                        ((EditText) rootView.findViewById(R.id.ed_example)).setText( p.getValue() );
-                else
-                    ((EditText) rootView.findViewById(R.id.ed_example)).setText( "" );
+                MeaningEditView med = new MeaningEditView(getActivity(), m);
+                meaningViewList.add( med );
+                viewContainer.addView(med.getView());
+                med.setOnRemoveClickListener( this  );
+                med.setRemovable( removable );
+                removable = true;
             }
-        else {
-            ((EditText) rootView.findViewById(R.id.ed_meaning)).setText("");
-            ((EditText) rootView.findViewById(R.id.ed_example)).setText( "" );
         }
 
         needBringWord = false;
@@ -110,23 +114,18 @@ public class EditWordFragment extends Fragment
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_edit_word, container, false);
-        edWord = ( EditText ) rootView.findViewById( R.id.the_word );
-        listPartOfSpeech = ( Spinner ) rootView.findViewById( R.id.listPartOfSpeech );
-        parts = PartsOfSpeech.getInstance( getActivity().getApplicationContext() );
-        String[] items = parts.getNames();
-        listPartOfSpeech.setAdapter( new ArrayAdapter<String>( getActivity().getApplicationContext(),
-                android.R.layout.simple_spinner_dropdown_item, items ) );
-
+        edWord = ( EditText ) rootView.findViewById( R.id.ed_word);
+        edTranscription = ((EditText) rootView.findViewById(R.id.ed_transcription));
+        viewContainer = ( LinearLayout ) rootView.findViewById( R.id.meanings_table );
+        btnAddMeaning = ( ImageButton  ) rootView.findViewById( R.id.btnAddMeaning );
+        btnAddMeaning.setOnClickListener( new OnAddMeaningClickListener() );
+        int id = -1;
         Bundle args = getArguments();
         if( args != null )
-        {
-            int id = args.getInt(DBWordFactory.WORD_ID_VALUE_NAME, -1);
-            if( id != -1 )
-            {
-                setActiveWord(id);
-                bringWordToScreen();
-            }
-        }
+            id = args.getInt(DBWordFactory.WORD_ID_VALUE_NAME, -1);
+
+        setActiveWord(id);
+        bringWordToScreen();
 
         return rootView;
     }
@@ -134,7 +133,7 @@ public class EditWordFragment extends Fragment
     public void startSaveWord()
     {
         /**
-         * Gather information
+         * Gathering information
          */
         String word = String.valueOf(edWord.getText()).trim();
 
@@ -147,31 +146,30 @@ public class EditWordFragment extends Fragment
             activeWord.meanings().clear();
         }
 
-        String strMeaning = (( EditText )rootView.findViewById( R.id.ed_meaning )).getText().toString();
-
-        Meaning meaning = new Meaning( strMeaning.trim() );
-
         String transc = (( EditText )rootView.findViewById( R.id.ed_transcription )).getText().toString().trim();
 
         activeWord.setTranscription( transc  );
 
-        String example = (( EditText )rootView.findViewById( R.id.ed_example )).getText().toString();
-
-        String name = ( String ) listPartOfSpeech.getSelectedItem();
-
-        String code = parts.getCode( name );
-
-        if(EPartOfSpeech.check( code ))
-            meaning.setPartOfSpeech( code );
-        else
+        for( MeaningEditView view : meaningViewList )
         {
-            showError( "Internal error. The code wasn't found" );
-            return;
+            String meaning = view.getMeaning();
+            String example = view.getExample();
+            String posCode = view.getPartOfSpeech();
+            if( !EPartOfSpeech.check( posCode ) )
+            {
+                // The code of a part of speech hasn't been found
+                //TODO: Do something with the mistake
+                continue;
+            }
+
+            meaning = meaning.trim();
+            if( meaning.length() == 0 )
+                continue;
+            Meaning m = new Meaning( meaning );
+            m.setPartOfSpeech( posCode );
+            m.addExample(example.trim());
+            activeWord.meanings().add( m );
         }
-
-        meaning.addExample( example.trim() );
-        activeWord.meanings().add( meaning );
-
         saveWord();
     }
 
@@ -240,8 +238,22 @@ public class EditWordFragment extends Fragment
     public void clear()
     {
         activeWord = new Word("");
-
         bringWordToScreen();
+    }
+
+    @Override
+    public void onClick(MeaningEditView meaningView)
+    {
+        View view = meaningView.getView();
+        meaningViewList.remove( meaningView );
+        viewContainer.removeView( view );
+
+        boolean removable = false;
+        for( MeaningEditView mv : meaningViewList )
+        {
+            mv.setRemovable( removable );
+            removable = true;
+        }
     }
 
     /**
@@ -271,7 +283,9 @@ public class EditWordFragment extends Fragment
 
         // If is becomes visible, refresh list
         if( isVisibleToUser && needBringWord )
+        {
             bringWordToScreen();
+        }
 
         isVisible = isVisibleToUser;
 
@@ -279,7 +293,10 @@ public class EditWordFragment extends Fragment
 
     public void setActiveWord( int wordId )
     {
-        activeWord = DBWordFactory.getInstance( database, activeDict  ).getWordEx(wordId);
+        if( wordId != -1 )
+            activeWord = DBWordFactory.getInstance( database, activeDict  ).getWordEx(wordId);
+        else
+            activeWord = Word.getDummy();
         needBringWord = true;
     }
 
@@ -303,5 +320,24 @@ public class EditWordFragment extends Fragment
                 // User cancelled the dialog
             }
         }).setCancelable( true ).create().show();
+    }
+
+    class OnAddMeaningClickListener implements View.OnClickListener
+    {
+
+        @Override
+        public void onClick(View view)
+        {
+            addMeaningView();
+        }
+    }
+
+    private void addMeaningView()
+    {
+        Meaning m = new Meaning( "" );
+        MeaningEditView view = new MeaningEditView(  getActivity(), m );
+        meaningViewList.add( view );
+        viewContainer.addView( view.getView() );
+        view.setOnRemoveClickListener( this );
     }
 }

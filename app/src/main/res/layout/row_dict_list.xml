@@ -5,14 +5,14 @@
     android:layout_height="match_parent">
 
     <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:paddingLeft="6pt"
         android:paddingRight="6pt">
 
         <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_column="0">
             <LinearLayout android:orientation="vertical"
                 android:layout_height="wrap_content"

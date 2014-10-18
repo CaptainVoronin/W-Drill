@@ -1,17 +1,19 @@
 package org.sc.w_drill;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
@@ -47,7 +49,6 @@ public class ActLearnWords extends ActionBarActivity
     IBaseWord.LearnState learnStage;
     IWord activeWord;
     TextView wordPlace;
-    TextView wordMeaning;
     TextView wordTranscription;
     TextView wordExample;
     TextView tvKnow, tvDontKnow;
@@ -60,8 +61,9 @@ public class ActLearnWords extends ActionBarActivity
     Triangle learnIndicator;
     LearnColors learnColors;
     PartsOfSpeech partsOS;
-    TextView tvPartOfSpeech;
     private GestureDetectorCompat mDetector;
+    boolean wordsLearned = false;
+    LinearLayout viewContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,19 +81,18 @@ public class ActLearnWords extends ActionBarActivity
         tvKnow = ( TextView ) findViewById( R.id.tv_iknow );
         tvDontKnow = ( TextView ) findViewById( R.id.tv_idontknow );
 
-        wordPlace = ( TextView ) findViewById( R.id.word );
-        wordMeaning = ( TextView ) findViewById( R.id.meaning );
+        wordPlace = ( TextView ) findViewById( R.id.the_word);
 
         wordTranscription = ( TextView ) findViewById( R.id.transcription );
         wordExample = ( TextView ) findViewById( R.id.examples );
-
-        tvPartOfSpeech = ( TextView ) findViewById( R.id.tv_part_of_speech );
 
         learnIndicator = ( Triangle ) findViewById( R.id.learnIndicator );
 
         learnColors = LearnColors.getInstance( getApplicationContext() );
 
         partsOS = PartsOfSpeech.getInstance( getApplicationContext() );
+
+        viewContainer = ( LinearLayout ) findViewById( R.id.viewContainer );
 
         getWordsSet();
         if( words != null )
@@ -160,7 +161,7 @@ public class ActLearnWords extends ActionBarActivity
         AlertDialog.Builder builder = new AlertDialog.Builder( this );
         builder.setMessage( string ).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                finish();
+                onBackPressed();
             }
         });
 
@@ -195,6 +196,7 @@ public class ActLearnWords extends ActionBarActivity
                     percent = 100;
                 else
                     percent += 20;
+                wordsLearned = true;
             }
             else
             {
@@ -216,15 +218,8 @@ public class ActLearnWords extends ActionBarActivity
             // 'cause it's impossible repeate learning five time
             if ( stat.attempts >= 1 )
             {
-                if( words.remove( activeWord ) )
-                    Log.d("[ActLearnWords::getNextWord]", "Word id " + activeWord.getId() + " was removed"  );
-                else
-                    Log.e("[ActLearnWords::getNextWord]", "Word id " + activeWord.getId() + " wasn't found in list!"  );
-
-                if( wordStats.remove( stat ) )
-                    Log.d("[ActLearnWords::getNextWord]", "Stat id " + activeWord.getId() + " was removed"  );
-                else
-                    Log.e("[ActLearnWords::getNextWord]", "Stat id " + activeWord.getId() + " wasn't found in list!");
+                words.remove( activeWord );
+                wordStats.remove( stat );
             }
 
             // ...and get a new word for learning
@@ -278,7 +273,7 @@ public class ActLearnWords extends ActionBarActivity
         builder.setMessage( R.string.nothing_to_do ).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User cancelled the dialog
-                finish();
+                onBackPressed();
             }
         });
 
@@ -322,7 +317,7 @@ public class ActLearnWords extends ActionBarActivity
         learnIndicator.setColor( learnColors.getColor(activeWord) );
 
         if( activeWord.getTranscription() != null && activeWord.getTranscription().length() != 0 )
-            wordTranscription.setTag( activeWord.getTranscription() );
+            wordTranscription.setText( activeWord.getTranscription() );
 
         StringBuilder buffer = new StringBuilder();
 
@@ -342,17 +337,18 @@ public class ActLearnWords extends ActionBarActivity
 
     private void clearMeaning()
     {
-        wordMeaning.setText( "[...]" );
         wordTranscription.setText("");
-        wordExample.setText("");
-        tvPartOfSpeech.setText( "" );
+        viewContainer.removeAllViews();
     }
 
     void showMeaning()
     {
-        IMeaning m = activeWord.meanings().get(0);
-        tvPartOfSpeech.setText(  partsOS.getName( m.partOFSpeech() ) );
-        wordMeaning.setText( m.meaning() );
+        for( IMeaning m : activeWord.meanings() )
+        {
+            MeaningRow row = new MeaningRow( m );
+            View view = row.getView();
+            viewContainer.addView( view );
+        }
     }
 
     public IWord getActiveWord( )
@@ -476,6 +472,37 @@ public class ActLearnWords extends ActionBarActivity
             }
 
             return d;
+        }
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if( wordsLearned )
+            setResult(Activity.RESULT_OK );
+        else
+            setResult(Activity.RESULT_CANCELED );
+
+        super.onBackPressed();
+    }
+
+    class MeaningRow
+    {
+        LinearLayout view;
+
+        public MeaningRow( IMeaning meaning )
+        {
+            LayoutInflater lf = ( LayoutInflater ) getSystemService( LAYOUT_INFLATER_SERVICE );
+            view = (LinearLayout) lf.inflate( R.layout.row_show_meaning, null );
+            TextView tv = ( TextView ) view.findViewById( R.id.tvPartOfSpeech );
+            tv.setText( PartsOfSpeech.getInstance( ActLearnWords.this ).getName( meaning.partOFSpeech() ) );
+            tv = ( TextView ) view.findViewById( R.id.tvMeaning );
+            tv.setText( meaning.meaning() );
+        }
+
+        public View getView()
+        {
+            return view;
         }
     }
 }
