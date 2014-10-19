@@ -157,13 +157,10 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
                 startActivityForResult(intent, CODE_ActSettings);
                 return true;
             case R.id.action_dict_list:
-            {
-                intent = new Intent(this, ActDictionaryList.class);
-                startActivityForResult(intent, CODE_ActDictionaryList);
-            }
-            case R.id.action_export:
-                intent = new Intent(this, ExportWordsActivity.class);
-                startActivity(intent);
+                {
+                    intent = new Intent(this, ActDictionaryList.class);
+                    startActivityForResult(intent, CODE_ActDictionaryList);
+                }
                 break;
             case R.id.action_import:
                 importDictionary();
