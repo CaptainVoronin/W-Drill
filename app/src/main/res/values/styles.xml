@@ -5,14 +5,20 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="ExtrLargeTitleStyle">
+    <style name="ExtraLargeTitleStyle">
         <item name="android:color">@color/DkBrown</item>
         <item name="android:textSize">20pt</item>
+        <item name="android:typeface">serif</item>
     </style>
 
     <style name="LargeTitleStyle">
         <item name="android:color">@color/TextGray</item>
         <item name="android:textAppearance">?android:attr/textAppearanceLarge</item>
+    </style>
+
+    <style name="WordExample">
+        <item name="android:textStyle">italic</item>
+        <item name="android:textSize">10pt</item>
     </style>
 
     <style name="SubHeader">

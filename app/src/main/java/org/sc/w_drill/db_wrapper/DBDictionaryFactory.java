@@ -220,7 +220,8 @@ public class DBDictionaryFactory
                 "from words " +
                 "where dict_id = ? " +
                 " and stage = 0 " +
-                " and ( result >= 0.08 or last_access IS NULL ) ";
+                " and ( result >= " +  WDdb.learnTimeOut + " or last_access IS NULL ) ";
+                //" and ( result >= 0.08 or last_access IS NULL ) ";
 
         Cursor crs = db.rawQuery(statement, new String[] { Integer.toString( dict_id ) });
 

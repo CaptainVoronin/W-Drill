@@ -3,7 +3,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              xmlns:tools="http://schemas.android.com/tools"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              tools:context="org.sc.w_drill.ActLearnWords">
+
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -15,7 +19,17 @@
             <TextView
                 android:id="@+id/word_percent"
                 android:text="%(percent)"
+                android:paddingRight="12pt"
+                android:layout_width="wrap_content"
                 android:gravity="right"
-                android:paddingRight="12pt" />
+                android:layout_weight="0.6"/>
+
+            <org.sc.w_drill.utils.Triangle
+                app:position="upper_right"
+                app:color="@color/MidBrown"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                app:dimension="20sp"
+                android:id="@+id/maxIndicator"/>
         </TableRow>
 </LinearLayout>

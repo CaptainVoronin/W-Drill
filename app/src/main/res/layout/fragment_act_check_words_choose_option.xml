@@ -10,11 +10,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/shadow_layer"
         android:orientation="vertical">
 
         <TextView
-            style="@style/LargeTitleStyle"
+            style="@style/ExtraLargeTitleStyle"
             android:text="Check words, bitch!"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -34,6 +33,7 @@
             android:orientation="vertical">
 
             <TextView
+                style="@style/Header3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
@@ -43,6 +43,7 @@
                 android:clickable="true"/>
 
             <TextView
+                style="@style/Header3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
@@ -52,6 +53,7 @@
                 android:clickable="true"/>
 
             <TextView
+                style="@style/Header3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
@@ -61,6 +63,7 @@
                 android:clickable="true"/>
 
             <TextView
+                style="@style/Header3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"

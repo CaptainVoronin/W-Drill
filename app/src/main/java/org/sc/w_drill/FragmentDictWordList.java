@@ -28,6 +28,7 @@ import org.sc.w_drill.utils.AMutableFilter;
 import org.sc.w_drill.utils.FilterableList;
 import org.sc.w_drill.utils.IFilteredListChangeListener;
 import org.sc.w_drill.utils.LearnColors;
+import org.sc.w_drill.utils.Triangle;
 
 import java.util.ArrayList;
 
@@ -271,6 +272,13 @@ public class FragmentDictWordList extends Fragment
             chb.setOnCheckedChangeListener( checkBoxClickListener );
 
             TextView text = ( TextView ) rowView.findViewById( R.id.word_percent );
+
+            Triangle tri =  ( Triangle ) rowView.findViewById( R.id.maxIndicator );
+
+            if( word.getLearnState() == IBaseWord.LearnState.learn )
+                tri.setColor( LearnColors.getInstance( getActivity() ).getColor( 0, 100 ) );
+            else
+                tri.setColor( LearnColors.getInstance( getActivity() ).getColor( 1, 200 ) );
 
             String txt;
 

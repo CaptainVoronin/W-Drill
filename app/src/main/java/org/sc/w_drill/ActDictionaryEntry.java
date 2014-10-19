@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -69,6 +70,7 @@ public class ActDictionaryEntry
     private boolean wordsAdded = false;
     private boolean wordsDeleted = false;
     MenuItem btnSave, btnClear;
+    private boolean showButtons;
 
 
     @Override
@@ -182,6 +184,18 @@ public class ActDictionaryEntry
                 return true;
             }
         });
+
+        if( !showButtons )
+        {
+            btnClear.setVisible( false );
+            btnSave.setVisible( false );
+        }
+        else
+        {
+            btnClear.setVisible( true );
+            btnSave.setVisible( true );
+        }
+        showButtons = true;
         return true;
     }
 
@@ -217,6 +231,11 @@ public class ActDictionaryEntry
                 btnSave.setVisible(false);
                 btnClear.setVisible(false);
             }
+        else
+        {
+            showButtons = pos == 0;
+            Log.d("[ActDictionaryEntry:onTabSelected]", "Buttons don't created yet");
+        }
 
         mViewPager.setCurrentItem( pos );
     }

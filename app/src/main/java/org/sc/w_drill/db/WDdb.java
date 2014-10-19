@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class WDdb extends SQLiteOpenHelper
 {
     public final static int SCHEME_VERSION = 16;
+    public final static String learnTimeOut = "0";
 
     public final static String T_DICTIONARY = "dictionary";
     public final static String T_WORDS = "words";

@@ -23,6 +23,7 @@ import org.sc.w_drill.db_wrapper.RandomizerEmptyException;
 import org.sc.w_drill.db_wrapper.RandomizerException;
 import org.sc.w_drill.db_wrapper.WordRandomizer;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.utils.ArrayListRandomizer;
 
@@ -30,6 +31,8 @@ import java.util.ArrayList;
 
 
 public class ActCheckWords extends ActionBarActivity {
+
+    private boolean userGaveUp;
 
     enum Mode { CHOISE, COMPARE };
 
@@ -46,9 +49,11 @@ public class ActCheckWords extends ActionBarActivity {
     String whereSTMT = " stage = 1 ";
     ArrayList<IWord> subset;
     ArrayListRandomizer<IWord> arrayRandomizer;
+    ArrayListRandomizer<IMeaning> meaningRandomizer;
     TextView tv1, tv2, tv3, tv4;
     boolean missed = false;
     EditText edWordAnswer = null;
+    Button btnIDontKnow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +79,7 @@ public class ActCheckWords extends ActionBarActivity {
         }
         subset = new ArrayList<IWord>();
         arrayRandomizer = new ArrayListRandomizer<IWord>();
+        meaningRandomizer = new ArrayListRandomizer<IMeaning>();
         changeWord();
     }
 
@@ -212,29 +218,26 @@ public class ActCheckWords extends ActionBarActivity {
         subset.add( activeWord );
         IWord word;
 
-
         subset = RandomArrayUniqWords.make(subset, randomizer, 4);
 
         TextView tv = ( TextView ) chooseOptionView.findViewById( R.id.word_for_check );
         tv.setText( activeWord.getWord() );
 
-        word = subset.get(0);
-        tv1.setText( word.meanings().get(0).meaning() );
-        tv1.setTag( word );
-
-        word = subset.get(1);
-        tv2.setText( word.meanings().get(0).meaning() );
-        tv2.setTag( word );
-
-        word = subset.get(2);
-        tv3.setText( word.meanings().get(0).meaning() );
-        tv3.setTag( word );
-
-        word = subset.get(3);
-        tv4.setText( word.meanings().get(0).meaning() );
-        tv4.setTag( word );
+        setText( subset.get(0), tv1 );
+        setText( subset.get(1), tv2 );
+        setText( subset.get(2), tv3 );
+        setText( subset.get(3), tv4 );
 
         return chooseOptionView;
+    }
+
+    void setText( IWord word, TextView tv )
+    {
+        if( word.meanings().size() > 1 )
+            tv.setText( meaningRandomizer.getRandomItem( word.meanings()).meaning() );
+        else
+            tv.setText( word.meanings().get(0).meaning() );
+        tv.setTag( word );
     }
 
     View getWriteWordView()
@@ -245,12 +248,25 @@ public class ActCheckWords extends ActionBarActivity {
         tv = ( TextView ) enterWordView.findViewById( R.id.tvWord );
         tv.setText( "" );
 
-        Button btnIDontKnow = ( Button ) enterWordView.findViewById( R.id.dont_know );
+        btnIDontKnow = ( Button ) enterWordView.findViewById( R.id.dont_know );
+        btnIDontKnow.setText( "?" );
         btnIDontKnow.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view)
             {
-                showCorrectMeaning();
+                if( !userGaveUp)
+                {
+                    userGaveUp = true;
+                    btnIDontKnow.setText( ">>" );
+                    showCorrectMeaning();
+                }
+                else
+                {
+                    userGaveUp = false;
+                    btnIDontKnow.setText( "?" );
+                    decreasePercent( activeWord );
+                    changeWord();
+                }
             }
         });
 
@@ -357,6 +373,7 @@ public class ActCheckWords extends ActionBarActivity {
         TextView tv = ( TextView ) enterWordView.findViewById( R.id.tvWord );
         tv.setText( activeWord.getWord() );
     }
+
 
     private void showCorrectOption( View incorrectView )
     {

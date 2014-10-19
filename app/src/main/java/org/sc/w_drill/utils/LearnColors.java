@@ -3,7 +3,6 @@ package org.sc.w_drill.utils;
 import android.content.Context;
 
 import org.sc.w_drill.R;
-import org.sc.w_drill.dict.IBaseWord;
 import org.sc.w_drill.dict.IWord;
 
 import java.util.HashMap;
@@ -68,7 +67,7 @@ public class LearnColors
         if ( word.getLearnState() == IWord.LearnState.learn )
             return getLeanColor( word.getLearnPercent() );
         else
-            return getCheckPercent( word.getLearnPercent() );
+            return getCheckColor(word.getLearnPercent());
     }
 
     public int getColor( int stage, int percent )
@@ -76,7 +75,7 @@ public class LearnColors
         if ( stage == 0 )
             return getLeanColor( percent );
         else
-            return getCheckPercent( percent );
+            return getCheckColor(percent);
     }
 
     public int getColor( IWord.LearnState state, int percent )
@@ -84,22 +83,22 @@ public class LearnColors
         if ( state == IWord.LearnState.learn  )
             return getLeanColor( percent );
         else
-            return getCheckPercent( percent );
+            return getCheckColor(percent);
     }
 
-    private int getCheckPercent(int percent)
+    private int getCheckColor(int percent)
     {
         int color = colors.get( R.color.cp0 );
 
-        if( percent >= 20 && percent < 40  )
+        if( percent >= 100 && percent < 120  )
             color = colors.get( R.color.cp20 );
-        else if( percent >= 40 && percent < 60   )
+        else if( percent >= 120 && percent < 140   )
             color = colors.get( R.color.cp40 );
-        else if( percent >= 60 && percent < 80   )
+        else if( percent >= 140 && percent < 160   )
             color = colors.get( R.color.cp60 );
-        else if( percent >= 80 && percent < 100   )
+        else if( percent >= 160 && percent < 180   )
             color = colors.get( R.color.cp80 );
-        else if( percent >= 100 )
+        else if( percent >= 180 )
             color = colors.get( R.color.cp100 );
 
         return color;

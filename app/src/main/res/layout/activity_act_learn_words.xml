@@ -20,13 +20,13 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <TextView
-                style="@style/ExtrLargeTitleStyle"
+                style="@style/ExtraLargeTitleStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="[...]"
                 android:layout_weight="0.7"
                 android:id="@+id/the_word"
-                android:paddingBottom="12pt"/>
+                android:paddingBottom="6pt"/>
             <org.sc.w_drill.utils.Triangle
                 android:layout_width="20dp"
                 android:layout_height="20dp"
@@ -46,10 +46,8 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="..."
-            style="@style/LargeTitleStyle"
-            android:textStyle ="italic"
-            android:textColor="@color/TextLtGray"
+            android:text=""
+            style="@style/WordExample"
             android:id="@+id/examples"/>
 
         <!-- It's a divider -->

@@ -280,7 +280,8 @@ public class DBWordFactory
         "select id, (julianday( 'now' ) - julianday( last_access )) as result " +
                 "from words where " +
                 "stage = 0 and " +
-                "( result >= 0.08 or last_access IS NULL ) and  " +
+                "( result >= " +  WDdb.learnTimeOut + " or last_access IS NULL ) and  " +
+                //"( result >= 0.08 or last_access IS NULL ) and  " +
                 "dict_id = ? " +
                 "order by access_count asc, percent asc, result desc, avg_time desc " +
                 "limit ?; ";
