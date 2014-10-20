@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/LtBeige"
+    android:layout_margin="32pt"
+    android:padding="64dp">
+
+    <TextView
+        style="@style/ExtraLargeTitleStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/txt_no_dicts_at_all"
+        android:id="@+id/txt_now_dicts_click_to_create_one" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1pt"
+        android:background="@color/DkBrown"
+        android:layout_marginTop="3pt"
+        android:layout_marginBottom="3pt"/>
 
     <TextView
         style="@style/LargeTitleStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/now_dicts_click_to_create_one"
-        android:id="@+id/msg_goto_new_dictionary" />
+        android:text="@string/txt_press_to_create_dictionary"
+        android:id="@+id/tvPressToCreateDictionary" />
+
+
 </LinearLayout>

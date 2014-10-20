@@ -121,7 +121,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
         else // In other case we use fictive
         {
             String[] stringList = new String[1];
-            stringList[0] = getApplicationContext().getString( R.string.now_dicts_click_to_create_one );
+            stringList[0] = getApplicationContext().getString( R.string.txt_no_dicts_at_all);
             listDicts.setAdapter( new ArrayAdapter<String>( getApplicationContext(), android.R.layout.simple_list_item_1 ) );
         }
 
@@ -266,7 +266,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
         if( activeDictDeleted )
         {
             AlertDialog.Builder builder = new AlertDialog.Builder( this );
-            builder.setMessage( R.string.msg_have_to_choose_dict ).setNegativeButton( "Cancel", new DialogInterface.OnClickListener()
+            builder.setMessage( R.string.txt_have_to_choose_dict).setNegativeButton( "Cancel", new DialogInterface.OnClickListener()
             {
                 public void onClick(DialogInterface dialog, int id)
                 {

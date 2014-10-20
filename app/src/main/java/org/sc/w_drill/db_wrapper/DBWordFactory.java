@@ -86,11 +86,6 @@ public class DBWordFactory
         return words;
     }
 
-    public ArrayList<IWord> getExtList()
-    {
-        return new ArrayList<IWord>();
-    }
-
     public void delete( IBaseWord word )
     {
         throw new UnsupportedOperationException( "DbWordFactory::delete" );
@@ -399,4 +394,22 @@ public class DBWordFactory
         cv.put("example", example);
         db.insertOrThrow(WDdb.T_EXAMPLE, null, cv);
     }
+
+    public ArrayList<DBPair> technicalGetWordUnique()
+    {
+        String statement = "select id, uuid from words where dict_id = ?";
+
+        SQLiteDatabase db = database.getReadableDatabase();
+
+        Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( dict.getId() ).toString() } );
+
+        ArrayList<DBPair> ids = new ArrayList<DBPair>();
+
+        while( crs.moveToNext() )
+            ids.add( new DBPair( Integer.valueOf( crs.getInt(0) ), crs.getString( 1 ) ) );
+
+        crs.close();
+        db.close();
+        return ids;
+   }
 }

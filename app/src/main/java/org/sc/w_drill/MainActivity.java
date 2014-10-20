@@ -18,7 +18,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import org.sc.w_drill.db.WDdb;
@@ -392,8 +391,8 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     View createNoDictionaryInterface()
     {
         // Inflate the layout for this fragment
-        View view =  getLayoutInflater().inflate(R.layout.no_dicts_fragment, rootView, false);
-        TextView text = ( TextView ) view.findViewById( R.id.msg_goto_new_dictionary );
+        View view =  getLayoutInflater().inflate(R.layout.fragment_no_dicts, rootView, false);
+        TextView text = ( TextView ) view.findViewById( R.id.tvPressToCreateDictionary );
         text.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view)
@@ -413,8 +412,8 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     {
         LayoutInflater inflater = getLayoutInflater();
 
-        View view =  inflater.inflate(R.layout.choose_dicts_fragment, rootView, false );
-        TextView text = ( TextView ) view.findViewById( R.id.msg_have_to_choose_dict );
+        View view =  inflater.inflate(R.layout.fragment_choose_dicts, rootView, false );
+        TextView text = ( TextView ) view.findViewById( R.id.txt_press_to_choose_dict);
         text.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
