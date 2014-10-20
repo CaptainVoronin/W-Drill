@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,9 +19,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+
+import org.sc.w_drill.backup.BackupHelper;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +40,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
 
     DistListAdapter adapter = null;
 
-    Dictionary dictForDeletion = null;
+    Dictionary dictForOperation = null;
 
     int activeDictId;
 
@@ -76,6 +81,64 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void exportDictionary()
+    {
+        Context context = getApplicationContext();
+        File dir= Environment.getExternalStorageDirectory();
+
+        File destdir = new File( dir.getPath() + File.separator + "Scholar" );
+        if( !destdir.exists() )
+            destdir.mkdir();
+
+        try
+        {
+            BackupHelper.Backup(context, destdir.getPath(), dictForOperation);
+            showMessage( getString( R.string.txt_dict_export_complete, destdir.getPath()
+                                                                        + File.separator
+                                                                        + dictForOperation.getName()
+                                                                        + ".zip" ) );
+        } catch( Exception ex )
+        {
+            ex.printStackTrace();
+            showError( ex.getMessage() );
+        }
+    }
+
+    private void showMessage(String message)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder( this );
+        builder.setMessage( message ).setPositiveButton( android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
+
+            }
+        });
+        builder.setTitle( R.string.txt_dictionary_export );
+        builder.setIcon( android.R.drawable.ic_dialog_info );
+        builder.setCancelable( true );
+        builder.create();
+        builder.show();
+
+    }
+
+    private void showError(String message)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder( this );
+        builder.setMessage( message ).setPositiveButton( android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
+
+            }
+        });
+        builder.setTitle( R.string.txt_dictionary_export );
+        builder.setIcon( android.R.drawable.ic_dialog_alert );
+        builder.setCancelable( true );
+        builder.create();
+        builder.show();
     }
 
     /**
@@ -198,7 +261,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
         @Override
         public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l)
         {
-            dictForDeletion = ( Dictionary ) view.getTag();
+            dictForOperation = ( Dictionary ) view.getTag();
 
             PopupMenu popup = new PopupMenu( ActDictionaryList.this, view);
             popup.getMenuInflater().inflate(R.menu.dict_list_popup_menu, popup.getMenu());
@@ -210,11 +273,14 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
                     switch( item.getItemId() )
                     {
                         case R.id.action_move_and_delete:
-                            dictForDeletion = null;
+                            dictForOperation = null;
                             return false;
                         case R.id.action_delete:
-                            if( dictForDeletion != null )
-                                preDeleteDict( dictForDeletion.getName() );
+                            if( dictForOperation != null )
+                                preDeleteDict( dictForOperation.getName() );
+                            return true;
+                        case R.id.action_export:
+                            exportDictionary();
                             return true;
                     }
                     return true;
@@ -251,12 +317,12 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
 
     private void deleteDictionary()
     {
-        if( dictForDeletion != null )
-            DBDictionaryFactory.getInstance( db ).delete( dictForDeletion );
-        if( dictForDeletion.getId() == activeDictId )
+        if( dictForOperation != null )
+            DBDictionaryFactory.getInstance( db ).delete(dictForOperation);
+        if( dictForOperation.getId() == activeDictId )
             activeDictDeleted = true;
 
-        dictForDeletion = null;
+        dictForOperation = null;
 
         prepareList();
     }

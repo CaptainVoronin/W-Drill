@@ -14,10 +14,8 @@ import java.util.ArrayList;
  */
 public class DictToXML
 {
-    public static void toXML( WDdb database, StringBuilder buff, int dictId )
+    public static void toXML( WDdb database, StringBuilder buff, Dictionary dict )
     {
-        //TODO: error handling
-        Dictionary dict = DBDictionaryFactory.getInstance( database ).getDictionaryById( dictId );
 
         buff.setLength(0);
 

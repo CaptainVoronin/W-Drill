@@ -33,7 +33,7 @@ public class WordToXML
 
     static final void toXML( StringBuilder buff, IMeaning meaning )
     {
-        buff.append( "\t<meaning pos=\">").append( meaning.partOFSpeech()).append( "\">\n");
+        buff.append( "\t<meaning pos=\"").append( meaning.partOFSpeech()).append( "\">\n");
             buff.append( "\t<value>");
                 buff.append( meaning.meaning() );
             buff.append( "</value>\n");
