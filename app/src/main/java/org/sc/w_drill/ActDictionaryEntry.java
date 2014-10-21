@@ -50,6 +50,7 @@ public class ActDictionaryEntry
     public static final String ENTRY_KIND_PARAM_NAME = "ENTRY_KIND_PARAM_NAME";
     public static final String UPDATED_WORD_ID_PARAM_NAME = "UPDATED_WORD_ID_PARAM_NAME";
     public static final String WORDS_ADDED_PARAM_NAME = "WORDS_ADDED_PARAM_NAME";
+    public static final String EDIT_AND_RETURN = "EDIT_AND_RETURN";
 
     public static final int WHOLE_LIST_ENTRY = 0;
     public static final int WORDS_TO_LEARN = 1;
@@ -69,6 +70,7 @@ public class ActDictionaryEntry
     private int updatedWordId = -1;
     private boolean wordsAdded = false;
     private boolean wordsDeleted = false;
+    private boolean editAndReturn = false;
     MenuItem btnSave, btnClear;
     private boolean showButtons;
 
@@ -76,8 +78,10 @@ public class ActDictionaryEntry
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-
         super.onCreate(savedInstanceState);
+
+        int entryKind = ADD_WORDS;
+
         setContentView(R.layout.activity_act_dictionaty_entry);
 
         Intent data = getIntent();
@@ -94,11 +98,13 @@ public class ActDictionaryEntry
                 fatalError();
 
             wordId = data.getIntExtra(DBWordFactory.WORD_ID_VALUE_NAME, -1);
+
+            entryKind = data.getIntExtra(ENTRY_KIND_PARAM_NAME, ADD_WORDS);
+
+            editAndReturn = data.getBooleanExtra( EDIT_AND_RETURN, false );
         }
         else
             fatalError();
-
-        int entryKind = data.getIntExtra(ENTRY_KIND_PARAM_NAME, ADD_WORDS);
 
         // Set up the action bar.
 
@@ -266,6 +272,8 @@ public class ActDictionaryEntry
     public void onWordUpdated(int id)
     {
         updatedWordId = id;
+        if( editAndReturn )
+            onBackPressed();
     }
 
     @Override

@@ -124,6 +124,7 @@ public class ActLearnWords extends ActionBarActivity
             intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
             intent.putExtra( DBWordFactory.WORD_ID_VALUE_NAME, activeWord.getId() );
             intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.ADD_WORDS );
+            intent.putExtra( ActDictionaryEntry.EDIT_AND_RETURN, Boolean.valueOf( true ) );
             startActivityForResult(intent, MainActivity.CODE_ActDictionaryEntry);
             return true;
         }
@@ -383,6 +384,7 @@ public class ActLearnWords extends ActionBarActivity
             words.set( index, activeWord );
 
             bringWordToScreen(activeWord);
+
         }
     }
 

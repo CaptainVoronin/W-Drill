@@ -96,6 +96,18 @@ public class DBDictionaryFactory
         return dict;
     }
 
+
+    public boolean dictionaryExists( String _uuid )
+    {
+        String statement = "select count(*) from dictionary where uuid = ?";
+        SQLiteDatabase db = database.getReadableDatabase();
+        Cursor crs = db.rawQuery( statement, new String[] { _uuid } );
+        crs.moveToNext();
+        int cnt = crs.getInt( 0 );
+        crs.close();
+        db.close();
+        return cnt >= 1;
+    }
     /**
      * this is special version for bulk operations
      * It doesn't close database, so it is useful in transactions
@@ -105,13 +117,14 @@ public class DBDictionaryFactory
      * @return
      * @throws android.database.sqlite.SQLiteException
      */
-    public Dictionary createNewSpec( String name, String language, SQLiteDatabase db ) throws android.database.sqlite.SQLiteException
+    public Dictionary createNewSpec( String name, String language, SQLiteDatabase db, String _uuid ) throws android.database.sqlite.SQLiteException
     {
         ContentValues cv = new ContentValues();
         cv.put( "name", name );
         cv.put( "language", language );
-        String uuid = UUID.randomUUID().toString();
-        cv.put( "uuid", uuid );
+        if( _uuid == null )
+            _uuid = UUID.randomUUID().toString();
+        cv.put( "uuid", _uuid );
 
         int id = (int) db.insertOrThrow( WDdb.T_DICTIONARY, null, cv );
 

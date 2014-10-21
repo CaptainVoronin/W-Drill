@@ -94,7 +94,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
 
         try
         {
-            BackupHelper.Backup(context, destdir.getPath(), dictForOperation);
+            BackupHelper.backup(context, destdir.getPath(), dictForOperation);
             showMessage( getString( R.string.txt_dict_export_complete, destdir.getPath()
                                                                         + File.separator
                                                                         + dictForOperation.getName()

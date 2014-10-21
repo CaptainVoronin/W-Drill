@@ -31,6 +31,17 @@ public class Meaning implements IMeaning
         partOS = EPartOfSpeech.noun.toString();
     }
 
+    public Meaning( int _id, String _meaning, boolean _isFormal, boolean _isDisapproving, boolean _isRude  )
+    {
+        id = _id;
+        meaning = _meaning;
+        partOS = EPartOfSpeech.noun.toString();
+        isFormal = _isFormal;
+        isDisapproving = _isDisapproving;
+        isRude = _isRude;
+    }
+
+
     public int getId()
     {
         return id;
@@ -57,19 +68,19 @@ public class Meaning implements IMeaning
     @Override
     public boolean isFormal()
     {
-        return false;
+        return isFormal;
     }
 
     @Override
     public boolean isDisapproving()
     {
-        return false;
+        return isDisapproving;
     }
 
     @Override
     public boolean isRude()
     {
-        return false;
+        return isRude;
     }
 
     @Override

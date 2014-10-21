@@ -241,7 +241,12 @@ public class DBWordFactory
 
         if (crs.getCount() != 0) {
             while (crs.moveToNext()) {
-                IMeaning m = new Meaning(crs.getInt(0), crs.getString(1));
+                //Meaning( String _meaning, boolean _isFormal, boolean _isDisapproving, boolean _isRude  )
+                IMeaning m = new Meaning(crs.getInt(0),
+                                         crs.getString(1),
+                                         crs.getInt( 2 ) == 0 ? false : true,
+                                         crs.getInt( 3 ) == 0 ? false : true,
+                                         crs.getInt( 4 ) == 0 ? false : true );
                 m.setPartOfSpeech( crs.getString(5) );
                 word.meanings().add(m);
                 Cursor crs1 = db.rawQuery(examples, new String[]{Integer.valueOf(m.getId()).toString()});

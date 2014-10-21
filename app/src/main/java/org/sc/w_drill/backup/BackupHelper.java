@@ -27,7 +27,7 @@ public class BackupHelper
     protected BackupHelper()
     {}
 
-    public static final void Backup( Context context, String destdir, Dictionary dict) throws IOException
+    public static final void backup(Context context, String destdir, Dictionary dict) throws IOException
     {
         File dir = new File( destdir );
 

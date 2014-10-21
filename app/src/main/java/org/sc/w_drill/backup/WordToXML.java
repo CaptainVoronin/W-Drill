@@ -33,7 +33,10 @@ public class WordToXML
 
     static final void toXML( StringBuilder buff, IMeaning meaning )
     {
-        buff.append( "\t<meaning pos=\"").append( meaning.partOFSpeech()).append( "\">\n");
+        buff.append( "\t<meaning pos=\"").append( meaning.partOFSpeech()).append( "\" ");
+        buff.append( "formal=\"").append( meaning.isFormal() ).append( "\" ");
+        buff.append( "rude=\"").append( meaning.isRude() ).append( "\" ");
+        buff.append( "disapproving=\"").append( meaning.isDisapproving() ).append( "\">");
             buff.append( "\t<value>");
                 buff.append( meaning.meaning() );
             buff.append( "</value>\n");
