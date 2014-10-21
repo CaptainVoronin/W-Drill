@@ -8,4 +8,9 @@
         android:orderInCategory="100"
         app:showAsAction="always" />
 
+    <item android:id="@+id/action_load_dictionary"
+          android:title="@string/txt_load_dictionary"
+          android:orderInCategory="100"
+          app:showAsAction="always" />
+
 </menu>

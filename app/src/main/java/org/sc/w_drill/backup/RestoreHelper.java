@@ -54,14 +54,14 @@ public class RestoreHelper
      * The function accepts ZIP file.
      * @param file
      */
-    public int load( Context context, File file, File internalStorage  ) throws Exception {
-        String dictFile = unzipEntry( file, internalStorage );
+    public int load( Context context, File file  ) throws Exception
+    {
+        String dictFile = unzipEntry( file, context.getCacheDir() );
 
         if( dictFile == null )
             throw new DataFormatException();
 
         StringBuilder buff = internalLoad( dictFile );
-        WDdb database = new WDdb( context );
         return putInDB( database, buff );
     }
 
@@ -102,7 +102,7 @@ public class RestoreHelper
          if( dictname == null  )
              throw new DataFormatException( "Name of dictionary hasn't been found" );
 
-        if( dictname == null  )
+        if( content == null  )
             throw new DataFormatException( "Structure is incorrect" );
 
         SQLiteDatabase db = this.database.getWritableDatabase();
@@ -140,12 +140,12 @@ public class RestoreHelper
                     Node node = nodes.item( i );
                     if( node.getNodeName().equals( "meaning" ) )
                     {
-                        IMeaning meaning = extractMeaning( node );
-                        word.meanings().add( meaning );
+                        IMeaning mean = extractMeaning( node );
+                        word.meanings().add( mean );
                     }
                 }
                 if( word != null && word.getWord().length() != 0 ) {
-                    instance.technicalInsert(db, dict.getId(), word, meaning, example);
+                    instance.technicalInsert(db, dict.getId(), word );
                     count++;
                 }
                 else
@@ -164,7 +164,7 @@ public class RestoreHelper
         return count;
     }
 
-    private IMeaning extractMeaning(Node node)
+    private IMeaning extractMeaning(Node node) throws DataFormatException
     {
         String value = null, example = null;
         ArrayList<DBPair> examples = new ArrayList<DBPair>();
@@ -189,17 +189,24 @@ public class RestoreHelper
         {
             Node n = nodes.item( i );
             if( n.getNodeName().equals( "value" ) )
-                value = n.getNodeValue();
+                value = n.getTextContent() ;
             else
-                examples.add( new DBPair(-1, n.getNodeValue()) );
+            {
+                String ex = n.getTextContent().trim();
+                if( ex.length() != 0 )
+                    examples.add(new DBPair(-1, ex ));
+            }
         }
 
         // TODO: Attributes: rude, formal, disapp. are ignored
+        if( value == null )
+            throw new DataFormatException( "Meaning can't be empty" );
 
         Meaning m = new Meaning( value );
         m.setPartOfSpeech( pos );
         m.examples().addAll( examples );
 
+        return m;
     }
 
     String getTextContent( Node node )
@@ -284,6 +291,4 @@ public class RestoreHelper
         else
             return null;
     }
-
-
 }

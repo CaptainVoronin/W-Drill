@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -19,8 +20,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.sc.w_drill.backup.BackupHelper;
+import org.sc.w_drill.backup.RestoreHelper;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
@@ -31,6 +34,8 @@ import java.util.List;
 
 public class ActDictionaryList extends ActionBarActivity implements DlgDictionary.OnDictionaryOkClickListener
 {
+
+    public static final int CHOOSE_FILE_CODE = Activity.RESULT_FIRST_USER + 1;
 
     WDdb db;
 
@@ -80,7 +85,17 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
             goShowNewDictionaryDialog();
             return true;
         }
+        else
+         if( id == R.id.action_load_dictionary )
+         {
+             chooseZipFile();
+         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void chooseZipFile()
+    {
+        openFile("*/*");
     }
 
     private void exportDictionary()
@@ -167,6 +182,34 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
 
     protected void onActivityResult (int requestCode, int resultCode, Intent data)
     {
+        switch( requestCode )
+        {
+            case CHOOSE_FILE_CODE:
+
+                if( data != null )
+                {
+                    Uri retUri = data.getData();
+                    File f = new File( retUri.getPath() );
+                    loadFile(f);
+                }
+
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void loadFile(File file)
+    {
+        RestoreHelper rh = new RestoreHelper( new WDdb( this ) );
+        try
+        {
+            rh.load(this, file);
+        }
+        catch( Exception ex )
+        {
+            ex.printStackTrace();
+        }
     }
 
     private void prepareList()
@@ -342,5 +385,35 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
         }
         else
             super.onBackPressed();
+    }
+
+    public void openFile(String minmeType)
+    {
+
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType(minmeType);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        // special intent for Samsung file manager
+        Intent sIntent = new Intent("com.sec.android.app.myfiles.PICK_DATA");
+        // if you want any file type, you can skip next line
+        sIntent.putExtra("CONTENT_TYPE", minmeType);
+        sIntent.addCategory(Intent.CATEGORY_DEFAULT);
+
+        Intent chooserIntent;
+        if (getPackageManager().resolveActivity(sIntent, 0) != null){
+            // it is device with samsung file manager
+            chooserIntent = Intent.createChooser(sIntent, "Open file");
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { intent});
+        }
+        else {
+            chooserIntent = Intent.createChooser(intent, "Open file");
+        }
+
+        try {
+            startActivityForResult(chooserIntent, CHOOSE_FILE_CODE);
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(getApplicationContext(), "No suitable File Manager was found.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

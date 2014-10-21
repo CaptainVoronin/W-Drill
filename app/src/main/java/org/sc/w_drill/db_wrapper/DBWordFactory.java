@@ -144,12 +144,13 @@ public class DBWordFactory
     private void putMeaningsAndExamples( SQLiteDatabase db, IWord word ) throws SQLiteException
     {
         ContentValues cv = new ContentValues();
+        int id = word.getId(); //Integer.valueOf( word.getId() ).toString();
 
         if( word.meanings() != null )
             for (IMeaning m : word.meanings())
             {
                 cv.clear();
-                cv.put("word_id", Integer.valueOf( word.getId() ).toString());
+                cv.put("word_id", id );
                 cv.put("meaning", m.meaning());
                 cv.put( "part_of_speech", m.partOFSpeech() );
                 // TODO: Values: isFormal, etc aren't inserted
@@ -398,6 +399,20 @@ public class DBWordFactory
         cv.put("meaning_id", id);
         cv.put("example", example);
         db.insertOrThrow(WDdb.T_EXAMPLE, null, cv);
+    }
+
+    public void technicalInsert( SQLiteDatabase db, int dictId, IWord word )
+    {
+        ContentValues cv = new ContentValues();
+        cv.put("word", word.getWord());
+        cv.put("dict_id", dictId );
+        cv.put("uuid", UUID.randomUUID().toString());
+
+        int id = (int) db.insertOrThrow( WDdb.T_WORDS, null, cv);
+        word.setId( id );
+        cv.clear();
+
+        putMeaningsAndExamples( db, word );
     }
 
     public ArrayList<DBPair> technicalGetWordUnique()

@@ -135,7 +135,7 @@ public class DBDictionaryFactory
         int id = crs.getInt( 0 );
         crs.close(); */
 
-        Dictionary dict = new Dictionary( id, name, uuid, language );
+        Dictionary dict = new Dictionary( id, name, _uuid, language );
 
         return dict;
     }

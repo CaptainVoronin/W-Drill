@@ -87,7 +87,7 @@ public class DictionaryLoader
 
         Exception ex = null;
         try {
-            Dictionary dict = DBDictionaryFactory.getInstance(this.database).createNewSpec(dictname, lang, db);
+            Dictionary dict = DBDictionaryFactory.getInstance(this.database).createNewSpec(dictname, lang, db,null);
             String word = null;
             String meaning = null;
             String example = null;

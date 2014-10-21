@@ -81,5 +81,6 @@
     <string name="txt_dictionary_export">Экспорт словаря</string>
     <string name="txt_directory">Директория</string>
     <string name="txt_file_name">Имя файла</string>
+    <string name="txt_load_dictionary">Загрузить словарь</string>
 
 </resources>
