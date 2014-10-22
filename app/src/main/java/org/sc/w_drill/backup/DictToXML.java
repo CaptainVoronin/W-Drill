@@ -28,7 +28,7 @@ public class DictToXML
         buff.append("\t<name>").append(dict.getName()).append("</name>\n");
         ArrayList<DBPair> ids = DBWordFactory.getInstance( database, dict ).technicalGetWordUnique();
 
-        buff.append( "\t\t<content count=\"" ).append( ids.size() ).append( "\">\n" );
+        buff.append( "\t<content count=\"" ).append( ids.size() ).append( "\">\n" );
 
         for( DBPair pair : ids )
         {
@@ -36,7 +36,7 @@ public class DictToXML
             WordToXML.toXML( buff, word, pair.getValue() );
         }
 
-        buff.append( "\t\t</content>\n" );
+        buff.append( "\t</content>\n" );
         buff.append( "</dictionary>");
     }
 }

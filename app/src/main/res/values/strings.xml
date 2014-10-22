@@ -82,5 +82,6 @@
     <string name="txt_directory">Директория</string>
     <string name="txt_file_name">Имя файла</string>
     <string name="txt_load_dictionary">Загрузить словарь</string>
+    <string name="txt_restore_dictionary_error">В процессе загрузко словаря встретилась ошибка\n%s</string>
 
 </resources>

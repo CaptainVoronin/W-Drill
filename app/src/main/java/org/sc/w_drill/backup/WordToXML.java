@@ -13,31 +13,31 @@ public class WordToXML
 
     public static final void toXML( StringBuilder buff, IWord word, String uuid )
     {
-        buff.append( "<word uuid=\"").append( uuid ).append( "\" ");
+        buff.append( "\t\t\t<word uuid=\"").append( uuid ).append( "\" ");
         buff.append( "state=\"").append( word.getLearnState() == IBaseWord.LearnState.learn ? 0 : 1 ).append( "\" ");
-        buff.append( "percent=\"").append( word.getLearnPercent() ).append( "\"> ");
+        buff.append( "percent=\"").append( word.getLearnPercent() ).append( "\">\n");
         // TODO: other properties has been omitted
 
-        buff.append( "\t<value>").append( word.getWord() ).append("\t</value>");
+        buff.append( "\t\t\t\t<value>").append( word.getWord() ).append("</value>\n");
 
         if( word.getTranscription() != null && word.getTranscription().length() != 0 )
-            buff.append( "\t<transcription>").append( word.getTranscription() ).append( "\t</transcription>");
+            buff.append( "\t\t\t\t<transcription>").append( word.getTranscription() ).append( "</transcription>\n");
 
         for( IMeaning m : word.meanings())
         {
             toXML( buff, m );
         }
-        buff.append( "</word>");
+        buff.append( "\t\t\t</word>\n");
 
     }
 
     static final void toXML( StringBuilder buff, IMeaning meaning )
     {
-        buff.append( "\t<meaning pos=\"").append( meaning.partOFSpeech()).append( "\" ");
+        buff.append( "\t\t\t\t\t<meaning pos=\"").append( meaning.partOFSpeech()).append( "\" ");
         buff.append( "formal=\"").append( meaning.isFormal() ).append( "\" ");
         buff.append( "rude=\"").append( meaning.isRude() ).append( "\" ");
-        buff.append( "disapproving=\"").append( meaning.isDisapproving() ).append( "\">");
-            buff.append( "\t<value>");
+        buff.append( "disapproving=\"").append( meaning.isDisapproving() ).append( "\">\n");
+            buff.append( "\t\t\t\t\t\t<value>");
                 buff.append( meaning.meaning() );
             buff.append( "</value>\n");
             if( meaning.examples()!= null && meaning.examples().size() != 0 )
@@ -45,13 +45,13 @@ public class WordToXML
                 for( DBPair ex : meaning.examples() )
                     toXML( buff, ex.getValue() );
             }
-        buff.append( "\t</meaning>\n");
+        buff.append( "\t\t\t\t\t</meaning>\n");
 
     }
 
     static final void toXML( StringBuilder buff, String example )
     {
-        buff.append( "\t<example>");
+        buff.append( "\t\t\t\t\t\t<example>");
             buff.append( example );
         buff.append( "</example>\n");
     }

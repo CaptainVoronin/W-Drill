@@ -205,10 +205,12 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
         try
         {
             rh.load(this, file);
+            prepareList();
         }
         catch( Exception ex )
         {
             ex.printStackTrace();
+            showError( getString( R.string.txt_restore_dictionary_error, ex.getMessage() ));
         }
     }
 

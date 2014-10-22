@@ -404,9 +404,10 @@ public class DBWordFactory
     public void technicalInsert( SQLiteDatabase db, int dictId, IWord word )
     {
         ContentValues cv = new ContentValues();
-        cv.put("word", word.getWord());
-        cv.put("dict_id", dictId );
-        cv.put("uuid", UUID.randomUUID().toString());
+        cv.put( "word", word.getWord());
+        cv.put( "dict_id", dictId );
+        cv.put( "transcription", word.getTranscription() );
+        cv.put( "uuid", UUID.randomUUID().toString());
 
         int id = (int) db.insertOrThrow( WDdb.T_WORDS, null, cv);
         word.setId( id );

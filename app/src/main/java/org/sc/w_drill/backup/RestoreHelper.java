@@ -115,6 +115,7 @@ public class RestoreHelper
             String meaning = null;
             String example = null;
             String value = null;
+            String transcr = null;
 
             NodeList nList = doc.getElementsByTagName("word");
             DBWordFactory instance = DBWordFactory.getInstance( database, dict );
@@ -131,13 +132,25 @@ public class RestoreHelper
                     Node node = nodes.item(i);
                     if (node.getNodeName().equals("value")) {
                         word = new Word(getTextContent(node));
-                        break;
-                    }
+
+                    } else if (node.getNodeName().equals("transcription"))
+                        transcr = getTextContent(node);
                 }
+
+                if( word == null )
+                    throw new DataFormatException( "Dictionary file is corrupted" );
+
+                word.setTranscription( transcr == null ? "" : transcr );
+                // An instance of the Word class creates with
+                // the one empty meaning so it should be removed
+                word.meanings().clear();
 
                 for( int i = 0; i < nodes.getLength(); i++  )
                 {
                     Node node = nodes.item( i );
+                    if( node.getNodeType() != Node.ELEMENT_NODE )
+                        continue;
+
                     if( node.getNodeName().equals( "meaning" ) )
                     {
                         IMeaning mean = extractMeaning( node );
@@ -203,7 +216,7 @@ public class RestoreHelper
             throw new DataFormatException( "Meaning can't be empty" );
 
         Meaning m = new Meaning( value );
-        m.setPartOfSpeech( pos );
+        m.setPartOfSpeech(pos);
         m.examples().addAll( examples );
 
         return m;
