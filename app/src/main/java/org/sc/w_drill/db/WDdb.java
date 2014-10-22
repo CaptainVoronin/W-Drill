@@ -1,5 +1,6 @@
 package org.sc.w_drill.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -9,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class WDdb extends SQLiteOpenHelper
 {
-    public final static int SCHEME_VERSION = 16;
+    public final static int SCHEME_VERSION = 17;
     public final static String learnTimeOut = "0";
 
     public final static String T_DICTIONARY = "dictionary";
@@ -96,6 +97,10 @@ public class WDdb extends SQLiteOpenHelper
 
         if( !needUpdate( oldVersion, newVersion ) )
             return;
+
+        ContentValues cv = new ContentValues();
+        cv.put( "language", "eng" );
+        db.update( T_DICTIONARY, cv, null, null );
 
 /*        String stmt = "alter table words add picture_file TEXT;";
         db.execSQL( stmt );

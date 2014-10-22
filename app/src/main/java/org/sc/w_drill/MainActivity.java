@@ -25,6 +25,7 @@ import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DictionaryLoader;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.ActiveDictionaryStateFragment;
+import org.sc.w_drill.utils.Langs;
 
 public class MainActivity extends ActionBarActivity implements DlgDictionary.OnDictionaryOkClickListener
 {

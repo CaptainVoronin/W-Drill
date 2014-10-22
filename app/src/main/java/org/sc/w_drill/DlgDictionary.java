@@ -7,15 +7,19 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.utils.Langs;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -92,11 +96,13 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
     WDdb database;
 
     OnDictionaryOkClickListener listener;
+    Langs langs;
 
     public DlgDictionary(Context context )
     {
         super(context);
         database = new WDdb( context );
+        langs = Langs.getInstance( context );
     }
 
     @Override
@@ -113,49 +119,8 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
         btnOk = ( Button ) findViewById( R.id.btnOk );
         btnOk.setOnClickListener( this );
         String[] langNames = getContext().getResources().getStringArray(R.array.languages);
-        getLocales();
-        spin.setAdapter( new ArrayAdapter<String>( getContext(), android.R.layout.simple_list_item_1, langNames ) );
-    }
 
-    private void getLocales() {
-        String[] langs = Locale.getISOLanguages();
-        String[] countries = Locale.getISOLanguages();
-        Locale[] locales = Locale.getAvailableLocales();
-
-/*        for( int i = 0; i < langs.length; i++ )
-            Log.d("W-DRILL langs", langs[i] + "\n");
-
-        for( int i = 0; i < countries.length; i++ )
-            Log.d("W-DRILL countries", countries[i] + "\n"); */
-        String str;
-
-        StringBuilder buff = new StringBuilder();
-
-        ArrayList<String> list = new ArrayList<String>();
-        for (int i = 0; i < locales.length; i++) {
-            //<item name="1">@string/noun</item>
-            str = "<item name=\"locale_" + locales[i].getISO3Language() + "\">"
-                    + locales[i].getISO3Language()
-                    + ";" + locales[i].getDisplayLanguage()
-                    + "</item>";
-            if (!list.contains(str))
-                list.add( str );
-        }
-
-        for( int i = 0; i< list.size(); i++ )
-            buff.append( list.get(i) ).append( '\n' );
-
-        try {
-            File f = Environment.getExternalStorageDirectory();
-            File f1 = new File( f.getPath() + File.separator + "Scholar/locales.txt");
-            FileWriter fw = new FileWriter( f1  );
-            fw.write( buff.toString() );
-            fw.close();
-            fw = null;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        spin.setAdapter( new LangsAdapter( getContext(), langs ) );
     }
 
     @Override
@@ -171,7 +136,10 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
     private void processOkBtn()
     {
         String name = edName.getText().toString();
-        String lang = spin.getSelectedItem().toString();
+        int id = ( int ) spin.getSelectedItemId();
+        Langs langs = Langs.getInstance( getContext() );
+        String lang = langs.keysArray()[ id ].toString();
+
         dismiss();
         if( checkDictionaryValues( name, lang ) )
         {
@@ -229,5 +197,46 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
         DBDictionaryFactory factory = DBDictionaryFactory.getInstance( database );
         boolean res = factory.checkDuplicate( name  );
         return res;
+    }
+
+    class LangsAdapter extends ArrayAdapter<String>
+    {
+        Langs _langs;
+        Context context;
+        Object[] keyArray;
+
+        public LangsAdapter(Context _context, Langs _langs )
+        {
+            super( _context, R.layout.row_lang_list, _langs.getList() );
+            langs = _langs;
+            context = _context;
+            keyArray = langs.keysArray();
+        }
+
+        @Override
+        public View getView( int position, View convertView, ViewGroup parent )
+        {
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View rowView = inflater.inflate(R.layout.row_lang_list, parent, false);
+
+            String l = langs.get( keyArray [ position ].toString() );
+
+            TextView tv = ( TextView ) rowView.findViewById( R.id.tvLangDispName );
+            tv.setText( l );
+            tv.setTag( keyArray [ position ] );
+            return rowView;
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+
+            LayoutInflater inflater = getLayoutInflater();
+            View row = inflater.inflate(R.layout.row_lang_list, parent,
+                    false);
+            TextView tv = (TextView) row.findViewById(R.id.tvLangDispName);
+            tv.setText( langs.get( keyArray[ position ].toString() ) );
+            return row;
+        }
     }
 }

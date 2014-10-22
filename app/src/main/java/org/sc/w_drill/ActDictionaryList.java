@@ -27,6 +27,7 @@ import org.sc.w_drill.backup.RestoreHelper;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.utils.Langs;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -250,6 +251,8 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
     {
         ArrayList<Dictionary> dictList;
         Context context;
+        Langs langs;
+
         public DistListAdapter(Context _context, List objects)
         {
             super(_context, R.layout.row_dict_list, objects);
@@ -257,6 +260,9 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
             dictList = ( ArrayList<Dictionary>) objects;
 
             context = _context;
+
+            langs = Langs.getInstance( context );
+
         }
         @Override
         public View getView( int position, View convertView, ViewGroup parent )
@@ -271,7 +277,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
             Dictionary dict = dictList.get(position);
 
             lbName.setText( dict.getName() );
-            lbLang.setText( dict.getLang() );
+            lbLang.setText( langs.get( dict.getLang() ) );
             lbWordsCount.setText( ActDictionaryList.this.getString( R.string.row_dict_list_dict_word_count, dict.getWordCount() ));
             rowView.setTag( dict );
 
