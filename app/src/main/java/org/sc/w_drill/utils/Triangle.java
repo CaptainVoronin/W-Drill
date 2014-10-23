@@ -12,9 +12,6 @@ import android.util.AttributeSet;
 import android.view.View;
 import org.sc.w_drill.R;
 
-/**
- * TODO: document your custom view class.
- */
 public class Triangle extends View {
     public enum Position { U_LEFT, U_RIGHT, B_LEFT, B_RIGHT };
 

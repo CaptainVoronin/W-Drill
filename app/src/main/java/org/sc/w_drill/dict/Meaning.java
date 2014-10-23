@@ -11,9 +11,9 @@ public class Meaning implements IMeaning
 {
     int id;
     String meaning;
-    boolean isFormal;
-    boolean isDisapproving;
-    boolean isRude;
+    private boolean isFormal;
+    private boolean isDisapproving;
+    private boolean isRude;
     ArrayList<DBPair> examples;
     private String partOS;
 
@@ -36,9 +36,9 @@ public class Meaning implements IMeaning
         id = _id;
         meaning = _meaning;
         partOS = EPartOfSpeech.noun.toString();
-        isFormal = _isFormal;
-        isDisapproving = _isDisapproving;
-        isRude = _isRude;
+        setFormal(_isFormal);
+        setDisapproving(_isDisapproving);
+        setRude(_isRude);
     }
 
 
@@ -109,5 +109,17 @@ public class Meaning implements IMeaning
         if( examples == null )
             examples = new ArrayList<DBPair>();
         return examples;
+    }
+
+    public void setFormal(boolean isFormal) {
+        this.isFormal = isFormal;
+    }
+
+    public void setDisapproving(boolean isDisapproving) {
+        this.isDisapproving = isDisapproving;
+    }
+
+    public void setRude(boolean isRude) {
+        this.isRude = isRude;
     }
 }

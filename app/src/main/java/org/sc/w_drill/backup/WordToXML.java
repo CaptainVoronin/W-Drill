@@ -16,7 +16,6 @@ public class WordToXML
         buff.append( "\t\t\t<word uuid=\"").append( uuid ).append( "\" ");
         buff.append( "state=\"").append( word.getLearnState() == IBaseWord.LearnState.learn ? 0 : 1 ).append( "\" ");
         buff.append( "percent=\"").append( word.getLearnPercent() ).append( "\">\n");
-        // TODO: other properties has been omitted
 
         buff.append( "\t\t\t\t<value>").append( word.getWord() ).append("</value>\n");
 

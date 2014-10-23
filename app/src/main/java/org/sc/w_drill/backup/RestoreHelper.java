@@ -211,11 +211,13 @@ public class RestoreHelper
             }
         }
 
-        // TODO: Attributes: rude, formal, disapp. are ignored
         if( value == null )
             throw new DataFormatException( "Meaning can't be empty" );
 
         Meaning m = new Meaning( value );
+        m.setFormal( isFormal );
+        m.setDisapproving( isDisapp );
+        m.setRude( isRude );
         m.setPartOfSpeech(pos);
         m.examples().addAll( examples );
 
