@@ -7,8 +7,10 @@ import android.util.Pair;
 import org.sc.w_drill.R;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -91,5 +93,19 @@ public class Langs
             }
         }
         return result;
+    }
+
+    public String getCode( String name )
+    {
+
+        Iterator<Map.Entry<String,String>> it = langs.entrySet().iterator();
+
+        while( it.hasNext() )
+        {
+            Map.Entry<String,String> item = it.next();
+            if( item.getValue().equals( name ))
+                return item.getKey();
+        }
+        return null;
     }
 }

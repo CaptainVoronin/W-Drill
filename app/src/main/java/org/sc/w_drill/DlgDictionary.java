@@ -87,14 +87,21 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
     private void processOkBtn()
     {
         String name = edName.getText().toString();
-        int id = 1;//( int ) spin.getSelectedItemId();
+        String langName = edSearch.getText().toString();
+
         Langs langs = Langs.getInstance( getContext() );
-        String lang = langs.keysArray()[ id ].toString();
+        String code = langs.getCode( langName );
+
+        if( code == null )
+        {
+            //TODO: Handle incorrect input
+            return;
+        }
 
         dismiss();
-        if( checkDictionaryValues( name, lang ) )
+        if( checkDictionaryValues( name, code ) )
         {
-            Dictionary newDict = DBDictionaryFactory.getInstance( database ).createNew( name, lang );
+            Dictionary newDict = DBDictionaryFactory.getInstance( database ).createNew( name, code );
             if( listener != null )
                 listener.onNewDictOkClick(newDict.getId());
         }
