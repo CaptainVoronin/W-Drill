@@ -11,8 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Filter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -25,75 +27,22 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 
 /**
- * Created by MaxSh on 13.10.2014.
- *
- * Arabic, Egypt (ar_EG)
- Arabic, Israel (ar_IL)
- Bulgarian, Bulgaria (bg_BG)
- Catalan, Spain (ca_ES)
- Czech, Czech Republic (cs_CZ)
- Danish, Denmark(da_DK)
- German, Austria (de_AT)
- German, Switzerland (de_CH)
- German, Germany (de_DE)
- German, Liechtenstein (de_LI)
- Greek, Greece (el_GR)
- English, Australia (en_AU)
- English, Canada (en_CA)
- English, Britain (en_GB)
- English, Ireland (en_IE)
- English, India (en_IN)
- English, New Zealand (en_NZ)
- English, Singapore(en_SG)
- English, US (en_US)
- English, South Africa (en_ZA)
- Spanish (es_ES)
- Spanish, US (es_US)
- Finnish, Finland (fi_FI)
- French, Belgium (fr_BE)
- French, Canada (fr_CA)
- French, Switzerland (fr_CH)
- French, France (fr_FR)
- Hebrew, Israel (he_IL)
- Hindi, India (hi_IN)
- Croatian, Croatia (hr_HR)
- Hungarian, Hungary (hu_HU)
- Indonesian, Indonesia (id_ID)
- Italian, Switzerland (it_CH)
- Italian, Italy (it_IT)
- Japanese (ja_JP)
- Korean (ko_KR)
- Lithuanian, Lithuania (lt_LT)
- Latvian, Latvia (lv_LV)
- Norwegian bokmål, Norway (nb_NO)
- Dutch, Belgium (nl_BE)
- Dutch, Netherlands (nl_NL)
- Polish (pl_PL)
- Portuguese, Brazil (pt_BR)
- Portuguese, Portugal (pt_PT)
- Romanian, Romania (ro_RO)
- Russian (ru_RU)
- Slovak, Slovakia (sk_SK)
- Slovenian, Slovenia (sl_SI)
- Serbian (sr_RS)
- Swedish, Sweden (sv_SE)
- Thai, Thailand (th_TH)
- Tagalog, Philippines (tl_PH)
- Turkish, Turkey (tr_TR)
- Ukrainian, Ukraine (uk_UA)
- Vietnamese, Vietnam (vi_VN)
- Chinese, PRC (zh_CN)
- Chinese, Taiwan (zh_TW)
+ * The autocomplete text editor was created using an approach that is
+ * described here:
+ * http://drzon.net/how-to-create-a-clearable-autocomplete-dropdown-with-autocompletetextview/
  */
+
 public class DlgDictionary extends Dialog implements android.view.View.OnClickListener
 {
     public Button btnOk, btnCancel;
     EditText edName;
-    Spinner spin;
     WDdb database;
+    AutoCompleteTextView edSearch;
+    LangsAdapter langsAdapter;
 
     OnDictionaryOkClickListener listener;
     Langs langs;
@@ -113,14 +62,16 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
         setContentView(R.layout.dlg_new_dictionary);
 
         edName = ( EditText ) findViewById( R.id.edName );
-        spin = (Spinner) findViewById( R.id.listLangs );
         btnCancel = ( Button ) findViewById( R.id.btnCancel );
         btnCancel.setOnClickListener( this );
         btnOk = ( Button ) findViewById( R.id.btnOk );
         btnOk.setOnClickListener( this );
         String[] langNames = getContext().getResources().getStringArray(R.array.languages);
 
-        spin.setAdapter( new LangsAdapter( getContext(), langs ) );
+        edSearch = ( AutoCompleteTextView  ) findViewById( R.id.edSearch );
+
+        langsAdapter = new LangsAdapter( getContext(), langs );
+        edSearch.setAdapter( langsAdapter );
     }
 
     @Override
@@ -136,7 +87,7 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
     private void processOkBtn()
     {
         String name = edName.getText().toString();
-        int id = ( int ) spin.getSelectedItemId();
+        int id = 1;//( int ) spin.getSelectedItemId();
         Langs langs = Langs.getInstance( getContext() );
         String lang = langs.keysArray()[ id ].toString();
 
@@ -204,6 +155,8 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
         Langs _langs;
         Context context;
         Object[] keyArray;
+        Filter filter;
+        HashMap<String,String> subset;
 
         public LangsAdapter(Context _context, Langs _langs )
         {
@@ -211,6 +164,7 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
             langs = _langs;
             context = _context;
             keyArray = langs.keysArray();
+            subset = langs.getSubset( null );
         }
 
         @Override
@@ -220,7 +174,7 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View rowView = inflater.inflate(R.layout.row_lang_list, parent, false);
 
-            String l = langs.get( keyArray [ position ].toString() );
+            String l = subset.get( keyArray [ position ].toString() );
 
             TextView tv = ( TextView ) rowView.findViewById( R.id.tvLangDispName );
             tv.setText( l );
@@ -235,8 +189,56 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
             View row = inflater.inflate(R.layout.row_lang_list, parent,
                     false);
             TextView tv = (TextView) row.findViewById(R.id.tvLangDispName);
-            tv.setText( langs.get( keyArray[ position ].toString() ) );
+            tv.setText( subset.get( keyArray[ position ].toString() ) );
             return row;
+        }
+
+        @Override
+        public Filter getFilter()
+        {
+            if( filter == null )
+                filter = new LangFilter();
+            return filter;
+        }
+
+        public void setSubset( HashMap<String, String> _subset )
+        {
+            subset = _subset;
+            keyArray = subset.keySet().toArray();
+            addAll( subset.values() );
+            //notifyDataSetChanged();
+        }
+
+    }
+
+    private class LangFilter extends Filter
+    {
+
+        @Override
+        protected FilterResults performFiltering(CharSequence charSequence)
+        {
+            FilterResults result = new FilterResults();
+            if( charSequence == null || charSequence.length() == 0 )
+            {
+                HashMap<String,String> res = langs.getSubset( null );
+                result.values = res;
+                result.count = res.size();
+            }
+            else {
+                String search = charSequence.toString();
+                HashMap<String,String> res = langs.getSubset(search);
+                result.values = res;
+                result.count = res.size();
+            }
+            return result;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        protected void publishResults(CharSequence charSequence, FilterResults results)
+        {
+            langsAdapter.clear();
+            langsAdapter.setSubset( ( HashMap<String, String> ) results.values  );
         }
     }
 }

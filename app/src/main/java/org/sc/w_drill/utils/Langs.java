@@ -1,12 +1,14 @@
 package org.sc.w_drill.utils;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.Pair;
 
 import org.sc.w_drill.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -55,7 +57,7 @@ public class Langs
     public ArrayList<String> getList()
     {
         ArrayList<String> list = new ArrayList<String>( );
-        list.addAll( langs.values() );
+        list.addAll(langs.values());
         return list;
     }
 
@@ -67,5 +69,27 @@ public class Langs
     public String get( String key )
     {
         return langs.get( key );
+    }
+
+    public HashMap<String,String> getSubset( String pattern )
+    {
+        HashMap<String,String> result = new HashMap<String,String>();
+        if( pattern == null )
+        {
+            result = langs;
+        }
+        else {
+            Set<String> set = langs.keySet();
+            Iterator<String> it = set.iterator();
+            while (it.hasNext()) {
+                String key = it.next();
+                String value = langs.get(key);
+                String str = value.toLowerCase();
+                if (str.contains(pattern.toLowerCase())) {
+                    result.put(key, value);
+                }
+            }
+        }
+        return result;
     }
 }
