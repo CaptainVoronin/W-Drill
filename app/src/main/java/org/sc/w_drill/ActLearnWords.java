@@ -312,7 +312,7 @@ public class ActLearnWords extends ActionBarActivity
 
     void bringWordToScreen( IWord word )
     {
-        clearMeaning();
+        clearScreen();
         activeWord = word;
         wordPlace.setText( activeWord.getWord() );
         learnIndicator.setColor( learnColors.getColor(activeWord) );
@@ -336,8 +336,9 @@ public class ActLearnWords extends ActionBarActivity
         start = Calendar.getInstance();
     }
 
-    private void clearMeaning()
+    private void clearScreen()
     {
+        wordExample.setText( "" );
         wordTranscription.setText("");
         viewContainer.removeAllViews();
     }
