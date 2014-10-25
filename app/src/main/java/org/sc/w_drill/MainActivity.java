@@ -2,15 +2,23 @@ package org.sc.w_drill;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -25,6 +33,7 @@ import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DictionaryLoader;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.ActiveDictionaryStateFragment;
+import org.sc.w_drill.utils.DateTimeUtils;
 import org.sc.w_drill.utils.Langs;
 
 public class MainActivity extends ActionBarActivity implements DlgDictionary.OnDictionaryOkClickListener
@@ -63,6 +72,16 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Set uncough exception handler
+        Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler()
+        {
+            @Override
+            public void uncaughtException (Thread thread, Throwable e)
+            {
+                handleUncaughtException (thread, e);
+            }
+        });
+
         rootView = ( LinearLayout ) findViewById( R.id.rootLayout );
 
         int activeDictID = -1;
@@ -81,6 +100,32 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
         database.getWritableDatabase();
         detectState( activeDictID );
+    }
+
+    private void handleUncaughtException(Thread thread, Throwable e)
+    {
+        try
+        {
+            File dir = new File( Environment.getExternalStorageDirectory() +
+                       File.separator + "Scholar" );
+
+            if( !dir.exists() )
+                dir.mkdirs();
+
+            File f = new File(dir.getPath() +  File.separator + DateTimeUtils.getDateTimeString()
+                    + ".stacktrace" );
+
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            FileWriter fw = new FileWriter(f);
+            fw.write( sw.toString() );
+            fw.close();
+
+        } catch( Exception ex )
+        {
+            ex.printStackTrace();
+        }
+        System.exit(1);
     }
 
     private void detectState( int activeDictID )
@@ -255,15 +300,17 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
         // Set the dictionary lang
         text = ( TextView ) view.findViewById( R.id.tvDictLang );
-        text.setText( activeDict.getLang() );
+        text.setText( Langs.getInstance( this ).get( activeDict.getLang() ) );
 
         // Set the word count
         text = ( TextView ) view.findViewById( R.id.word_count);
+        text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         text.setText( Integer.valueOf( activeDict.getWordCount() ).toString() );
 
         //Set the words-to-learn count
         text = ( TextView ) view.findViewById( R.id.words_for_learn);
-        text.setText( Integer.valueOf( activeDict.getWordsToLearn() ).toString() + "\t>");
+        text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        text.setText( Integer.valueOf( activeDict.getWordsToLearn() ).toString() );
         if( activeDict.getWordsToLearn() != 0  )
             text.setOnClickListener( new View.OnClickListener() {
                 @Override
@@ -282,7 +329,8 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
         //Set the words-to-check count
         text = ( TextView ) view.findViewById( R.id.words_for_check);
-        text.setText( Integer.valueOf( activeDict.getWordsToCheck() ).toString() + "\t>" );
+        text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        text.setText( Integer.valueOf( activeDict.getWordsToCheck() ).toString() );
         if( activeDict.getWordsToCheck() != 0 )
             text.setOnClickListener( new View.OnClickListener() {
                 @Override
@@ -317,7 +365,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         });
 
         //Set the "edit dict" label
-        text = ( TextView ) view.findViewById( R.id.edit_dict );
+        text = ( TextView ) view.findViewById( R.id.word_count );
 
         text.setOnClickListener( new View.OnClickListener() {
             @Override

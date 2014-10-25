@@ -5,7 +5,7 @@ android {
         defaul_config {
             keyAlias 'key for signing apks'
             keyPassword 'toledo'
-            storeFile file('C:/Users/maxsh/.android/android_key_store.jks')
+            storeFile file('C:/Users/Max/android_key_store.jks')
             storePassword 'toledo'
         }
     }
@@ -15,21 +15,44 @@ android {
         applicationId 'org.sc.w_drill'
         minSdkVersion 13
         targetSdkVersion 20
-        versionName 'Druft 0.1'
+        versionName 'FirstDruft'
         signingConfig signingConfigs.defaul_config
+        versionCode 1
     }
     buildTypes {
         release {
             runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.defaul_config
+            applicationVariants.all { variant ->
+                appendVersionNameVersionCode(variant, defaultConfig)
+            }
         }
+
         debug {
             signingConfig signingConfigs.defaul_config
+            applicationVariants.all { variant ->
+                appendVersionNameVersionCode(variant, defaultConfig)
+            }
+
         }
+
     }
+
     productFlavors {
     }
+}
+
+def appendVersionNameVersionCode(variant, defaultConfig) {
+    if(variant.zipAlign) {
+        def file = variant.outputFile
+        def fileName = file.name.replace(".apk", "scholar-" + defaultConfig.versionCode + "-" + defaultConfig.versionName + ".apk")
+        variant.outputFile = new File(file.parent, fileName)
+    }
+
+    def file = variant.packageApplication.outputFile
+    def fileName = file.name.replace(".apk", "-" + defaultConfig.versionName + "-" + defaultConfig.versionCode + ".apk")
+    variant.packageApplication.outputFile = new File(file.parent, fileName)
 }
 
 dependencies {

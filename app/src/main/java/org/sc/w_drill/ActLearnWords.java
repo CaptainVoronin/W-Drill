@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import org.sc.w_drill.db.WDdb;
@@ -51,7 +52,6 @@ public class ActLearnWords extends ActionBarActivity
     TextView wordPlace;
     TextView wordTranscription;
     TextView wordExample;
-    TextView tvKnow, tvDontKnow;
     WDdb database;
     ArrayList<WordTmpStats> wordStats;
     private boolean confirmed;
@@ -64,6 +64,7 @@ public class ActLearnWords extends ActionBarActivity
     private GestureDetectorCompat mDetector;
     boolean wordsLearned = false;
     LinearLayout viewContainer;
+    ImageView imgUp, imgDown;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +79,6 @@ public class ActLearnWords extends ActionBarActivity
 
         int wordId = getIntent().getIntExtra( ActDictionaryEntry.UPDATED_WORD_ID_PARAM_NAME, -1 );
 
-        tvKnow = ( TextView ) findViewById( R.id.tv_iknow );
-        tvDontKnow = ( TextView ) findViewById( R.id.tv_idontknow );
-
         wordPlace = ( TextView ) findViewById( R.id.the_word);
 
         wordTranscription = ( TextView ) findViewById( R.id.transcription );
@@ -93,6 +91,9 @@ public class ActLearnWords extends ActionBarActivity
         partsOS = PartsOfSpeech.getInstance( getApplicationContext() );
 
         viewContainer = ( LinearLayout ) findViewById( R.id.viewContainer );
+
+        imgUp   = ( ImageView ) findViewById( R.id.imgUp );
+        imgDown = ( ImageView ) findViewById( R.id.imgDown );
 
         getWordsSet();
         if( words != null )
@@ -165,108 +166,10 @@ public class ActLearnWords extends ActionBarActivity
                 onBackPressed();
             }
         });
-
+        builder.setTitle( R.string.txt_words_learning );
         builder.setCancelable(true);
         builder.create();
         builder.show();
-    }
-
-    private void processUserAnswer(boolean success)
-    {
-
-        if (confirmed)
-        {
-            // A user has confirmed his action
-            // So we must write new percent into database
-            WordTmpStats stat = null;
-
-            for( WordTmpStats s : wordStats )
-                if( s.id == activeWord.getId() )
-                {
-                    stat = s;
-                    break;
-                }
-
-            int percent = activeWord.getLearnPercent();
-
-            stat.attempts++;
-
-            if( success )
-            {
-                if( percent + 20 > 100 )
-                    percent = 100;
-                else
-                    percent += 20;
-                wordsLearned = true;
-            }
-            else
-            {
-                if( percent - 20 < 0 )
-                    percent = 0;
-                else
-                    percent -= 20;
-                stat.attempts--;
-            }
-
-            int time = ( int ) ( Calendar.getInstance().getTimeInMillis() - start.getTimeInMillis() );
-
-            time = Math.round( ( activeWord.getAvgTime() + time ) / ( activeWord.getAccessCount() + 1 ) );
-            activeWord.setLearnPercent( percent );
-            DBWordFactory.getInstance( database, activeDict )
-                    .updatePercentAndTime( activeWord.getId(), activeWord.getLearnPercent(), time );
-
-            // TODO: there should be some rule to remove word from list
-            // 'cause it's impossible repeate learning five time
-            if ( stat.attempts >= 1 )
-            {
-                words.remove( activeWord );
-                wordStats.remove( stat );
-            }
-
-            // ...and get a new word for learning
-
-            if ( words.size() != 0 )
-            {
-                IWord word = words.next();
-                // There is another one word
-                // Set buttons to default state
-                tvKnow.setText( R.string.i_know );
-                tvDontKnow.setText( R.string.i_dontknow );
-                // Bring the new word to the screen
-                bringWordToScreen(word);
-                confirmed = false;
-            }
-            else
-            {
-                // The current word set is empty
-                // Take the next set from DB
-                getWordsSet();
-
-                if( words == null || words.size() == 0 ) {
-                    // If there are words for learning
-                    // we'll make a transition.
-                    if( DBDictionaryFactory.getInstance( database ).getWordsTo( activeDict.getId(), DBDictionaryFactory.STAGE_CHECK ) != 0 )
-                        showWhatToDoDialog();
-                    else
-                    {
-                        showNothingToDoDialog();
-                    }
-                }
-                else
-                {
-                    confirmed = false;
-                    bringWordToScreen(words.next());
-                }
-            }
-        } else {
-            showMeaning();
-
-            if( success )
-                tvKnow.setText( getString( R.string.go_next));
-            else
-                tvDontKnow.setText( getString( R.string.go_next));
-            confirmed = true;
-        }
     }
 
     private void showNothingToDoDialog() {
@@ -277,7 +180,7 @@ public class ActLearnWords extends ActionBarActivity
                 onBackPressed();
             }
         });
-
+        builder.setTitle( R.string.txt_words_learning );
         builder.setCancelable(true);
         builder.create();
         builder.show();
@@ -304,7 +207,7 @@ public class ActLearnWords extends ActionBarActivity
                 startActivity(intent);
             }
         });
-
+        builder.setTitle( R.string.txt_words_learning );
         builder.setCancelable(true);
         builder.create();
         builder.show();
@@ -345,6 +248,7 @@ public class ActLearnWords extends ActionBarActivity
 
     void showMeaning()
     {
+        state = State.WAIT_CONFIRMATION;
         for( IMeaning m : activeWord.meanings() )
         {
             MeaningRow row = new MeaningRow( m );
@@ -431,10 +335,14 @@ public class ActLearnWords extends ActionBarActivity
             float y2 = event2.getRawY();
             Direction d = getDirection( x1, y1, x2, y2 );
 
-            if( d == Direction.UP )
+            processAction( d );
+
+            /*if( d == Direction.UP )
                 processUserAnswer(true);
             else if( d == Direction.DOWN )
                 processUserAnswer(false);
+            else if ( d == Direction.LEFT )
+                processUserLeftScratch(); */
 
             return true;
         }
@@ -507,5 +415,178 @@ public class ActLearnWords extends ActionBarActivity
         {
             return view;
         }
+    }
+
+    enum State { WAIT_ANSWER, WAIT_CONFIRMATION };
+    enum Answer{ I_KNOW, I_DONT_KNOW };
+    State state  = State.WAIT_ANSWER;
+    Answer answer;
+
+    void processAction( Direction direction )
+    {
+        boolean accepted = false;
+
+        if( state == State.WAIT_ANSWER )
+        {
+            if( direction == Direction.UP )
+            {
+                answer = Answer.I_KNOW;
+                setIconsToIKnowState();
+                accepted = true;
+            }
+            else if( direction == Direction.DOWN )
+            {
+                answer = Answer.I_DONT_KNOW;
+                setIconsToIDontKnowState();
+                accepted = true;
+            }
+
+            if( accepted )
+                showMeaning();
+        }
+        else
+        {
+            state = State.WAIT_ANSWER;
+
+            if( direction == Direction.RIGHT )
+            {
+                if( answer == Answer.I_DONT_KNOW )
+                    processFail();
+                else
+                    processSuccess();
+                accepted = true;
+            } else if( direction == Direction.UP )
+            {
+                if( answer == Answer.I_KNOW )
+                    processSuccess();
+                accepted = true;
+            } else if( direction == Direction.DOWN )
+            {
+                if (answer == Answer.I_KNOW)
+                    processFail();
+                accepted = true;
+            }
+
+            if ( accepted )
+            {
+                setIconsToDefaultState();
+                nextWord();
+            }
+        }
+    }
+
+    private void nextWord()
+    {
+        if ( words.size() != 0 )
+        {
+            IWord word = words.next();
+            // There is another one word
+            // Set buttons to default state
+
+            imgUp.setImageDrawable( getResources().getDrawable( R.drawable.hand_up ) );
+            imgDown.setImageDrawable( getResources().getDrawable( R.drawable.hand_down ) );
+
+            // Bring the new word to the screen
+            bringWordToScreen(word);
+            confirmed = false;
+        }
+        else
+        {
+            // The current word set is empty
+            // Take the next set from DB
+            getWordsSet();
+
+            if( words == null || words.size() == 0 ) {
+                // If there are words for learning
+                // we'll make a transition.
+                if( DBDictionaryFactory.getInstance( database ).getWordsTo( activeDict.getId(), DBDictionaryFactory.STAGE_CHECK ) != 0 )
+                    showWhatToDoDialog();
+                else
+                {
+                    showNothingToDoDialog();
+                }
+            }
+            else
+            {
+                confirmed = false;
+                bringWordToScreen(words.next());
+            }
+        }
+    }
+
+    private void processFail()
+    {
+        WordTmpStats stat = getStat();
+        int percent = activeWord.getLearnPercent();
+
+        stat.attempts++;
+
+        if( percent - 20 < 0 )
+            percent = 0;
+        else
+            percent -= 20;
+
+        wordsLearned = true;
+        saveResult(stat, percent);
+    }
+
+    private void processSuccess()
+    {
+        WordTmpStats stat = getStat();
+        int percent = activeWord.getLearnPercent();
+
+        stat.attempts++;
+
+        if( percent + 20 > 100 )
+            percent = 100;
+        else
+            percent += 20;
+
+        wordsLearned = true;
+        saveResult(stat, percent);
+        words.remove( activeWord );
+        wordStats.remove(stat);
+    }
+
+    private void setIconsToIDontKnowState()
+    {
+        imgUp.setImageDrawable( getResources().getDrawable( R.drawable.hand_up ) );
+        imgDown.setImageDrawable( getResources().getDrawable( R.drawable.next ) );
+    }
+
+    private void setIconsToDefaultState()
+    {
+        imgUp.setImageDrawable( getResources().getDrawable( R.drawable.hand_up ) );
+        imgDown.setImageDrawable( getResources().getDrawable( R.drawable.hand_down ) );
+    }
+
+    private void setIconsToIKnowState()
+    {
+        imgUp.setImageDrawable( getResources().getDrawable( R.drawable.next ) );
+        imgDown.setImageDrawable( getResources().getDrawable( R.drawable.hand_down ) );
+    }
+
+    WordTmpStats getStat()
+    {
+        WordTmpStats stat = null;
+
+        for( WordTmpStats s : wordStats )
+            if( s.id == activeWord.getId() )
+            {
+                stat = s;
+                break;
+            }
+        return stat;
+    }
+
+    void saveResult( WordTmpStats stat, int percent )
+    {
+        int time = ( int ) ( Calendar.getInstance().getTimeInMillis() - start.getTimeInMillis() );
+
+        time = Math.round( ( activeWord.getAvgTime() + time ) / ( activeWord.getAccessCount() + 1 ) );
+        activeWord.setLearnPercent( percent );
+        DBWordFactory.getInstance( database, activeDict )
+                .updatePercentAndTime( activeWord.getId(), activeWord.getLearnPercent(), time );
+
     }
 }

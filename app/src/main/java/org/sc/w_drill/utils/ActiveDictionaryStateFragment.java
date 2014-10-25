@@ -133,7 +133,7 @@ public class ActiveDictionaryStateFragment extends Fragment
                 }
             });
 
-            text = (TextView) view.findViewById(R.id.edit_dict);
+            text = (TextView) view.findViewById(R.id.word_count);
             text.setOnClickListener( new View.OnClickListener()
             {
                 @Override
