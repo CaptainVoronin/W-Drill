@@ -30,7 +30,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
-import org.sc.w_drill.db_wrapper.DictionaryLoader;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.ActiveDictionaryStateFragment;
 import org.sc.w_drill.utils.DateTimeUtils;
@@ -207,9 +206,6 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
                     startActivityForResult(intent, CODE_ActDictionaryList);
                 }
                 break;
-            case R.id.action_import:
-                importDictionary();
-                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -219,35 +215,6 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         DlgDictionary dlg = new DlgDictionary( this );
         dlg.setOkListsner( this );
         dlg.show();
-    }
-
-    private void importDictionary()
-    {
-        try {
-            DictionaryLoader loader = new DictionaryLoader(database);
-            InputStream is = getAssets().open("main_dictionary.zip");
-            File cacheFile = new File(getCacheDir(), "tmp.zip");
-
-            FileOutputStream out = new FileOutputStream(cacheFile);
-
-            byte[] buffer = new byte[1024];
-            int read;
-            while((read = is.read(buffer)) != -1){
-                out.write(buffer, 0, read);
-            }
-
-            is.close();
-            is = null;
-            out.flush();
-            out.close();
-            out = null;
-            File dir = getCacheDir();
-            int count = loader.load( getApplicationContext(), cacheFile, dir );
-        }
-        catch( Exception e )
-        {
-            Log.e( "[MainActivity::importDictionary]", "Exception: " + e.getMessage() );
-        }
     }
 
     protected void onActivityResult (int requestCode, int resultCode, Intent data)

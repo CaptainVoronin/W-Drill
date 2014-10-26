@@ -4,11 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ActDictionaryList" >
 
-    <item android:id="@+id/action_move_and_delete"
-        android:title="@string/action_move_and_delete"
-        android:orderInCategory="100"
-        app:showAsAction="never" />
-
     <item android:id="@+id/action_delete"
         android:title="@string/action_delete"
         android:orderInCategory="100"

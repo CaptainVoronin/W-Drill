@@ -9,7 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
@@ -54,7 +54,7 @@ public class FragmentEditWord extends Fragment
     PartsOfSpeech parts;
     LinearLayout viewContainer;
     ArrayList<MeaningEditView> meaningViewList;
-    ImageButton btnAddMeaning;
+    ImageView btnAddMeaning;
 
     public static FragmentEditWord newInstance(  )
     {
@@ -75,10 +75,10 @@ public class FragmentEditWord extends Fragment
 
     }
 
-    private void prepareForNewWord()
+/*    private void prepareForNewWord()
     {
         edWord.setText("");
-    }
+    } */
 
     public void bringWordToScreen()
     {
@@ -89,7 +89,7 @@ public class FragmentEditWord extends Fragment
         {
             meaningViewList.clear();
             viewContainer.removeAllViews();
-            boolean removable = false;
+            boolean removable = activeWord.meanings().size() > 1;
             for (IMeaning m : activeWord.meanings())
             {
                 MeaningEditView med = new MeaningEditView(getActivity(), m);
@@ -97,16 +97,10 @@ public class FragmentEditWord extends Fragment
                 viewContainer.addView(med.getView());
                 med.setOnRemoveClickListener( this  );
                 med.setRemovable( removable );
-                removable = true;
             }
         }
 
         needBringWord = false;
-    }
-
-    private void fatalError()
-    {
-
     }
 
     @Override
@@ -117,7 +111,7 @@ public class FragmentEditWord extends Fragment
         edWord = ( EditText ) rootView.findViewById( R.id.ed_word);
         edTranscription = ((EditText) rootView.findViewById(R.id.ed_transcription));
         viewContainer = ( LinearLayout ) rootView.findViewById( R.id.meanings_table );
-        btnAddMeaning = ( ImageButton  ) rootView.findViewById( R.id.btnAddMeaning );
+        btnAddMeaning = ( ImageView ) rootView.findViewById( R.id.btnAddMeaning );
         btnAddMeaning.setOnClickListener( new OnAddMeaningClickListener() );
         int id = -1;
         Bundle args = getArguments();
@@ -247,13 +241,7 @@ public class FragmentEditWord extends Fragment
         View view = meaningView.getView();
         meaningViewList.remove( meaningView );
         viewContainer.removeView( view );
-
-        boolean removable = false;
-        for( MeaningEditView mv : meaningViewList )
-        {
-            mv.setRemovable( removable );
-            removable = true;
-        }
+        setRemovable();
     }
 
     /**
@@ -339,5 +327,14 @@ public class FragmentEditWord extends Fragment
         meaningViewList.add( view );
         viewContainer.addView( view.getView() );
         view.setOnRemoveClickListener( this );
+
+        setRemovable();
+    }
+
+    void setRemovable()
+    {
+        boolean removable =  meaningViewList.size() > 1;
+        for( MeaningEditView mv : meaningViewList )
+            mv.setRemovable( removable );
     }
 }

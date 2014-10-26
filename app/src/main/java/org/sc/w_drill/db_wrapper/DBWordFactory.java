@@ -380,7 +380,7 @@ public class DBWordFactory
         db.close();
     }
 
-    public void technicalInsert( SQLiteDatabase db, int dictId, String word, String meaning, String example )
+    /*public void technicalInsert( SQLiteDatabase db, int dictId, String word, String meaning, String example )
     {
         ContentValues cv = new ContentValues();
         cv.put("word", word);
@@ -399,15 +399,17 @@ public class DBWordFactory
         cv.put("meaning_id", id);
         cv.put("example", example);
         db.insertOrThrow(WDdb.T_EXAMPLE, null, cv);
-    }
+    } */
 
-    public void technicalInsert( SQLiteDatabase db, int dictId, IWord word )
+    public void technicalInsert( SQLiteDatabase db, int dictId, IWord word, String uuid )
     {
         ContentValues cv = new ContentValues();
         cv.put( "word", word.getWord());
         cv.put( "dict_id", dictId );
         cv.put( "transcription", word.getTranscription() );
-        cv.put( "uuid", UUID.randomUUID().toString());
+        cv.put( "uuid", uuid );
+        cv.put( "percent", word.getLearnPercent() );
+        cv.put( "stage", word.getLearnState() == IBaseWord.LearnState.learn ? 0 : 1 );
 
         int id = (int) db.insertOrThrow( WDdb.T_WORDS, null, cv);
         word.setId( id );
@@ -415,6 +417,7 @@ public class DBWordFactory
 
         putMeaningsAndExamples( db, word );
     }
+
 
     public ArrayList<DBPair> technicalGetWordUnique()
     {

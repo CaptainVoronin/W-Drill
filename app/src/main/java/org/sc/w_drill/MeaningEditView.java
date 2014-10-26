@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Spinner;
 
 import org.sc.w_drill.dict.IMeaning;
@@ -25,7 +26,7 @@ public class MeaningEditView implements View.OnClickListener
     Spinner listPartOfSpeech;
     PartsOfSpeech parts;
     private OnRemoveMeaningViewClickListener listener;
-    private ImageButton btnRemove;
+    private ImageView btnRemove;
 
     public MeaningEditView( Context _context, IMeaning _meaning )
     {
@@ -55,7 +56,7 @@ public class MeaningEditView implements View.OnClickListener
         else
             ((EditText) view.findViewById(R.id.ed_example)).setText( "" );
 
-        btnRemove = (ImageButton) view.findViewById( R.id.btnRemove );
+        btnRemove = (ImageView) view.findViewById( R.id.btnRemove );
         btnRemove.setOnClickListener( this );
     }
 

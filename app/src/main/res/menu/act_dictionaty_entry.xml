@@ -14,10 +14,4 @@
           app:showAsAction="always"
           android:visible="false"
           android:icon="@android:drawable/ic_menu_close_clear_cancel"/>
-
-
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        app:showAsAction="never" />
 </menu>

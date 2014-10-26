@@ -1,63 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="wrap_content"
+<LinearLayout
+    android:id="@+id/meanings_table"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:orientation="vertical"
+    android:layout_height="wrap_content"
     android:layout_gravity="top"
-    android:background="@color/LtBeige"
-    android:padding="6pt"
-    android:id="@+id/meanings_table">
+    android:orientation="horizontal"
+    android:paddingRight="6pt"
+    android:paddingBottom="6pt">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="top"
+        android:background="@color/Beige"
+        android:layout_marginRight="3pt">
+        <ImageView
+            android:id="@+id/btnRemove"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"/>
+
+    </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.7"
-            android:orientation="vertical">
-            <TextView
+            android:orientation="horizontal">
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/Header3Strong"
-                android:text="@string/word_meaning"/>
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
-                android:ems="10"
-                android:id="@+id/ed_meaning"
                 android:layout_weight="0.7"
-                android:lines="2"/>
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/Header3Strong"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/word_meaning"/>
+
+                <EditText
+                    android:id="@+id/ed_meaning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.7"
+                    android:ems="10"
+                    android:inputType="textMultiLine"
+                    android:lines="2"/>
+            </LinearLayout>
+
+            <Spinner
+                android:id="@+id/listPartOfSpeech"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true">
+            </Spinner>
         </LinearLayout>
-        <Spinner
+
+        <TextView
+            style="@style/Header3Strong"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:id="@+id/listPartOfSpeech">
-        </Spinner>
+            android:text="@string/usage_sample"/>
+
+        <EditText
+            android:id="@+id/ed_example"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textMultiLine"
+            android:lines="2"/>
+
     </LinearLayout>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/Header3Strong"
-        android:text="@string/usage_sample"/>
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
-        android:ems="10"
-        android:id="@+id/ed_example"
-        android:lines="2"/>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="right">
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_close_clear_cancel"
-            android:id="@+id/btnRemove"/>
-        </LinearLayout>
 </LinearLayout>

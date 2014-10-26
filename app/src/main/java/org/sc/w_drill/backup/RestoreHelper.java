@@ -10,6 +10,7 @@ import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.EPartOfSpeech;
+import org.sc.w_drill.dict.IBaseWord;
 import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.Meaning;
 import org.sc.w_drill.dict.Word;
@@ -112,15 +113,13 @@ public class RestoreHelper
         try {
 
             Dictionary dict = DBDictionaryFactory.getInstance(this.database).createNewSpec(dictname, lang, db, uuid);
-            String meaning = null;
-            String example = null;
-            String value = null;
-            String transcr = null;
 
             NodeList nList = doc.getElementsByTagName("word");
             DBWordFactory instance = DBWordFactory.getInstance( database, dict );
             Word word = null;
-            for (int j = 0; j < nList.getLength(); j++) {
+            for (int j = 0; j < nList.getLength(); j++)
+            {
+                String transcr = null;
                 Node n = nList.item(j);
 
                 int percent = Integer.parseInt( n.getAttributes().getNamedItem( "percent" ).getNodeValue() );
@@ -141,6 +140,10 @@ public class RestoreHelper
                     throw new DataFormatException( "Dictionary file is corrupted" );
 
                 word.setTranscription( transcr == null ? "" : transcr );
+                word.setLearnState( state == 0 ?
+                        IBaseWord.LearnState.learn : IBaseWord.LearnState.check );
+                word.setLearnPercent( percent );
+
                 // An instance of the Word class creates with
                 // the one empty meaning so it should be removed
                 word.meanings().clear();
@@ -157,12 +160,14 @@ public class RestoreHelper
                         word.meanings().add( mean );
                     }
                 }
-                if( word != null && word.getWord().length() != 0 ) {
-                    instance.technicalInsert(db, dict.getId(), word );
+
+                if( word != null && word.getWord().length() != 0 )
+                {
+                    instance.technicalInsert(db, dict.getId(), word, w_uuid );
                     count++;
                 }
                 else
-                    Log.d( "[DictionaryLoader::putInDB]", "Word is empty, skipped" );
+                    Log.w( "[DictionaryLoader::putInDB]", "Word is empty, skipped" );
             }
             db.setTransactionSuccessful();
 

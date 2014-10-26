@@ -323,9 +323,6 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
                 {
                     switch( item.getItemId() )
                     {
-                        case R.id.action_move_and_delete:
-                            dictForOperation = null;
-                            return false;
                         case R.id.action_delete:
                             if( dictForOperation != null )
                                 preDeleteDict( dictForOperation.getName() );
