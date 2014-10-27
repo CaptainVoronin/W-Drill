@@ -28,6 +28,7 @@ import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.Langs;
+import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -366,7 +367,17 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
     private void deleteDictionary()
     {
         if( dictForOperation != null )
-            DBDictionaryFactory.getInstance( db ).delete(dictForOperation);
+        {
+            DictionaryImageFileManager manager = new DictionaryImageFileManager( this, dictForOperation );
+            try {
+                manager.deleteDictDir();
+            }catch( Exception ex )
+            {
+                ex.printStackTrace();
+                //TODO: there should be something more clever
+            }
+            DBDictionaryFactory.getInstance(db).delete(dictForOperation);
+        }
         if( dictForOperation.getId() == activeDictId )
             activeDictDeleted = true;
 

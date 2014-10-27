@@ -6,7 +6,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.3"
         android:orientation="vertical">
 
         <TableLayout
@@ -66,8 +67,23 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/imgAddImg"
+                android:baselineAlignBottom="false"
+                android:paddingRight="12pt"
+                android:src="@android:drawable/ic_menu_gallery" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:src="@android:drawable/ic_menu_add"
                 android:id="@+id/btnAddMeaning"/>
         </LinearLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.3"
+            android:id="@+id/wordImage" />
+
     </LinearLayout>
 </FrameLayout>

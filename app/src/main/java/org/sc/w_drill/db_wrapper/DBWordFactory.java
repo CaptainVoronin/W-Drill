@@ -53,7 +53,7 @@ public class DBWordFactory
 
     public ArrayList<BaseWord> getBriefList( String whereSTMT, String orderSTMT )
     {
-        String statement = "select id, word, percent, stage, avg_time, access_count from words where dict_id = ?";
+        String statement = "select id, word, percent, stage, avg_time, access_count, uuid from words where dict_id = ?";
         String addendum = " and %s";
         String order = " order by %s";
 
@@ -81,7 +81,8 @@ public class DBWordFactory
                     crs.getInt( 2 ),
                     crs.getInt( 3 ) == 0 ? IBaseWord.LearnState.learn : IBaseWord.LearnState.check,
                     crs.getInt( 4 ),
-                    crs.getInt( 5 )));
+                    crs.getInt( 5 ),
+                    crs.getString( 6 )));
         }
         return words;
     }
@@ -103,24 +104,20 @@ public class DBWordFactory
             ContentValues cv = new ContentValues();
             cv.put("word", word.getWord());
             cv.put("dict_id", dict.getId());
-            cv.put("uuid", UUID.randomUUID().toString());
+            String uuid = UUID.randomUUID().toString();
+            cv.put("uuid", uuid );
             cv.put("transcription", word.getTranscription());
 
             db.beginTransaction();
-            db.insertOrThrow(WDdb.T_WORDS, null, cv);
-
-            String statement = "select max( id ) from words";
-            Cursor crs = db.rawQuery(statement, null);
-
-            crs.moveToNext();
-            int id = crs.getInt(0);
-            crs.close();
+            int id = ( int ) db.insertOrThrow(WDdb.T_WORDS, null, cv);
 
             word.setId(id);
+            word.setUUID( uuid );
 
             // Now insert meanings
             putMeaningsAndExamples( db, word );
             db.setTransactionSuccessful();
+
         }catch ( SQLiteException ex )
         {
             Log.e( "[DBWordFactory::insertWord]", "Exception: " + ex.getMessage() );
@@ -211,7 +208,7 @@ public class DBWordFactory
 
     private IWord internalGetWordBrief(SQLiteDatabase db, int wordId)
     {
-        String statement = "select id, word, percent, stage, avg_time, access_count, transcription from words where id = ?";
+        String statement = "select id, word, percent, stage, avg_time, access_count, transcription, uuid from words where id = ?";
 
         Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( wordId ).toString()});
         ArrayList<BaseWord> words = new ArrayList<BaseWord>();
@@ -224,7 +221,9 @@ public class DBWordFactory
                     crs.getInt( 2 ), // percent
                     crs.getInt( 3 ) == 0 ? IBaseWord.LearnState.learn : IBaseWord.LearnState.check,  // stage
                     crs.getInt( 4 ), // avg_time
-                    crs.getInt( 5 ) ); // access_time
+                    crs.getInt( 5 ),
+                    crs.getString(7)); // access_time
+
             word.setTranscription( crs.getString( 6 ) );
         }
         crs.close();
@@ -308,7 +307,7 @@ public class DBWordFactory
         return words;
     }
 
-    public int deleteWords(ArrayList<Integer> selectedWords) throws SQLiteException {
+    public int deleteWords(ArrayList<IBaseWord> selectedWords) throws SQLiteException {
         int cnt = 0;
         SQLiteDatabase db = database.getWritableDatabase();
         SQLiteException ex = null;
@@ -316,9 +315,9 @@ public class DBWordFactory
         {
             db.beginTransaction();
 
-            for (Integer val : selectedWords)
+            for (IBaseWord val : selectedWords)
             {
-                if (db.delete(WDdb.T_WORDS, "id=?", new String[]{val.toString()}) != 0)
+                if (db.delete(WDdb.T_WORDS, "id=?", new String[]{ Integer.valueOf( val.getId() ).toString()}) != 0)
                     cnt++;
                 else
                     Log.w("[DBWordFactory::deleteWords]", "Word with id " + val.toString() + " wasn't delete");
@@ -436,4 +435,5 @@ public class DBWordFactory
         db.close();
         return ids;
    }
+
 }

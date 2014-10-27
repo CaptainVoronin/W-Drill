@@ -1,9 +1,11 @@
 package org.sc.w_drill;
 
+import java.io.File;
 import java.util.Locale;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -29,6 +31,9 @@ public class ActDictionaryEntry
         FragmentEditWord.OnFragmentInteractionListener,
         FragmentDictWordList.DictWholeListListener
 {
+
+    public static final int CODE_SelectImageIntent = Activity.RESULT_FIRST_USER + 101;
+
     public static final int RESULT_WORD_UPDATED = Activity.RESULT_FIRST_USER + 1;
     public static final int DICTIONARY_CHANGED = Activity.RESULT_FIRST_USER + 2;
     private static final int ADD_WORDS_FRAGMENT_INDEX = 0 ;
@@ -277,6 +282,14 @@ public class ActDictionaryEntry
     }
 
     @Override
+    public void selectImage()
+    {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, CODE_SelectImageIntent);
+    }
+
+    @Override
     public void onWordSelected(int id)
     {
         fragmentEditWord.setActiveWord(id);
@@ -420,5 +433,36 @@ public class ActDictionaryEntry
         }
 
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onActivityResult (int requestCode, int resultCode, Intent data)
+    {
+        switch ( requestCode )
+        {
+            case CODE_SelectImageIntent:
+                if( resultCode == Activity.RESULT_CANCELED )
+                    return;
+                if( data == null )
+                    return;
+                try {
+                    Uri retUri = data.getData();
+                    if (fragmentEditWord != null)
+                        fragmentEditWord.onImageSelected(retUri);
+                }
+                catch( Exception ex )
+                {
+                    ex.printStackTrace();
+                    showError(ex.getMessage());
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void showError(String message)
+    {
+        //TODO: There should be a dialog for errors
     }
 }

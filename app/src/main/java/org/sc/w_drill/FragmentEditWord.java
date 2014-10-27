@@ -3,8 +3,11 @@ package org.sc.w_drill;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +27,14 @@ import org.sc.w_drill.dict.Meaning;
 import org.sc.w_drill.dict.Word;
 import org.sc.w_drill.dict.WordChecker;
 import org.sc.w_drill.utils.PartsOfSpeech;
+import org.sc.w_drill.utils.image.DictionaryImageFileManager;
+import org.sc.w_drill.utils.image.ImageConstraints;
+import org.sc.w_drill.utils.image.ImageFileHelper;
+import org.sc.w_drill.utils.image.ImageResizer;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -35,11 +45,9 @@ import java.util.ArrayList;
  * to handle interaction events.
  * Use the {@link FragmentEditWord#newInstance} factory method to
  * create an instance of this fragment.
- *
  */
 public class FragmentEditWord extends Fragment
-        implements MeaningEditView.OnRemoveMeaningViewClickListener
-{
+        implements MeaningEditView.OnRemoveMeaningViewClickListener {
     private Dictionary activeDict;
     private IWord activeWord;
     WDdb database;
@@ -54,10 +62,13 @@ public class FragmentEditWord extends Fragment
     PartsOfSpeech parts;
     LinearLayout viewContainer;
     ArrayList<MeaningEditView> meaningViewList;
-    ImageView btnAddMeaning;
+    ImageView btnAddMeaning, btnAddImg;
+    String cachedImageFilename = null;
+    ImageView wordIllustration;
+    ImageFileHelper imageHelper;
+    DictionaryImageFileManager dictImageManager;
 
-    public static FragmentEditWord newInstance(  )
-    {
+    public static FragmentEditWord newInstance() {
         FragmentEditWord fragment = new FragmentEditWord();
         return fragment;
     }
@@ -70,7 +81,7 @@ public class FragmentEditWord extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        database = new WDdb( getActivity().getApplicationContext() );
+        database = new WDdb(getActivity().getApplicationContext());
         meaningViewList = new ArrayList<MeaningEditView>();
 
     }
@@ -80,23 +91,32 @@ public class FragmentEditWord extends Fragment
         edWord.setText("");
     } */
 
-    public void bringWordToScreen()
-    {
+    public void bringWordToScreen() {
         edWord.setText(activeWord.getWord());
         edTranscription.setText(activeWord.getTranscription());
+        wordIllustration.setImageBitmap(null);
+        Bitmap bmp;
+        try {
+            bmp = dictImageManager.getImage(activeWord);
+            wordIllustration.setImageBitmap(bmp);
+            btnAddImg.setImageDrawable(getActivity().getResources().getDrawable(android.R.drawable.ic_menu_close_clear_cancel));
+        } catch (FileNotFoundException fnfex) {
+            btnAddImg.setImageDrawable(getActivity().getResources().getDrawable(android.R.drawable.ic_menu_gallery));
+        } catch (Exception e) {
+            e.printStackTrace();
+            //TODO: there must be something more clever
+        }
 
-        if( activeWord.meanings().size() != 0 )
-        {
+        if (activeWord.meanings().size() != 0) {
             meaningViewList.clear();
             viewContainer.removeAllViews();
             boolean removable = activeWord.meanings().size() > 1;
-            for (IMeaning m : activeWord.meanings())
-            {
+            for (IMeaning m : activeWord.meanings()) {
                 MeaningEditView med = new MeaningEditView(getActivity(), m);
-                meaningViewList.add( med );
+                meaningViewList.add(med);
                 viewContainer.addView(med.getView());
-                med.setOnRemoveClickListener( this  );
-                med.setRemovable( removable );
+                med.setOnRemoveClickListener(this);
+                med.setRemovable(removable);
             }
         }
 
@@ -108,15 +128,23 @@ public class FragmentEditWord extends Fragment
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_edit_word, container, false);
-        edWord = ( EditText ) rootView.findViewById( R.id.ed_word);
+        edWord = (EditText) rootView.findViewById(R.id.ed_word);
         edTranscription = ((EditText) rootView.findViewById(R.id.ed_transcription));
-        viewContainer = ( LinearLayout ) rootView.findViewById( R.id.meanings_table );
-        btnAddMeaning = ( ImageView ) rootView.findViewById( R.id.btnAddMeaning );
-        btnAddMeaning.setOnClickListener( new OnAddMeaningClickListener() );
+        viewContainer = (LinearLayout) rootView.findViewById(R.id.meanings_table);
+
+        btnAddImg = (ImageView) rootView.findViewById(R.id.imgAddImg);
+        btnAddImg.setOnClickListener(new AddImageListener());
+
+        btnAddMeaning = (ImageView) rootView.findViewById(R.id.btnAddMeaning);
+        btnAddMeaning.setOnClickListener(new OnAddMeaningClickListener());
         int id = -1;
         Bundle args = getArguments();
-        if( args != null )
+        if (args != null)
             id = args.getInt(DBWordFactory.WORD_ID_VALUE_NAME, -1);
+
+        wordIllustration = (ImageView) rootView.findViewById(R.id.wordImage);
+        imageHelper = ImageFileHelper.getInstance(getActivity());
+        dictImageManager = new DictionaryImageFileManager(getActivity(), activeDict);
 
         setActiveWord(id);
         bringWordToScreen();
@@ -124,81 +152,74 @@ public class FragmentEditWord extends Fragment
         return rootView;
     }
 
-    public void startSaveWord()
-    {
+    public void startSaveWord() {
         /**
          * Gathering information
          */
         String word = String.valueOf(edWord.getText()).trim();
 
         // It's a dummy, obviously
-        if( activeWord == null )
-            activeWord = new Word( word );
-        else
-        {
+        if (activeWord == null)
+            activeWord = new Word(word);
+        else {
             activeWord.setWord(word);
             activeWord.meanings().clear();
         }
 
-        String transc = (( EditText )rootView.findViewById( R.id.ed_transcription )).getText().toString().trim();
+        String transc = ((EditText) rootView.findViewById(R.id.ed_transcription)).getText().toString().trim();
 
-        activeWord.setTranscription( transc  );
+        activeWord.setTranscription(transc);
 
-        for( MeaningEditView view : meaningViewList )
-        {
+        for (MeaningEditView view : meaningViewList) {
             String meaning = view.getMeaning();
             String example = view.getExample();
             String posCode = view.getPartOfSpeech();
-            if( !EPartOfSpeech.check( posCode ) )
-            {
+            if (!EPartOfSpeech.check(posCode)) {
                 // The code of a part of speech hasn't been found
                 //TODO: Do something with the mistake
                 continue;
             }
 
             meaning = meaning.trim();
-            if( meaning.length() == 0 )
+            if (meaning.length() == 0)
                 continue;
-            Meaning m = new Meaning( meaning );
-            m.setPartOfSpeech( posCode );
+            Meaning m = new Meaning(meaning);
+            m.setPartOfSpeech(posCode);
             m.addExample(example.trim());
-            activeWord.meanings().add( m );
+            activeWord.meanings().add(m);
         }
         saveWord();
     }
 
-    private void saveWord()
-    {
+    private void saveWord() {
         int id;
 
-        if( !WordChecker.isCorrect( DBWordFactory.getInstance(database, activeDict), activeWord ) )
-        {
-            showError( getString( R.string.incorrect_word ) );
+        if (!WordChecker.isCorrect(DBWordFactory.getInstance(database, activeDict), activeWord)) {
+            showError(getString(R.string.incorrect_word));
             return;
         }
 
-        if( ( id = activeWord.getId() ) != -1 )
-        {
-            try
-            {
+        if ((id = activeWord.getId()) != -1) {
+            try {
                 DBWordFactory.getInstance(database, activeDict).updateWord(activeWord);
-                mListener.onWordUpdated( activeWord.getId() );
-            }catch( Exception e )
-            {
+                mListener.onWordUpdated(activeWord.getId());
+            } catch (Exception e) {
                 // TODO: It must be a correct exception handler.
                 e.printStackTrace();
+                return;
             }
-        }
-        else
-        {
-            try
-            {
+        } else {
+            try {
                 activeWord = DBWordFactory.getInstance(database, activeDict).insertWord(activeWord);
-            }
-            catch (Exception e)
-            {
+
+                // if an image was saved in cache it should be moved in an appropriate directory
+                ImageFileHelper helper = ImageFileHelper.getInstance(getActivity());
+                dictImageManager.moveImageFromCache( activeWord, cachedImageFilename);
+                deleteCachedImage();
+            } catch (Exception e) {
                 // TODO: It must be a correct exception handler.
                 e.printStackTrace();
+                return;
             }
         }
 
@@ -207,7 +228,7 @@ public class FragmentEditWord extends Fragment
          * in any case due to word or a new word was added
          * or an old word has been changed.
          */
-        mListener.onWordAdded( id );
+        mListener.onWordAdded(id);
 
         clear();
     }
@@ -229,18 +250,16 @@ public class FragmentEditWord extends Fragment
         mListener = null;
     }
 
-    public void clear()
-    {
+    public void clear() {
         activeWord = new Word("");
         bringWordToScreen();
     }
 
     @Override
-    public void onClick(MeaningEditView meaningView)
-    {
+    public void onClick(MeaningEditView meaningView) {
         View view = meaningView.getView();
-        meaningViewList.remove( meaningView );
-        viewContainer.removeView( view );
+        meaningViewList.remove(meaningView);
+        viewContainer.removeView(view);
         setRemovable();
     }
 
@@ -249,29 +268,30 @@ public class FragmentEditWord extends Fragment
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p>
+     * <p/>
      * See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
 
-        public void onWordAdded( int id );
-        public void onWordUpdated( int id );
+        public void onWordAdded(int id);
+
+        public void onWordUpdated(int id);
+
+        public void selectImage();
     }
 
     @Override
-    public void setUserVisibleHint(boolean isVisibleToUser)
-    {
+    public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
 
         // Visibility not changes, exit
-        if (isVisibleToUser == isVisible )
+        if (isVisibleToUser == isVisible)
             return;
 
         // If is becomes visible, refresh list
-        if( isVisibleToUser && needBringWord )
-        {
+        if (isVisibleToUser && needBringWord) {
             bringWordToScreen();
         }
 
@@ -279,62 +299,117 @@ public class FragmentEditWord extends Fragment
 
     }
 
-    public void setActiveWord( int wordId )
-    {
-        if( wordId != -1 )
-            activeWord = DBWordFactory.getInstance( database, activeDict  ).getWordEx(wordId);
+    public void setActiveWord(int wordId) {
+        if (wordId != -1)
+            activeWord = DBWordFactory.getInstance(database, activeDict).getWordEx(wordId);
         else
             activeWord = Word.getDummy();
         needBringWord = true;
     }
 
-    public void setParams( int dictId, int wordId)
-    {
-        activeDict = DBDictionaryFactory.getInstance( database ).getDictionaryById( dictId );
+    public void setParams(int dictId, int wordId) {
+        activeDict = DBDictionaryFactory.getInstance(database).getDictionaryById(dictId);
 
-        if( wordId != -1 )
-            activeWord = DBWordFactory.getInstance( database, activeDict  ).getWord( wordId );
+        if (wordId != -1)
+            activeWord = DBWordFactory.getInstance(database, activeDict).getWord(wordId);
         else
             activeWord = Word.getDummy();
     }
 
-    void showError( String message )
-    {
-        AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+    void showError(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        builder.setMessage( message ).setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-        {
+        builder.setMessage(message).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User cancelled the dialog
             }
-        }).setCancelable( true ).create().show();
+        }).setCancelable(true).create().show();
     }
 
-    class OnAddMeaningClickListener implements View.OnClickListener
-    {
+    class OnAddMeaningClickListener implements View.OnClickListener {
 
         @Override
-        public void onClick(View view)
-        {
+        public void onClick(View view) {
             addMeaningView();
         }
     }
 
-    private void addMeaningView()
-    {
-        Meaning m = new Meaning( "" );
-        MeaningEditView view = new MeaningEditView(  getActivity(), m );
-        meaningViewList.add( view );
-        viewContainer.addView( view.getView() );
-        view.setOnRemoveClickListener( this );
+    private void addMeaningView() {
+        Meaning m = new Meaning("");
+        MeaningEditView view = new MeaningEditView(getActivity(), m);
+        meaningViewList.add(view);
+        viewContainer.addView(view.getView());
+        view.setOnRemoveClickListener(this);
 
         setRemovable();
     }
 
-    void setRemovable()
-    {
-        boolean removable =  meaningViewList.size() > 1;
-        for( MeaningEditView mv : meaningViewList )
-            mv.setRemovable( removable );
+    void setRemovable() {
+        boolean removable = meaningViewList.size() > 1;
+        for (MeaningEditView mv : meaningViewList)
+            mv.setRemovable(removable);
+    }
+
+    private class AddImageListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            if (dictImageManager.imageExists(activeWord)) {
+                removeImage();
+            } else {
+                if (mListener != null)
+                    mListener.selectImage();
+            }
+        }
+    }
+
+    public void onImageSelected(Uri uri) throws IOException {
+        deleteCachedImage();
+        removeImage();
+
+        Bitmap bmp = imageHelper.pickImage(uri);
+
+        // There we resize image if needed
+        bmp = ImageResizer.resizeBitmap(new ImageConstraints(), bmp);
+
+        if (activeWord.getId() == -1) {
+            // The active word isn't saved so put picture in the cache
+            cachedImageFilename = imageHelper.putBitmapInCache(bmp);
+        } else {
+            dictImageManager.checkDir();
+            imageHelper.putBitmapInInternalStorage(dictImageManager, activeWord, bmp);
+        }
+
+        wordIllustration.setImageBitmap(bmp);
+        btnAddImg.setImageDrawable(getActivity().getResources().getDrawable(android.R.drawable.ic_menu_close_clear_cancel));
+    }
+
+    public void deleteCachedImage() {
+        if (cachedImageFilename != null) {
+            File f = new File(cachedImageFilename);
+            if (f.delete())
+                Log.d("FragmentEditWord::delete cache file", "file " + cachedImageFilename + " has been deleted");
+            else
+                Log.w("FragmentEditWord::delete cache file", "file " + cachedImageFilename + " hasn't been deleted");
+            cachedImageFilename = null;
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        deleteCachedImage();
+        super.onDestroyView();
+    }
+
+    protected void removeImage() {
+        try {
+            dictImageManager.deleteImage(activeWord);
+            wordIllustration.setImageBitmap(null);
+            btnAddImg.setImageDrawable(getActivity().getResources().getDrawable(android.R.drawable.ic_menu_gallery));
+        } catch (FileNotFoundException fnfex) {
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            // TODO: must be a handler
+        }
     }
 }

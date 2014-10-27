@@ -206,6 +206,11 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
                     startActivityForResult(intent, CODE_ActDictionaryList);
                 }
                 break;
+            case R.id.action_about:
+            {
+                intent = new Intent( this, ActAbout.class );
+                startActivity( intent );
+            }
         }
         return super.onOptionsItemSelected(item);
     }

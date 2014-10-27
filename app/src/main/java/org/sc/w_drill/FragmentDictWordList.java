@@ -24,11 +24,13 @@ import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.dict.BaseWord;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IBaseWord;
+import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.utils.AMutableFilter;
 import org.sc.w_drill.utils.FilterableList;
 import org.sc.w_drill.utils.IFilteredListChangeListener;
 import org.sc.w_drill.utils.LearnColors;
 import org.sc.w_drill.utils.Triangle;
+import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 
 import java.util.ArrayList;
 
@@ -46,7 +48,7 @@ public class FragmentDictWordList extends Fragment
     private boolean needRefresh;
     private TextWatcher searchTextWatcher;
 
-    ArrayList<Integer> selectedWords;
+    ArrayList<IBaseWord> selectedWords;
     private CompoundButton.OnCheckedChangeListener checkBoxClickListener;
     private boolean operationButtonsVisible;
     FilterDialog dlgFilter = null;
@@ -121,7 +123,7 @@ public class FragmentDictWordList extends Fragment
             int dictId = args.getInt(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME);
             activeDict = DBDictionaryFactory.getInstance(database).getDictionaryById(dictId);
         }
-        selectedWords = new ArrayList<Integer>();
+        selectedWords = new ArrayList<IBaseWord>();
         checkBoxClickListener = new CheckBoxClickListener();
         filterType = FilterType.ALL;
         needRefresh = true;
@@ -263,12 +265,15 @@ public class FragmentDictWordList extends Fragment
             BaseWord word = words.get(position);
             int color = LearnColors.getInstance( getActivity() ).getColor( word.getLearnState(), word.getLearnPercent() );
             rowView.setBackgroundColor( color );
+
+            //TODO: What for?
             rowView.setTag( Integer.valueOf( word.getId() ) );
+
             rowView.setOnClickListener( onClick );
 
             CheckBox chb = (CheckBox) rowView.findViewById(R.id.cbSelectWord);
             chb.setText( word.getWord());
-            chb.setTag( Integer.valueOf( word.getId() ) );
+            chb.setTag( word );
             chb.setOnCheckedChangeListener( checkBoxClickListener );
 
             TextView text = ( TextView ) rowView.findViewById( R.id.word_percent );
@@ -378,7 +383,7 @@ public class FragmentDictWordList extends Fragment
         @Override
         public void onCheckedChanged(CompoundButton compoundButton, boolean b)
         {
-            Integer val = ( Integer ) compoundButton.getTag();
+            IBaseWord val = ( IBaseWord ) compoundButton.getTag();
             if( val != null )
                 if ( b )
                 {
@@ -414,7 +419,20 @@ public class FragmentDictWordList extends Fragment
 
     public void deleteSelected()
     {
+        DictionaryImageFileManager manager = new DictionaryImageFileManager( getActivity(), activeDict );
+
         int cnt = DBWordFactory.getInstance( database, activeDict ).deleteWords( selectedWords );
+
+        for(IBaseWord word : selectedWords )
+        {
+            try {
+                manager.deleteImage(word);
+            } catch( Exception e )
+            {
+                e.printStackTrace();
+            }
+        }
+
         selectedWords.clear();
 
         if( cnt != 0 )

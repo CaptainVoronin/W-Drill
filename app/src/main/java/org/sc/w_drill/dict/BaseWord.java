@@ -11,8 +11,9 @@ public class BaseWord implements IBaseWord
     LearnState state;
     int avgTime;
     private int accessCount;
+    String uuid;
 
-    public BaseWord( int _id, String _word, int _learnPercent, LearnState _state, int _avgTime, int _accessCount )
+    public BaseWord( int _id, String _word, int _learnPercent, LearnState _state, int _avgTime, int _accessCount, String _uuid )
     {
         id = _id;
         word = _word;
@@ -20,11 +21,22 @@ public class BaseWord implements IBaseWord
         state = _state;
         avgTime = _avgTime;
         accessCount = _accessCount;
+        uuid = _uuid;
     }
 
     @Override
     public void setWord(String _word) {
         word = _word;
+    }
+
+    @Override
+    public String getUUID() {
+        return uuid;
+    }
+
+    @Override
+    public void setUUID(String _uuid) {
+        uuid = _uuid;
     }
 
     @Override

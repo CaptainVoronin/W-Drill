@@ -84,5 +84,9 @@
     <string name="txt_load_dictionary">Загрузить словарь</string>
     <string name="txt_restore_dictionary_error">В процессе загрузки словаря встретилась ошибка\n%s</string>
     <string name="txt_words_learning">Изучение</string>
+    <string name="title_activity_act_about">О программе</string>
+    <string name="action_about">О программе</string>
+    <string name="txt_version_name">Название версии</string>
+    <string name="txt_version_number">Номер версии</string>
 
 </resources>

@@ -10,15 +10,15 @@ public class Word extends BaseWord implements IWord
     ArrayList<IMeaning> meanings;
     String transcription;
 
-    public Word ( int _id, String _word, int _learnPercent, LearnState _state, int _avgTime, int _accessCount  )
+    public Word ( int _id, String _word, int _learnPercent, LearnState _state, int _avgTime, int _accessCount, String uuid  )
     {
-        super( _id, _word, _learnPercent, _state, _avgTime, _accessCount );
+        super( _id, _word, _learnPercent, _state, _avgTime, _accessCount, uuid );
         word = _word;
     }
 
     public Word ( String _word )
     {
-        super( -1, _word, 0, LearnState.learn, 0, 0 );
+        super( -1, _word, 0, LearnState.learn, 0, 0, "" );
         word = _word;
         addMeaning( new Meaning( "" ) );
     }

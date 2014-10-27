@@ -6,6 +6,8 @@ package org.sc.w_drill.dict;
 public interface IBaseWord
 {
     public void setWord(String word);
+    public String getUUID();
+    public void setUUID( String uuid );
     public static enum LearnState { learn, check };
     public int getId();
     public void setId( int id );
