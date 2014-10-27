@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBarActivity;
@@ -28,7 +29,9 @@ import org.sc.w_drill.utils.DBPair;
 import org.sc.w_drill.utils.LearnColors;
 import org.sc.w_drill.utils.PartsOfSpeech;
 import org.sc.w_drill.utils.Triangle;
+import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -65,6 +68,8 @@ public class ActLearnWords extends ActionBarActivity
     boolean wordsLearned = false;
     LinearLayout viewContainer;
     ImageView imgUp, imgDown;
+    private ImageView imgIllustration;
+    DictionaryImageFileManager dictManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +99,10 @@ public class ActLearnWords extends ActionBarActivity
 
         imgUp   = ( ImageView ) findViewById( R.id.imgUp );
         imgDown = ( ImageView ) findViewById( R.id.imgDown );
+
+        dictManager = new DictionaryImageFileManager( this, activeDict );
+
+        imgIllustration = ( ImageView ) findViewById( R.id.wordIllustration );
 
         getWordsSet();
         if( words != null )
@@ -236,7 +245,21 @@ public class ActLearnWords extends ActionBarActivity
             wordExample.setText(buffer.toString());
         }
 
+        if( dictManager.getImageFile( activeWord ) != null )
+        {
+            try
+            {
+                Bitmap bmp = dictManager.getImageBitmap(activeWord);
+                imgIllustration.setImageBitmap( bmp );
+            } catch ( FileNotFoundException ex )
+            {
+                ex.printStackTrace();
+                // TODO: exception handler
+            }
+        }
+
         start = Calendar.getInstance();
+
     }
 
     private void clearScreen()
@@ -244,6 +267,7 @@ public class ActLearnWords extends ActionBarActivity
         wordExample.setText( "" );
         wordTranscription.setText("");
         viewContainer.removeAllViews();
+        imgIllustration.setImageBitmap( null );
     }
 
     void showMeaning()

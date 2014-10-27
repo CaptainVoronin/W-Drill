@@ -97,9 +97,14 @@ public class FragmentEditWord extends Fragment
         wordIllustration.setImageBitmap(null);
         Bitmap bmp;
         try {
-            bmp = dictImageManager.getImage(activeWord);
-            wordIllustration.setImageBitmap(bmp);
-            btnAddImg.setImageDrawable(getActivity().getResources().getDrawable(android.R.drawable.ic_menu_close_clear_cancel));
+            if( dictImageManager.getImageFile( activeWord ) != null )
+            {
+                bmp = dictImageManager.getImageBitmap(activeWord);
+                wordIllustration.setImageBitmap(bmp);
+                btnAddImg.setImageDrawable(getActivity().getResources().getDrawable(android.R.drawable.ic_menu_close_clear_cancel));
+            }
+            else
+                btnAddImg.setImageDrawable(getActivity().getResources().getDrawable(android.R.drawable.ic_menu_gallery));
         } catch (FileNotFoundException fnfex) {
             btnAddImg.setImageDrawable(getActivity().getResources().getDrawable(android.R.drawable.ic_menu_gallery));
         } catch (Exception e) {
@@ -353,7 +358,8 @@ public class FragmentEditWord extends Fragment
     private class AddImageListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            if (dictImageManager.imageExists(activeWord)) {
+            if (dictImageManager.getImageFile(activeWord) != null )
+            {
                 removeImage();
             } else {
                 if (mListener != null)

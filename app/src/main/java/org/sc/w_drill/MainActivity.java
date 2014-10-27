@@ -16,6 +16,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Environment;
@@ -97,7 +98,8 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
          ********************************************/
         database = new WDdb( getApplicationContext()  );
 
-        database.getWritableDatabase();
+        SQLiteDatabase db = database.getWritableDatabase();
+        db.close();
         detectState( activeDictID );
     }
 

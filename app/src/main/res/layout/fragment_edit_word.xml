@@ -49,16 +49,16 @@
                     android:id="@+id/ed_transcription"/>
             </TableRow>
         </TableLayout>
-        <!-- It's the part of a meanings -->
 
+        <!-- It's the part of a meanings -->
         <LinearLayout
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:orientation="vertical"
             android:layout_gravity="top"
-
             android:id="@+id/meanings_table">
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

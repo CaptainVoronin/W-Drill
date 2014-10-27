@@ -29,6 +29,12 @@
                 android:layout_weight="0.7"
                 android:id="@+id/the_word"
                 android:paddingBottom="6pt"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/wordIllustration"/>
+
             <org.sc.w_drill.utils.Triangle
                 android:layout_width="20dp"
                 android:layout_height="20dp"
@@ -65,16 +71,15 @@
         android:orientation="horizontal"
         android:layout_weight="0.7">
 
-        <!-- This layout holds meanings of
-             a word. It's placed at left -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_weight="0.7"
-            android:id="@+id/viewContainer">
-        </LinearLayout>
-
+            <!-- This layout holds meanings of
+                 a word. It's placed at left -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/viewContainer"
+                android:layout_weight="0.3">
+            </LinearLayout>
         <!-- This layout holds up and down indicators
              It's placed at right   -->
         <LinearLayout
