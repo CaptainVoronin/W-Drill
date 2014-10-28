@@ -6,6 +6,7 @@ import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.utils.DBPair;
+import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 
 import java.util.ArrayList;
 
@@ -14,7 +15,7 @@ import java.util.ArrayList;
  */
 public class DictToXML
 {
-    public static void toXML( WDdb database, StringBuilder buff, Dictionary dict )
+    public static void toXML( DictionaryImageFileManager dictManager, WDdb database, StringBuilder buff, Dictionary dict )
     {
 
         buff.setLength(0);
@@ -33,7 +34,7 @@ public class DictToXML
         for( DBPair pair : ids )
         {
             IWord word = DBWordFactory.getInstance( database, dict ).getWordEx( pair.getId() );
-            WordToXML.toXML( buff, word, pair.getValue() );
+            WordToXML.toXML( dictManager, buff, word, pair.getValue() );
         }
 
         buff.append( "\t</content>\n" );

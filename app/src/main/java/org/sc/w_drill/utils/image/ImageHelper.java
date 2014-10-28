@@ -1,30 +1,30 @@
 package org.sc.w_drill.utils.image;
 
 import android.graphics.Bitmap;
+import android.util.Base64;
 
 /**
  * Created by MaxSh on 27.10.2014.
  */
-public class ImageResizer
+public class ImageHelper
 {
 
-    static ImageResizer instance = null;
+    static ImageHelper instance = null;
 
     static
     {
-        instance = new ImageResizer();
+        instance = new ImageHelper();
     }
 
-    public static final ImageResizer getInstance()
+    public static final ImageHelper getInstance()
     {
         return instance;
     }
 
-    protected ImageResizer()
+    protected ImageHelper()
     {
 
     }
-
 
     public static final Bitmap resizeBitmap( ImageConstraints constraints, Bitmap bitmap )
     {

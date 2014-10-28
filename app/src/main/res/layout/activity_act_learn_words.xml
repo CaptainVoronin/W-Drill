@@ -30,11 +30,6 @@
                 android:id="@+id/the_word"
                 android:paddingBottom="6pt"/>
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/wordIllustration"/>
-
             <org.sc.w_drill.utils.Triangle
                 android:layout_width="20dp"
                 android:layout_height="20dp"
@@ -108,6 +103,11 @@
 
         </LinearLayout>
     </LinearLayout>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/scholar_logo_big_red"
+            android:id="@+id/wordIllustration"/>
     </LinearLayout>
-
 </LinearLayout>

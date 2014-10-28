@@ -400,13 +400,13 @@ public class DBWordFactory
         db.insertOrThrow(WDdb.T_EXAMPLE, null, cv);
     } */
 
-    public void technicalInsert( SQLiteDatabase db, int dictId, IWord word, String uuid )
+    public void technicalInsert( SQLiteDatabase db, int dictId, IWord word )
     {
         ContentValues cv = new ContentValues();
         cv.put( "word", word.getWord());
         cv.put( "dict_id", dictId );
         cv.put( "transcription", word.getTranscription() );
-        cv.put( "uuid", uuid );
+        cv.put( "uuid", word.getUUID() );
         cv.put( "percent", word.getLearnPercent() );
         cv.put( "stage", word.getLearnState() == IBaseWord.LearnState.learn ? 0 : 1 );
 

@@ -30,7 +30,7 @@ import org.sc.w_drill.utils.PartsOfSpeech;
 import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 import org.sc.w_drill.utils.image.ImageConstraints;
 import org.sc.w_drill.utils.image.ImageFileHelper;
-import org.sc.w_drill.utils.image.ImageResizer;
+import org.sc.w_drill.utils.image.ImageHelper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -375,7 +375,7 @@ public class FragmentEditWord extends Fragment
         Bitmap bmp = imageHelper.pickImage(uri);
 
         // There we resize image if needed
-        bmp = ImageResizer.resizeBitmap(new ImageConstraints(), bmp);
+        bmp = ImageHelper.resizeBitmap(new ImageConstraints(), bmp);
 
         if (activeWord.getId() == -1) {
             // The active word isn't saved so put picture in the cache
@@ -392,10 +392,11 @@ public class FragmentEditWord extends Fragment
     public void deleteCachedImage() {
         if (cachedImageFilename != null) {
             File f = new File(cachedImageFilename);
-            if (f.delete())
-                Log.d("FragmentEditWord::delete cache file", "file " + cachedImageFilename + " has been deleted");
-            else
-                Log.w("FragmentEditWord::delete cache file", "file " + cachedImageFilename + " hasn't been deleted");
+            if( f.exists() )
+                if (f.delete())
+                    Log.d("FragmentEditWord::deleteCachedImage", "file " + cachedImageFilename + " has been deleted");
+                else
+                    Log.e("FragmentEditWord::deleteCachedImage", "file " + cachedImageFilename + " hasn't been deleted");
             cachedImageFilename = null;
         }
     }

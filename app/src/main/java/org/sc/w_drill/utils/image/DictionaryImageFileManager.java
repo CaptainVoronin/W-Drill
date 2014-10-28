@@ -61,9 +61,14 @@ public class DictionaryImageFileManager
 
     }
 
-    String mkPath( IBaseWord word )
+    public String mkPath( IBaseWord word )
     {
-        return getDir().getPath() + File.separator + word.getUUID() + ".png";
+        return mkPath( word.getUUID() );
+    }
+
+    public String mkPath( String word_uuid )
+    {
+        return getDir().getPath() + File.separator + word_uuid + ".png";
     }
 
     public File getImageFile( IBaseWord word )

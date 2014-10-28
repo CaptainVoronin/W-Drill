@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.ContactsContract;
+import android.util.Base64;
 import android.util.Log;
 
 import org.sc.w_drill.dict.IBaseWord;
@@ -15,8 +16,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.util.UUID;
 import java.util.zip.DataFormatException;
 
@@ -68,5 +71,42 @@ public class ImageFileHelper {
     public Bitmap pickImage(Uri uri) throws FileNotFoundException {
         final InputStream imageStream = context.getContentResolver().openInputStream(uri);
         return BitmapFactory.decodeStream(imageStream);
+    }
+
+    /**
+     * Thanks to Mr_and_Mrs_D from Stackoverflow
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    public static String imageFileToBASE64( File file ) throws IOException
+    {
+        String res = null;
+        RandomAccessFile f = new RandomAccessFile(file, "r");
+        try {
+
+            int length = ( int ) f.length();
+            byte[] data = new byte[length];
+            f.readFully(data);
+            res =  Base64.encodeToString( data, 0 );
+        } finally {
+            f.close();
+            return res;
+        }
+    }
+
+    public static void imageFileFromBASE64( String path, String base64 ) throws IOException
+    {
+        byte[] buff = Base64.decode( base64, 0 );
+        File file = new File( path );
+
+        if( file.exists() )
+            if( !file.delete() )
+                throw new IOException( "Can't delete file " + path );
+
+        FileOutputStream fw = new FileOutputStream( file );
+        fw.write( buff );
+        fw.flush();
+        fw.close();
     }
 }

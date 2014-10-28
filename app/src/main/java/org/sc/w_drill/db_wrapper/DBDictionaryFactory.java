@@ -128,13 +128,6 @@ public class DBDictionaryFactory
 
         int id = (int) db.insertOrThrow( WDdb.T_DICTIONARY, null, cv );
 
-        /*String statement = "select max( id ) from dictionary";
-        Cursor crs = db.rawQuery( statement, null );
-
-        crs.moveToNext();
-        int id = crs.getInt( 0 );
-        crs.close(); */
-
         Dictionary dict = new Dictionary( id, name, _uuid, language );
 
         return dict;

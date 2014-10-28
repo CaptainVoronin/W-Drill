@@ -1,6 +1,7 @@
 package org.sc.w_drill.backup;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -16,6 +17,9 @@ import org.sc.w_drill.dict.Meaning;
 import org.sc.w_drill.dict.Word;
 import org.sc.w_drill.utils.DBPair;
 import org.sc.w_drill.utils.PartsOfSpeech;
+import org.sc.w_drill.utils.image.DictionaryImageFileManager;
+import org.sc.w_drill.utils.image.ImageFileHelper;
+import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -45,7 +49,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 public class RestoreHelper
 {
     WDdb database;
-
+    DictionaryImageFileManager dictManager;
+    Context context;
     public RestoreHelper(WDdb _database)
     {
         database = _database;
@@ -55,8 +60,10 @@ public class RestoreHelper
      * The function accepts ZIP file.
      * @param file
      */
-    public int load( Context context, File file  ) throws Exception
+    public int load( Context _context, File file  ) throws Exception
     {
+        context = _context;
+
         String dictFile = unzipEntry( file, context.getCacheDir() );
 
         if( dictFile == null )
@@ -107,12 +114,17 @@ public class RestoreHelper
             throw new DataFormatException( "Structure is incorrect" );
 
         SQLiteDatabase db = this.database.getWritableDatabase();
+
         db.beginTransaction();
 
+        Dictionary dict = DBDictionaryFactory.getInstance(this.database).createNewSpec(dictname, lang, db, uuid);
+
         Exception ex = null;
+        String w_uuid = null;
         try {
 
-            Dictionary dict = DBDictionaryFactory.getInstance(this.database).createNewSpec(dictname, lang, db, uuid);
+            dictManager = new DictionaryImageFileManager( context,dict );
+            dictManager.checkDir();
 
             NodeList nList = doc.getElementsByTagName("word");
             DBWordFactory instance = DBWordFactory.getInstance( database, dict );
@@ -123,7 +135,7 @@ public class RestoreHelper
                 Node n = nList.item(j);
 
                 int percent = Integer.parseInt( n.getAttributes().getNamedItem( "percent" ).getNodeValue() );
-                String w_uuid = n.getAttributes().getNamedItem( "uuid" ).getNodeValue();
+                w_uuid = n.getAttributes().getNamedItem( "uuid" ).getNodeValue();
                 int state = Integer.parseInt( n.getAttributes().getNamedItem( "state" ).getNodeValue() );
 
                 NodeList nodes = n.getChildNodes();
@@ -134,11 +146,14 @@ public class RestoreHelper
 
                     } else if (node.getNodeName().equals("transcription"))
                         transcr = getTextContent(node);
+                    else if( node.getNodeName().equals("image") )
+                        writeImage( node, w_uuid );
                 }
 
                 if( word == null )
                     throw new DataFormatException( "Dictionary file is corrupted" );
 
+                word.setUUID( w_uuid );
                 word.setTranscription( transcr == null ? "" : transcr );
                 word.setLearnState( state == 0 ?
                         IBaseWord.LearnState.learn : IBaseWord.LearnState.check );
@@ -163,23 +178,59 @@ public class RestoreHelper
 
                 if( word != null && word.getWord().length() != 0 )
                 {
-                    instance.technicalInsert(db, dict.getId(), word, w_uuid );
+                    instance.technicalInsert(db, dict.getId(), word );
                     count++;
                 }
                 else
                     Log.w( "[DictionaryLoader::putInDB]", "Word is empty, skipped" );
             }
             db.setTransactionSuccessful();
+        } catch (SQLiteConstraintException e) {
 
-        } catch (Exception e) {
+            int dict_id = 2;
+            int id;
+            String name;
+
+            Cursor crs = db.rawQuery( "select id, word from words where uuid = '" + w_uuid + "'", null );
+            if( crs.getCount() != 0 ) {
+                while( crs.moveToNext() )
+                {
+                    id = crs.getInt( 0 );
+                    name = crs.getString( 1 );
+                    Log.e("[DictionaryLoader::putInDB]", "name : " + name );
+                }
+                crs.close();
+            }
+
+        } catch (Exception e){
             ex = e;
             Log.e("[DictionaryLoader::putInDB]", "Exception: " + e.getMessage());
+            dictManager.deleteDictDir();
         } finally {
             db.endTransaction();
             if (ex != null)
                 throw ex;
         }
         return count;
+    }
+
+    private void writeImage(Node node, String uuid ) throws IOException
+    {
+        NodeList list = node.getChildNodes();
+        CDATASection cdata;
+
+        for( int i = 0; i < list.getLength(); i++ )
+        {
+            Node child = list.item( i );
+            if( child.getNodeType() == Node.CDATA_SECTION_NODE )
+            {
+                cdata = ( CDATASection ) child;
+                String value = cdata.getData();
+                String path = dictManager.mkPath(uuid);
+                ImageFileHelper.imageFileFromBASE64( path, value );
+                break;
+            }
+        }
     }
 
     private IMeaning extractMeaning(Node node) throws DataFormatException

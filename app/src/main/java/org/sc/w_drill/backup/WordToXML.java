@@ -4,6 +4,11 @@ import org.sc.w_drill.dict.IBaseWord;
 import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.utils.DBPair;
+import org.sc.w_drill.utils.image.DictionaryImageFileManager;
+import org.sc.w_drill.utils.image.ImageFileHelper;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by MaxSh on 20.10.2014.
@@ -11,7 +16,7 @@ import org.sc.w_drill.utils.DBPair;
 public class WordToXML
 {
 
-    public static final void toXML( StringBuilder buff, IWord word, String uuid )
+    public static final void toXML( DictionaryImageFileManager dictManager, StringBuilder buff, IWord word, String uuid )
     {
         buff.append( "\t\t\t<word uuid=\"").append( uuid ).append( "\" ");
         buff.append( "state=\"").append( word.getLearnState() == IBaseWord.LearnState.learn ? 0 : 1 ).append( "\" ");
@@ -21,6 +26,22 @@ public class WordToXML
 
         if( word.getTranscription() != null && word.getTranscription().length() != 0 )
             buff.append( "\t\t\t\t<transcription>").append( word.getTranscription() ).append( "</transcription>\n");
+
+        File file = dictManager.getImageFile( word );
+
+        if( file != null )
+        {
+            try {
+                String base64 = ImageFileHelper.imageFileToBASE64( file );
+                buff.append( "\t\t\t\t<image>\n" );
+                buff.append( "\t\t\t\t\t<![CDATA[" );
+                buff.append( base64 );
+                buff.append( "]]>\n" );
+                buff.append( "\t\t\t\t</image>\n" );
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         for( IMeaning m : word.meanings())
         {

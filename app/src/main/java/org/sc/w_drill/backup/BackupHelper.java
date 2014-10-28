@@ -5,6 +5,7 @@ import android.content.Context;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,7 +40,9 @@ public class BackupHelper
         WDdb database = new WDdb( context );
         StringBuilder buff = new StringBuilder();
 
-        DictToXML.toXML( database, buff, dict );
+        DictionaryImageFileManager dictManager = new DictionaryImageFileManager( context, dict );
+
+        DictToXML.toXML( dictManager, database, buff, dict );
 
         File tmpFile = new File ( cacheDir.getPath() + File.separator + innerFileName);
 
