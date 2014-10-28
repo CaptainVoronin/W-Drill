@@ -372,10 +372,12 @@ public class FragmentEditWord extends Fragment
         deleteCachedImage();
         removeImage();
 
-        Bitmap bmp = imageHelper.pickImage(uri);
+        ImageConstraints constraints = ImageConstraints.getInstance(getActivity());
+
+        Bitmap orig_bmp = imageHelper.pickImage(uri);
 
         // There we resize image if needed
-        bmp = ImageHelper.resizeBitmap(new ImageConstraints(), bmp);
+        Bitmap bmp = ImageHelper.resizeBitmapForStorage( constraints, orig_bmp);
 
         if (activeWord.getId() == -1) {
             // The active word isn't saved so put picture in the cache
@@ -385,7 +387,10 @@ public class FragmentEditWord extends Fragment
             imageHelper.putBitmapInInternalStorage(dictImageManager, activeWord, bmp);
         }
 
-        wordIllustration.setImageBitmap(bmp);
+        bmp = null;
+
+        wordIllustration.setImageBitmap( ImageHelper.resizeBitmapForShow( constraints, orig_bmp ));
+
         btnAddImg.setImageDrawable(getActivity().getResources().getDrawable(android.R.drawable.ic_menu_close_clear_cancel));
     }
 

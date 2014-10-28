@@ -35,6 +35,7 @@ import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.ActiveDictionaryStateFragment;
 import org.sc.w_drill.utils.DateTimeUtils;
 import org.sc.w_drill.utils.Langs;
+import org.sc.w_drill.utils.image.ImageConstraints;
 
 public class MainActivity extends ActionBarActivity implements DlgDictionary.OnDictionaryOkClickListener
 {
@@ -66,6 +67,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     ActiveDictionaryStateFragment activeDictionaryStateFragment;
     LinearLayout rootView;
     View currentView;
+    ImageConstraints imageConstraints;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +92,8 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
         if( sharedPrefs != null )
             activeDictID = sharedPrefs.getInt( ST_ACTIVE_DICTIONARY_ID, -1 );
+
+        imageConstraints = ImageConstraints.getInstance( this );
 
         /*******************************************
          *

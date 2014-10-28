@@ -30,6 +30,8 @@ import org.sc.w_drill.utils.LearnColors;
 import org.sc.w_drill.utils.PartsOfSpeech;
 import org.sc.w_drill.utils.Triangle;
 import org.sc.w_drill.utils.image.DictionaryImageFileManager;
+import org.sc.w_drill.utils.image.ImageConstraints;
+import org.sc.w_drill.utils.image.ImageHelper;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -250,7 +252,8 @@ public class ActLearnWords extends ActionBarActivity
             try
             {
                 Bitmap bmp = dictManager.getImageBitmap(activeWord);
-                imgIllustration.setImageBitmap( bmp );
+                ImageConstraints constraints = ImageConstraints.getInstance( this );
+                imgIllustration.setImageBitmap(ImageHelper.resizeBitmapForShow( constraints, bmp ) );
             } catch ( FileNotFoundException ex )
             {
                 ex.printStackTrace();
