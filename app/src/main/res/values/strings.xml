@@ -88,5 +88,6 @@
     <string name="action_about">О программе</string>
     <string name="txt_version_name">Название версии</string>
     <string name="txt_version_number">Номер версии</string>
+    <string name="txt_dictionaries">Словари</string>
 
 </resources>

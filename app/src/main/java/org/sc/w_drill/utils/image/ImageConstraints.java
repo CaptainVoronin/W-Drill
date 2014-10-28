@@ -43,11 +43,11 @@ public class ImageConstraints
         phisHeight = dm.heightPixels / dm.ydpi;
         float minDim = phisWidth > phisHeight ? phisHeight : phisWidth;
 
-        if( minDim > 2 )
+        if( minDim > 2.5 )
             minDim /= 2;
         else
             minDim = 1.6f;
-
+        // TODO: I'm not certain about size for small screens
         maxSize = Math.round( minDim * dm.xdpi );
     }
 

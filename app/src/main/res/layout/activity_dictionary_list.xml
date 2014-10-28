@@ -13,7 +13,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:baselineAligned="false"
+        android:layout_margin="48pt"
         android:id="@+id/rootLayout">
+
+        <TextView
+            style="@style/ExtraLargeTitleStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/txt_dictionaries"
+            android:id="@+id/dict_name"
+            android:typeface="serif"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="1pt"
+            android:background="@color/DkBrown"
+            android:layout_marginTop="3pt"
+            android:layout_marginBottom="3pt"/>
+
 
         <ListView
             android:layout_width="match_parent"
