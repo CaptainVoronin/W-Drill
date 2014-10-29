@@ -29,7 +29,7 @@
     <string name="txt_have_to_choose_dict">Не выбран словарь</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="txt_words_total">Всего слов</string>
-    <string name="txt_words_for_learn">Слов для запоминания</string>
+    <string name="txt_words_for_learn">Слов для изучения</string>
     <string name="txt_words_for_check">Слов для проверки</string>
     <string name="row_dict_list_dict_word_count">всего слов — %s</string>
     <string name="dict_has_to_be_supplemented_with_words">Словарь необходимо пополнить словами</string>
@@ -45,7 +45,6 @@
     <string name="i_know">Знаю</string>
     <string name="go_next">Дальше</string>
     <string name="no_more_words">Слова для запоминания закончились. Перейти к проверке слов из словаря?</string>
-    <string name="title_activity_export_words">ExportWirdsActivity</string>
     <string name="word_learn_percent">%d%%</string>
     <string name="word_is_learned">выучено</string>
     <string name="all_words">все</string>
@@ -67,7 +66,6 @@
     <string name="txt_no_words_to_check">Нет слов для проверки</string>
     <string name="nothing_to_do">Пока нет слов ни для изучения, ни для проверки.</string>
     <string name="w_dictionary">Словарь</string>
-    <string name="i_dontknow">Не знаю</string>
     <string name="noun">сущ.</string>
     <string name="adj">прил.</string>
     <string name="verb">гл.</string>
@@ -89,5 +87,6 @@
     <string name="txt_version_name">Название версии</string>
     <string name="txt_version_number">Номер версии</string>
     <string name="txt_dictionaries">Словари</string>
+    <string name="txt_no_words_for_check">Нет слов для проверки</string>
 
 </resources>

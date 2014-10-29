@@ -70,7 +70,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/LargeTitleStyle"
-                android:id="@+id/txt2"
+                android:id="@+id/words_to_learn_label"
                 android:layout_weight="0.5"
                 android:text="@string/txt_words_for_learn"/>
 
@@ -93,7 +93,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/LargeTitleStyle"
-                android:id="@+id/txt3"
+                android:id="@+id/words_to_check_label"
                 android:layout_weight="0.5"
                 android:text="@string/txt_words_for_check"/>
 

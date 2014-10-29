@@ -37,10 +37,6 @@
                 android:value="org.sc.w_drill.MainActivity" />
         </activity>
         <activity
-            android:name=".ExportWordsActivity"
-            android:label="@string/title_activity_export_words" >
-        </activity>
-        <activity
             android:name=".ActCheckWords"
             android:label="@string/title_activity_act_check_words"
             android:parentActivityName=".MainActivity" >

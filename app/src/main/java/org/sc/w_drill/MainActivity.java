@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
@@ -37,8 +38,7 @@ import org.sc.w_drill.utils.DateTimeUtils;
 import org.sc.w_drill.utils.Langs;
 import org.sc.w_drill.utils.image.ImageConstraints;
 
-public class MainActivity extends ActionBarActivity implements DlgDictionary.OnDictionaryOkClickListener
-{
+public class MainActivity extends ActionBarActivity implements DlgDictionary.OnDictionaryOkClickListener {
     public static final int CODE_ActDictionaryList = 1;
     public static final int CODE_ActDictionaryEntry = 2;
     public static final int CODE_ActSettings = 3;
@@ -75,114 +75,104 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         setContentView(R.layout.activity_main);
 
         // Set uncough exception handler
-        Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler()
-        {
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
-            public void uncaughtException (Thread thread, Throwable e)
-            {
-                handleUncaughtException (thread, e);
+            public void uncaughtException(Thread thread, Throwable e) {
+                handleUncaughtException(thread, e);
             }
         });
 
-        rootView = ( LinearLayout ) findViewById( R.id.rootLayout );
+        rootView = (LinearLayout) findViewById(R.id.rootLayout);
 
         int activeDictID = -1;
 
         sharedPrefs = getPreferences(Activity.MODE_PRIVATE);
 
-        if( sharedPrefs != null )
-            activeDictID = sharedPrefs.getInt( ST_ACTIVE_DICTIONARY_ID, -1 );
+        if (sharedPrefs != null)
+            activeDictID = sharedPrefs.getInt(ST_ACTIVE_DICTIONARY_ID, -1);
 
-        imageConstraints = ImageConstraints.getInstance( this );
+        imageConstraints = ImageConstraints.getInstance(this);
 
         /*******************************************
          *
          * Плохой кусок
          *
          ********************************************/
-        database = new WDdb( getApplicationContext()  );
+        database = new WDdb(getApplicationContext());
 
         SQLiteDatabase db = database.getWritableDatabase();
         db.close();
-        detectState( activeDictID );
+        detectState(activeDictID);
     }
 
-    private void handleUncaughtException(Thread thread, Throwable e)
-    {
-        try
-        {
-            File dir = new File( Environment.getExternalStorageDirectory() +
-                       File.separator + "Scholar" );
+    private void handleUncaughtException(Thread thread, Throwable e) {
+        try {
+            File dir = new File(Environment.getExternalStorageDirectory() +
+                    File.separator + "Scholar");
 
-            if( !dir.exists() )
+            if (!dir.exists())
                 dir.mkdirs();
 
-            File f = new File(dir.getPath() +  File.separator + DateTimeUtils.getDateTimeString()
-                    + ".stacktrace" );
+            File f = new File(dir.getPath() + File.separator + DateTimeUtils.getDateTimeString()
+                    + ".stacktrace");
 
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
             FileWriter fw = new FileWriter(f);
-            fw.write( sw.toString() );
+            fw.write(sw.toString());
             fw.close();
 
-        } catch( Exception ex )
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         System.exit(1);
     }
 
-    private void detectState( int activeDictID )
-    {
+    private void detectState(int activeDictID) {
         // Are there
-        dictionaryFactory = DBDictionaryFactory.getInstance( database );
+        dictionaryFactory = DBDictionaryFactory.getInstance(database);
         ArrayList<Dictionary> dictList = dictionaryFactory.getList();
 
-        if( currentView != null )
-            rootView.removeView( currentView );
+        if (currentView != null)
+            rootView.removeView(currentView);
 
         // It's possible when no dictionaries in database
-        if( dictList == null || dictList.size() == 0 )
+        if (dictList == null || dictList.size() == 0)
             currentView = createNoDictionaryInterface();
         else {
             // In case of a mistake when the active dictionary
             // has been deleted from DB
             boolean activeDictExistsInDB = false;
-            if( activeDictID != -1 ) {
-                for( Dictionary dict : dictList )
-                    if( dict.getId() ==  activeDictID  )
-                    {
+            if (activeDictID != -1) {
+                for (Dictionary dict : dictList)
+                    if (dict.getId() == activeDictID) {
                         activeDictExistsInDB = true;
                         activeDict = dict;
                         break;
                     }
-                if( activeDictExistsInDB )
+                if (activeDictExistsInDB)
                     currentView = restoreState(); // yes, it was deleted
                 else
                     currentView = createChooseDictionaryInterface(); // no, it wasn't
-            }
-            else
+            } else
                 currentView = createChooseDictionaryInterface(); // no active dictionary
         }
 
-        rootView.addView( currentView );
+        rootView.addView(currentView);
     }
 
     /**
      * Эта функция создает инфтерфейс и восстанавливаетс
      * состояние программы
      */
-    View restoreState()
-    {
+    View restoreState() {
         // Set up the action bar.
         actionBar = getSupportActionBar();
         //actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        return setupActiveDict( );
+        return setupActiveDict();
     }
 
-    private ArrayList<Dictionary> getDictList()
-    {
+    private ArrayList<Dictionary> getDictList() {
         return dictionaryFactory.getList();
     }
 
@@ -200,161 +190,151 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         Intent intent;
-        switch ( id )
-        {
+        switch (id) {
             case R.id.action_settings:
                 intent = new Intent(this, ActSettings.class);
                 startActivityForResult(intent, CODE_ActSettings);
                 return true;
-            case R.id.action_dict_list:
-                {
-                    intent = new Intent(this, ActDictionaryList.class);
-                    startActivityForResult(intent, CODE_ActDictionaryList);
-                }
-                break;
-            case R.id.action_about:
-            {
-                intent = new Intent( this, ActAbout.class );
-                startActivity( intent );
+            case R.id.action_dict_list: {
+                intent = new Intent(this, ActDictionaryList.class);
+                startActivityForResult(intent, CODE_ActDictionaryList);
+            }
+            break;
+            case R.id.action_about: {
+                intent = new Intent(this, ActAbout.class);
+                startActivity(intent);
             }
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void showNewDictionaryDialog()
-    {
-        DlgDictionary dlg = new DlgDictionary( this );
-        dlg.setOkListsner( this );
+    private void showNewDictionaryDialog() {
+        DlgDictionary dlg = new DlgDictionary(this);
+        dlg.setOkListsner(this);
         dlg.show();
     }
 
-    protected void onActivityResult (int requestCode, int resultCode, Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         int id;
-        switch( requestCode )
-        {
+        switch (requestCode) {
             case CODE_ActDictionaryList:
-                if( data != null )
-                    id = data.getIntExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1 );
-                else
-                {
-                    if( activeDict == null )
+                if (data != null)
+                    id = data.getIntExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
+                else {
+                    if (activeDict == null)
                         id = -1;
                     else
                         id = activeDict.getId();
                 }
-                detectState( id );
+                detectState(id);
                 break;
             case CODE_ActDictionaryEntry:
-                if( data != null )
-                {
+                if (data != null) {
                     // Here we are interested in changing of a dictionary
-                    if( resultCode == ActDictionaryEntry.DICTIONARY_CHANGED )
-                    {
-                        id = data.getIntExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1 );
-                        detectState( id );
+                    if (resultCode == ActDictionaryEntry.DICTIONARY_CHANGED) {
+                        id = data.getIntExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
+                        detectState(id);
                     }
                 }
                 break;
             case CODE_ActLearnWords:
-                if( resultCode == Activity.RESULT_OK )
-                    detectState( activeDict.getId() );
+                if (resultCode == Activity.RESULT_OK)
+                    detectState(activeDict.getId());
                 break;
             default:
                 break;
         }
     }
 
-    View setupActiveDict()
-    {
+    View setupActiveDict() {
         LayoutInflater inflater = getLayoutInflater();
 
-        View view =  inflater.inflate(R.layout.active_dict_state_fragment, rootView, false );
+        View view = inflater.inflate(R.layout.active_dict_state_fragment, rootView, false);
 
-        DBDictionaryFactory.getInstance( database ).getAdditionalInfo( activeDict );
+        DBDictionaryFactory.getInstance(database).getAdditionalInfo(activeDict);
         // Set the active dictionary name
-        TextView text = ( TextView ) view.findViewById( R.id.dict_name );
-        text.setText( activeDict.getName() );
+        TextView text = (TextView) view.findViewById(R.id.dict_name);
+        text.setText(activeDict.getName());
 
         // Set the dictionary lang
-        text = ( TextView ) view.findViewById( R.id.tvDictLang );
-        text.setText( Langs.getInstance( this ).get( activeDict.getLang() ) );
+        text = (TextView) view.findViewById(R.id.tvDictLang);
+        text.setText(Langs.getInstance(this).get(activeDict.getLang()));
 
-        // Set the word count
-        text = ( TextView ) view.findViewById( R.id.word_count);
+        /**************************************
+         *
+         * Set the word count
+         *
+         * ************************************/
+
+        text = (TextView) view.findViewById(R.id.word_count);
         text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        text.setText( Integer.valueOf( activeDict.getWordCount() ).toString() );
+        text.setText(Integer.valueOf(activeDict.getWordCount()).toString());
 
-        //Set the words-to-learn count
-        text = ( TextView ) view.findViewById( R.id.words_for_learn);
-        text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        text.setText( Integer.valueOf( activeDict.getWordsToLearn() ).toString() );
-        if( activeDict.getWordsToLearn() != 0  )
-            text.setOnClickListener( new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent( MainActivity.this, ActLearnWords.class);
-                    if( activeDict != null )
-                        intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
-                    else
-                        intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
+        /**************************************
+         *
+         * Set the word count
+         *
+         * ************************************/
 
-                    intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WORDS_TO_STUDY );
+        /**************************************
+         *
+         * Set the words-to-learn count
+         *
+         * ************************************/
 
-                    startActivityForResult(intent, CODE_ActLearnWords);
-                }
-            });
+         TextView label = (TextView) view.findViewById(R.id.words_to_learn_label);
+         TextView counter = (TextView) view.findViewById(R.id.words_for_learn);
 
-        //Set the words-to-check count
-        text = ( TextView ) view.findViewById( R.id.words_for_check);
-        text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        text.setText( Integer.valueOf( activeDict.getWordsToCheck() ).toString() );
-        if( activeDict.getWordsToCheck() != 0 )
-            text.setOnClickListener( new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent( MainActivity.this, ActCheckWords.class);
-                    if( activeDict != null )
-                        intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
-                    else
-                        intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
+        if( activeDict.getWordsToLearn() != 0 )
+        {
+            label.setText( R.string.txt_words_for_learn );
+            counter.setText(Integer.valueOf(activeDict.getWordsToLearn()).toString());
 
-                    intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WORDS_TO_LEARN );
+            label.setOnClickListener( new OnLearnWordsClick() );
+            counter.setOnClickListener( new OnLearnWordsClick() );
+        }
+        else
+        {
+            label.setText( R.string.txt_no_words_to_learn );
+            counter.setText("");
+        }
+        //text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
-                    startActivity(intent);
-                }
-            });
+        /**************************************
+         *
+         * Set the words-to-check count
+         *
+         * ************************************/
 
-        //Set the "add words" label
-        text = ( TextView ) view.findViewById( R.id.add_words);
-        text.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent( MainActivity.this, ActDictionaryEntry.class);
-                if( activeDict != null )
-                    intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
-                else
-                    intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
+        counter = (TextView) view.findViewById(R.id.words_for_check);
+        label = (TextView) view.findViewById(R.id.words_to_check_label);
 
-                intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.ADD_WORDS );
+        if (activeDict.getWordsToCheck() != 0)
+        {
+            label.setText( R.string.txt_words_for_check );
+            counter.setText(Integer.valueOf(activeDict.getWordsToCheck()).toString());
+            label.setOnClickListener(new OnCheckClick());
+            counter.setOnClickListener(new OnCheckClick());
 
-                startActivityForResult(intent, CODE_ActDictionaryEntry);
-            }
-        });
+        }else{
+            label.setText( R.string.txt_no_words_for_check );
+            counter.setText("");
+        }
+        //text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
         //Set the "edit dict" label
-        text = ( TextView ) view.findViewById( R.id.word_count );
+        text = (TextView) view.findViewById(R.id.word_count);
 
-        text.setOnClickListener( new View.OnClickListener() {
+        text.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent( MainActivity.this, ActDictionaryEntry.class);
-                if( activeDict != null )
-                    intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
+                Intent intent = new Intent(MainActivity.this, ActDictionaryEntry.class);
+                if (activeDict != null)
+                    intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
                 else
                     intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
 
-                intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WHOLE_LIST_ENTRY );
+                intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WHOLE_LIST_ENTRY);
 
                 startActivityForResult(intent, CODE_ActDictionaryEntry);
             }
@@ -367,29 +347,28 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     /**
      * This realises a transition to an entry of the dictionary
      * which is pointed by the first parameter.
+     *
      * @param dictId
      * @param entryPart - a kind of entry. 0 - a whole word list, 1 - words to learn
      *                  2 - words to study, 3 - add new words
      */
-    public void goToDictionaryEntry( int dictId, int entryPart )
-    {
-        Intent intent = new Intent( this, ActDictionaryEntry.class );
-        intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, dictId );
+    public void goToDictionaryEntry(int dictId, int entryPart) {
+        Intent intent = new Intent(this, ActDictionaryEntry.class);
+        intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, dictId);
         Log.d("[MainActivity::goToDictionaryEntry]", "Start ActDictionaryEntry for part " + entryPart + ", dict ID " + dictId);
-        intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, entryPart );
-        startActivity( intent );
+        intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, entryPart);
+        startActivity(intent);
     }
 
-    protected void showAlert( String message )
-    {
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
+    protected void showAlert(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User cancelled the dialog
             }
         });
 
-        builder.setCancelable( true );
+        builder.setCancelable(true);
         builder.create();
         builder.show();
     }
@@ -397,14 +376,13 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     public static final String ST_ACTIVE_DICTIONARY_ID = "ST_ACTIVE_DICTIONARY_ID";
 
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         super.onPause();
 
         SharedPreferences.Editor ed = sharedPrefs.edit();
 
-        if( activeDict != null )
-            ed.putInt(ST_ACTIVE_DICTIONARY_ID, activeDict.getId() );
+        if (activeDict != null)
+            ed.putInt(ST_ACTIVE_DICTIONARY_ID, activeDict.getId());
         else
             ed.putInt(ST_ACTIVE_DICTIONARY_ID, -1);
         ed.commit();
@@ -413,17 +391,16 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     /**
      * It crates an interface in the case when there aren't
      * a dictionaries in DB
+     *
      * @return
      */
-    View createNoDictionaryInterface()
-    {
+    View createNoDictionaryInterface() {
         // Inflate the layout for this fragment
-        View view =  getLayoutInflater().inflate(R.layout.fragment_no_dicts, rootView, false);
-        TextView text = ( TextView ) view.findViewById( R.id.tvPressToCreateDictionary );
-        text.setOnClickListener( new View.OnClickListener() {
+        View view = getLayoutInflater().inflate(R.layout.fragment_no_dicts, rootView, false);
+        TextView text = (TextView) view.findViewById(R.id.tvPressToCreateDictionary);
+        text.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View view) {
                 showNewDictionaryDialog();
             }
         });
@@ -433,20 +410,20 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     /**
      * It crates an interface in the case when there isn't
      * a choosen dictionary
+     *
      * @return
      */
-    View createChooseDictionaryInterface(  )
-    {
+    View createChooseDictionaryInterface() {
         LayoutInflater inflater = getLayoutInflater();
 
-        View view =  inflater.inflate(R.layout.fragment_choose_dicts, rootView, false );
-        TextView text = ( TextView ) view.findViewById( R.id.txt_press_to_choose_dict);
-        text.setOnClickListener( new View.OnClickListener() {
+        View view = inflater.inflate(R.layout.fragment_choose_dicts, rootView, false);
+        TextView text = (TextView) view.findViewById(R.id.txt_press_to_choose_dict);
+        text.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent( MainActivity.this, ActDictionaryList.class);
-                if( activeDict != null )
-                    intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId() );
+                Intent intent = new Intent(MainActivity.this, ActDictionaryList.class);
+                if (activeDict != null)
+                    intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
                 else
                     intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
                 startActivityForResult(intent, CODE_ActDictionaryList);
@@ -457,8 +434,37 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     }
 
     @Override
-    public void onNewDictOkClick(int dictId)
-    {
-        detectState( dictId );
+    public void onNewDictOkClick(int dictId) {
+        detectState(dictId);
+    }
+
+    class OnLearnWordsClick implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(MainActivity.this, ActLearnWords.class);
+            if (activeDict != null)
+                intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
+            else
+                intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
+
+            intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WORDS_TO_STUDY);
+
+            startActivityForResult(intent, CODE_ActLearnWords);
+        }
+    }
+
+    private class OnCheckClick implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(MainActivity.this, ActCheckWords.class);
+            if (activeDict != null)
+                intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
+            else
+                intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
+
+            intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WORDS_TO_LEARN);
+
+            startActivity(intent);
+        }
     }
 }
