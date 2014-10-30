@@ -216,12 +216,24 @@ public class FragmentEditWord extends Fragment
         } else {
             try {
                 activeWord = DBWordFactory.getInstance(database, activeDict).insertWord(activeWord);
+            }
+            catch( Exception e)
+            {
+                // TODO: It must be a correct exception handler.
+                e.printStackTrace();
+                return;
+            }
 
-                // if an image was saved in cache it should be moved in an appropriate directory
-                ImageFileHelper helper = ImageFileHelper.getInstance(getActivity());
-                dictImageManager.moveImageFromCache( activeWord, cachedImageFilename);
-                deleteCachedImage();
+            try {
+                if( cachedImageFilename != null  )
+                {
+                    // if an image was saved in cache it should be moved in an appropriate directory
+                    ImageFileHelper helper = ImageFileHelper.getInstance(getActivity());
+                    dictImageManager.moveImageFromCache( activeWord, cachedImageFilename);
+                    deleteCachedImage();
+                }
             } catch (Exception e) {
+                DBWordFactory.getInstance( database, activeDict ).delete( activeWord );
                 // TODO: It must be a correct exception handler.
                 e.printStackTrace();
                 return;

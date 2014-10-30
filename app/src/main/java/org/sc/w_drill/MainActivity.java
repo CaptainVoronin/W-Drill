@@ -246,7 +246,8 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         }
     }
 
-    View setupActiveDict() {
+    View setupActiveDict()
+    {
         LayoutInflater inflater = getLayoutInflater();
 
         View view = inflater.inflate(R.layout.active_dict_state_fragment, rootView, false);
@@ -266,15 +267,17 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
          *
          * ************************************/
 
-        text = (TextView) view.findViewById(R.id.word_count);
-        text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        text.setText(Integer.valueOf(activeDict.getWordCount()).toString());
+         text = (TextView) view.findViewById(R.id.word_count);
+        //text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+         text.setText(Integer.valueOf(activeDict.getWordCount()).toString());
 
-        /**************************************
-         *
-         * Set the word count
-         *
-         * ************************************/
+        if( activeDict.getWordsToLearn() != 0 )
+        {
+            OnTotalWordsClick handler = new OnTotalWordsClick();
+            text.setOnClickListener( handler );
+            text = (TextView) view.findViewById(R.id.total_words_label);
+            text.setOnClickListener( handler );
+        }
 
         /**************************************
          *
@@ -323,9 +326,10 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         //text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
         //Set the "edit dict" label
-        text = (TextView) view.findViewById(R.id.word_count);
+        /*text = (TextView) view.findViewById(R.id.word_count);
 
-        text.setOnClickListener(new View.OnClickListener() {
+        text.setOnClickListener(
+                new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, ActDictionaryEntry.class);
@@ -336,6 +340,24 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
                 intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WHOLE_LIST_ENTRY);
 
+                startActivityForResult(intent, CODE_ActDictionaryEntry);
+            }
+        }); */
+
+        /**************************************
+         *
+         * Add the "add words" link
+         *
+         * ************************************/
+
+        text = ( TextView ) view.findViewById( R.id.add_words );
+        text.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                Intent intent = new Intent(MainActivity.this, ActDictionaryEntry.class);
+                intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
+                intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.ADD_WORDS );
                 startActivityForResult(intent, CODE_ActDictionaryEntry);
             }
         });
@@ -465,6 +487,22 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
             intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WORDS_TO_LEARN);
 
             startActivity(intent);
+        }
+    }
+
+    private class OnTotalWordsClick implements View.OnClickListener {
+        @Override
+        public void onClick(View view)
+        {
+            Intent intent = new Intent(MainActivity.this, ActDictionaryEntry.class);
+            if (activeDict != null)
+                intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
+            else
+                intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
+
+            intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WHOLE_LIST_ENTRY);
+
+            startActivityForResult(intent, CODE_ActDictionaryEntry);
         }
     }
 }
