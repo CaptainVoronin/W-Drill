@@ -271,7 +271,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         //text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
          text.setText(Integer.valueOf(activeDict.getWordCount()).toString());
 
-        if( activeDict.getWordsToLearn() != 0 )
+        if( activeDict.getWordCount() != 0 )
         {
             OnTotalWordsClick handler = new OnTotalWordsClick();
             text.setOnClickListener( handler );
