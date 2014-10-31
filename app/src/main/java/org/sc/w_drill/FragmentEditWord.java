@@ -58,8 +58,6 @@ public class FragmentEditWord extends Fragment
     private boolean isVisible;
     private boolean needBringWord;
     View rootView;
-    Spinner listPartOfSpeech;
-    PartsOfSpeech parts;
     LinearLayout viewContainer;
     ArrayList<MeaningEditView> meaningViewList;
     ImageView btnAddMeaning, btnAddImg;
@@ -209,8 +207,8 @@ public class FragmentEditWord extends Fragment
                 DBWordFactory.getInstance(database, activeDict).updateWord(activeWord);
                 mListener.onWordUpdated(activeWord.getId());
             } catch (Exception e) {
-                // TODO: It must be a correct exception handler.
                 e.printStackTrace();
+                showError( getString( R.string.error_on_word_update) + "\n" + e.getMessage() );
                 return;
             }
         } else {
@@ -219,8 +217,8 @@ public class FragmentEditWord extends Fragment
             }
             catch( Exception e)
             {
-                // TODO: It must be a correct exception handler.
                 e.printStackTrace();
+                showError( getString( R.string.error_on_word_insert) + "\n" + e.getMessage() );
                 return;
             }
 
@@ -234,8 +232,8 @@ public class FragmentEditWord extends Fragment
                 }
             } catch (Exception e) {
                 DBWordFactory.getInstance( database, activeDict ).delete( activeWord );
-                // TODO: It must be a correct exception handler.
                 e.printStackTrace();
+                showError( getString( R.string.error_on_image_saving) + "\n" + e.getMessage() );
                 return;
             }
         }

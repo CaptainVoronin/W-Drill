@@ -88,5 +88,8 @@
     <string name="txt_version_number">Номер версии</string>
     <string name="txt_dictionaries">Словари</string>
     <string name="txt_no_words_for_check">Нет слов для проверки</string>
+    <string name="error_on_word_update">Ошибка при обновлении слова.</string>
+    <string name="error_on_word_insert">Ошибка при сохранении слова</string>
+    <string name="error_on_image_saving">Ошибка при сохранении файла изображения</string>
 
 </resources>
