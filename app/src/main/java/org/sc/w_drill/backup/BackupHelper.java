@@ -3,18 +3,22 @@ package org.sc.w_drill.backup;
 import android.content.Context;
 
 import org.sc.w_drill.db.WDdb;
-import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
+import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.dict.IBaseWord;
+import org.sc.w_drill.dict.IMeaning;
+import org.sc.w_drill.dict.IWord;
+import org.sc.w_drill.utils.DBPair;
 import org.sc.w_drill.utils.image.DictionaryImageFileManager;
+import org.sc.w_drill.utils.image.ImageFileHelper;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -25,10 +29,27 @@ public class BackupHelper
 
     static final String innerFileName = "dictionary.xml";
 
-    protected BackupHelper()
-    {}
+    boolean bExportImages;
+    boolean bExportStats;
+    Context context;
+    String destdir;
+    Dictionary dict;
+    ExportProgressListener listener;
 
-    public static final void backup(Context context, String destdir, Dictionary dict) throws IOException
+    public BackupHelper( Context _context, String _destdir,
+                         Dictionary _dict, boolean _bExportImages,
+                         boolean _bExportStats,
+                         ExportProgressListener _listener )
+    {
+        bExportImages = _bExportImages;
+        bExportStats = _bExportStats;
+        context = _context;
+        destdir = _destdir;
+        dict = _dict;
+        listener = _listener;
+    }
+
+    public final void backup( ExportProgressListener listener ) throws IOException
     {
         File dir = new File( destdir );
 
@@ -42,7 +63,7 @@ public class BackupHelper
 
         DictionaryImageFileManager dictManager = new DictionaryImageFileManager( context, dict );
 
-        DictToXML.toXML( dictManager, database, buff, dict );
+        dictionaryToXML(dictManager, database, buff, dict);
 
         File tmpFile = new File ( cacheDir.getPath() + File.separator + innerFileName);
 
@@ -55,7 +76,7 @@ public class BackupHelper
         tmpFile.delete();
     }
 
-    private static void zipTmpFileAndCopyToDest(File tmpFile,  File destFile, String zipEntryName ) throws IOException
+    private void zipTmpFileAndCopyToDest(File tmpFile,  File destFile, String zipEntryName ) throws IOException
     {
         byte[] buffer = new byte[1024];
 
@@ -74,19 +95,110 @@ public class BackupHelper
             zos.write(buffer, 0, len);
         }
 
-
         zos.closeEntry();
         in.close();
-
-        //remember close it
         zos.close();
     }
 
-    private static void writeToTmpFile(File tmpFile, StringBuilder buff) throws IOException
+    private void writeToTmpFile(File tmpFile, StringBuilder buff) throws IOException
     {
         FileWriter fw = new FileWriter( tmpFile );
         fw.write( buff.toString() );
         fw.close();
         fw = null;
+    }
+
+    public void dictionaryToXML(DictionaryImageFileManager dictManager, WDdb database, StringBuilder buff, Dictionary dict)
+    {
+        buff.setLength(0);
+
+        buff.append( "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+        buff.append( "<dictionary uuid=\"")
+                .append( dict.getUUID() )
+                .append( "\" lang=\"")
+                .append( dict.getLang() )
+                .append("\">\n");
+        buff.append("\t<name>").append(dict.getName()).append("</name>\n");
+        ArrayList<DBPair> ids = DBWordFactory.getInstance(database, dict).technicalGetWordUnique();
+
+        if( listener != null )
+           listener.setMaxValue(ids.size());
+
+        buff.append( "\t<content count=\"" ).append( ids.size() ).append( "\">\n" );
+
+        int count = 0;
+        for( DBPair pair : ids )
+        {
+            IWord word = DBWordFactory.getInstance( database, dict ).getWordEx( pair.getId() );
+            wordToXML( dictManager, buff, word, pair.getValue() );
+            if( listener != null )
+            {
+                count++;
+                listener.setCurrentProgress( count );
+            }
+        }
+
+        buff.append( "\t</content>\n" );
+        buff.append( "</dictionary>");
+    }
+
+    public final void wordToXML( DictionaryImageFileManager dictManager, StringBuilder buff, IWord word, String uuid )
+    {
+        buff.append( "\t\t\t<word uuid=\"").append( uuid ).append( "\" ");
+        buff.append( "state=\"").append( word.getLearnState() == IBaseWord.LearnState.learn ? 0 : 1 ).append( "\" ");
+        buff.append( "percent=\"").append( word.getLearnPercent() ).append( "\">\n");
+
+        buff.append( "\t\t\t\t<value>").append( word.getWord() ).append("</value>\n");
+
+        if( word.getTranscription() != null && word.getTranscription().length() != 0 )
+            buff.append( "\t\t\t\t<transcription>").append( word.getTranscription() ).append( "</transcription>\n");
+
+        File file = dictManager.getImageFile( word );
+
+        if( file != null )
+        {
+            try {
+                String base64 = ImageFileHelper.imageFileToBASE64(file);
+                buff.append( "\t\t\t\t<image>\n" );
+                buff.append( "\t\t\t\t\t<![CDATA[" );
+                buff.append( base64 );
+                buff.append( "]]>\n" );
+                buff.append( "\t\t\t\t</image>\n" );
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        for( IMeaning m : word.meanings())
+        {
+            meaningToXML(buff, m);
+        }
+        buff.append( "\t\t\t</word>\n");
+
+    }
+
+    final void meaningToXML( StringBuilder buff, IMeaning meaning )
+    {
+        buff.append( "\t\t\t\t\t<meaning pos=\"").append( meaning.partOFSpeech()).append( "\" ");
+        buff.append( "formal=\"").append( meaning.isFormal() ).append( "\" ");
+        buff.append( "rude=\"").append( meaning.isRude() ).append( "\" ");
+        buff.append( "disapproving=\"").append( meaning.isDisapproving() ).append( "\">\n");
+        buff.append( "\t\t\t\t\t\t<value>");
+        buff.append( meaning.meaning() );
+        buff.append( "</value>\n");
+        if( meaning.examples()!= null && meaning.examples().size() != 0 )
+        {
+            for( DBPair ex : meaning.examples() )
+                exampleToXML(buff, ex.getValue());
+        }
+        buff.append( "\t\t\t\t\t</meaning>\n");
+
+    }
+
+    final void exampleToXML( StringBuilder buff, String example )
+    {
+        buff.append( "\t\t\t\t\t\t<example>");
+        buff.append( example );
+        buff.append( "</example>\n");
     }
 }

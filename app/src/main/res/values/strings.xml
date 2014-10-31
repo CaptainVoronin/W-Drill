@@ -91,5 +91,10 @@
     <string name="error_on_word_update">Ошибка при обновлении слова.</string>
     <string name="error_on_word_insert">Ошибка при сохранении слова</string>
     <string name="error_on_image_saving">Ошибка при сохранении файла изображения</string>
+    <string name="title_activity_act_export_dictionary">ActExportDictionary</string>
+    <string name="txt_export_dictionary">Экспорт словаря</string>
+    <string name="txt_export_stats">экспортировать статистику обучения</string>
+    <string name="txt_export_images">экспортировать картинки</string>
+    <string name="txt_start_export">Начать экспорт</string>
 
 </resources>

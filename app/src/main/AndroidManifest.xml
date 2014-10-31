@@ -64,6 +64,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.sc.w_drill.MainActivity" />
         </activity>
+        <activity
+            android:name=".ActExportDictionary"
+            android:label="@string/title_activity_act_export_dictionary"
+            android:parentActivityName=".ActDictionaryList" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.sc.w_drill.ActDictionaryList" />
+        </activity>
     </application>
 
 </manifest>
