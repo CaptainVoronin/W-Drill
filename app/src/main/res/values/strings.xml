@@ -96,5 +96,7 @@
     <string name="txt_export_stats">экспортировать статистику обучения</string>
     <string name="txt_export_images">экспортировать картинки</string>
     <string name="txt_start_export">Начать экспорт</string>
+    <string name="txt_need_wait_for_end">Нужно дождаться завершения экспорта словаря</string>
+    <string name="txt_warning">Предупреждение</string>
 
 </resources>

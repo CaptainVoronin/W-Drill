@@ -1,15 +1,20 @@
 package org.sc.w_drill;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import org.sc.w_drill.backup.BackupHelper;
 import org.sc.w_drill.backup.ExportProgressListener;
@@ -25,7 +30,11 @@ public class ActExportDictionary extends ActionBarActivity {
     Dictionary activeDict;
     WDdb database;
     ProgressBar prgBar;
-
+    String destdir;
+    ExportTask task = null;
+    SharedPreferences prefs;
+    boolean bExportImages = false;
+    boolean bExportStats  = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +54,16 @@ public class ActExportDictionary extends ActionBarActivity {
         }
         else
             showErrorAndExit();
+
+        prefs = getPreferences(Activity.MODE_PRIVATE);
+        bExportImages = prefs.getBoolean( BackupHelper.PREF_EXPORT_IMAGES, false );
+        bExportStats  = prefs.getBoolean( BackupHelper.PREF_EXPORT_STATS, false );
+
+        CheckBox chb = ( CheckBox ) findViewById( R.id.chbExportStats );
+        chb.setChecked( bExportStats );
+
+        chb = ( CheckBox ) findViewById( R.id.chbExportImages );
+        chb.setChecked( bExportImages );
 
         Button btn = (Button) findViewById( R.id.btnStart );
         btn.setOnClickListener(  new View.OnClickListener()
@@ -66,7 +85,9 @@ public class ActExportDictionary extends ActionBarActivity {
 
     private void preStartExport()
     {
-        boolean bExportStats = true, bExportImages = true;
+
+        TextView tv = ( TextView ) findViewById( R.id.tvResultMessage );
+        tv.setText( "" );
 
         CheckBox chb = ( CheckBox ) findViewById( R.id.chbExportStats );
         bExportStats = chb.isChecked();
@@ -74,13 +95,27 @@ public class ActExportDictionary extends ActionBarActivity {
         chb = ( CheckBox ) findViewById( R.id.chbExportImages );
         bExportImages = chb.isChecked();
 
-        startExport( bExportStats, bExportImages );
+        prefs = getPreferences(Activity.MODE_PRIVATE);
+
+        SharedPreferences.Editor ed = prefs.edit();
+        ed.putBoolean( BackupHelper.PREF_EXPORT_IMAGES, bExportImages );
+        ed.putBoolean( BackupHelper.PREF_EXPORT_STATS, bExportStats );
+        ed.commit();
+
+        startExport(bExportStats, bExportImages);
     }
 
     private void startExport( boolean bExportStats, boolean  bExportImages )
     {
-        ExportTask tsk = new ExportTask( );
-
+        ExportTaskParams params = new ExportTaskParams();
+        params.context = this;
+        params.destdir = new File( Environment.getExternalStorageDirectory() + File.separator + "Scholar" );
+        destdir = params.destdir.getPath();
+        params.dict = activeDict;
+        params.bExportImages = bExportImages;
+        params.bExportStats = bExportStats;
+        task = new ExportTask( );
+        task.execute( params );
     }
 
     public void setProgressMax( int maxValue )
@@ -95,15 +130,38 @@ public class ActExportDictionary extends ActionBarActivity {
 
     public void onFinish( Long value )
     {
+        prgBar.setVisibility( View.INVISIBLE );
+        Button btn = ( Button ) findViewById( R.id.btnStart );
+        btn.setEnabled(true);
+        TextView tv = ( TextView ) findViewById( R.id.tvResultMessage );
+        if( value.longValue() == 0 )
+        {
+            tv.setText( getString( R.string.txt_dict_export_complete, destdir + File.separator
+                                                                      + activeDict.getName() + ".zip" ));
+        }
+        else
+        {
+            tv.setText( getString( R.string.txt_dict_export_complete, destdir + File.separator
+                    + activeDict.getName() + ".zip" ));
+        }
 
+        task = null;
     }
 
+    void onProcessStarted()
+    {
+        prgBar.setVisibility( View.VISIBLE );
+        Button btn = ( Button ) findViewById( R.id.btnStart );
+        btn.setEnabled(false);
+    }
 
     private class ExportTaskParams
     {
         public boolean bExportStats;
         public boolean bExportImages;
         public Dictionary dict;
+        public Context context;
+        public File destdir;
     }
 
     private class ExportTask extends AsyncTask<ExportTaskParams, Integer, Long> implements ExportProgressListener
@@ -113,22 +171,31 @@ public class ActExportDictionary extends ActionBarActivity {
         protected Long doInBackground(ExportTaskParams... dicts)
         {
             ExportTaskParams params = dicts[0];
+            long res = 0;
             try
             {
-                BackupHelper.backup(context, destdir.getPath(), dictForOperation);
-                showMessage( getString( R.string.txt_dict_export_complete, destdir.getPath()
-                        + File.separator
-                        + dictForOperation.getName()
-                        + ".zip" ) );
+                BackupHelper helper = new BackupHelper( params.context,
+                                                        params.destdir.getPath(),
+                                                        params.dict, params.bExportImages,
+                                                        params.bExportStats, this );
+                helper.backup();
             } catch( Exception ex )
             {
                 ex.printStackTrace();
-                showError( ex.getMessage() );
+                res = 1;
             }
 
-            return Long.valueOf( 0 );
+             return Long.valueOf( res );
         }
 
+
+        @Override
+        protected void onPreExecute()
+        {
+            onProcessStarted();
+        }
+
+        @Override
         protected void onProgressUpdate(Integer... progress) {
             setCurrentProgress(progress[0]);
         }
@@ -144,5 +211,33 @@ public class ActExportDictionary extends ActionBarActivity {
         {
             ActExportDictionary.this.setCurrentProgress( current );
         }
+
+        protected void onPostExecute(Long result) {
+            super.onPostExecute(result);
+            onFinish( result );
+        }
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if( task != null )
+            showMessage( getString( R.string.txt_need_wait_for_end ) );
+        else
+            super.onBackPressed();
+    }
+
+    private void showMessage(String message)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        });
+        builder.setTitle( R.string.txt_warning);
+        builder.setCancelable(true);
+        builder.create();
+        builder.show();
     }
 }

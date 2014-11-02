@@ -27,6 +27,9 @@ import java.util.zip.ZipOutputStream;
 public class BackupHelper
 {
 
+    public final static String PREF_EXPORT_IMAGES = "PREF_EXPORT_IMAGES";
+    public final static String PREF_EXPORT_STATS = "PREF_EXPORT_STATS";
+
     static final String innerFileName = "dictionary.xml";
 
     boolean bExportImages;
@@ -49,7 +52,7 @@ public class BackupHelper
         listener = _listener;
     }
 
-    public final void backup( ExportProgressListener listener ) throws IOException
+    public final void backup( ) throws IOException
     {
         File dir = new File( destdir );
 
@@ -145,27 +148,39 @@ public class BackupHelper
     public final void wordToXML( DictionaryImageFileManager dictManager, StringBuilder buff, IWord word, String uuid )
     {
         buff.append( "\t\t\t<word uuid=\"").append( uuid ).append( "\" ");
-        buff.append( "state=\"").append( word.getLearnState() == IBaseWord.LearnState.learn ? 0 : 1 ).append( "\" ");
-        buff.append( "percent=\"").append( word.getLearnPercent() ).append( "\">\n");
+
+        if( bExportStats )
+        {
+            buff.append("state=\"").append(word.getLearnState() == IBaseWord.LearnState.learn ? 0 : 1).append("\" ");
+            buff.append("percent=\"").append(word.getLearnPercent()).append("\"");
+        }
+
+        buff.append( ">\n");
 
         buff.append( "\t\t\t\t<value>").append( word.getWord() ).append("</value>\n");
 
         if( word.getTranscription() != null && word.getTranscription().length() != 0 )
             buff.append( "\t\t\t\t<transcription>").append( word.getTranscription() ).append( "</transcription>\n");
 
-        File file = dictManager.getImageFile( word );
-
-        if( file != null )
+        if( bExportImages )
         {
-            try {
-                String base64 = ImageFileHelper.imageFileToBASE64(file);
-                buff.append( "\t\t\t\t<image>\n" );
-                buff.append( "\t\t\t\t\t<![CDATA[" );
-                buff.append( base64 );
-                buff.append( "]]>\n" );
-                buff.append( "\t\t\t\t</image>\n" );
-            } catch (IOException e) {
-                e.printStackTrace();
+            File file = dictManager.getImageFile(word);
+
+            if (file != null)
+            {
+                try
+                {
+                    String base64 = ImageFileHelper.imageFileToBASE64(file);
+                    buff.append("\t\t\t\t<image>\n");
+                    buff.append("\t\t\t\t\t<![CDATA[");
+                    buff.append(base64);
+                    buff.append("]]>\n");
+                    buff.append("\t\t\t\t</image>\n");
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
             }
         }
 

@@ -102,25 +102,13 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
 
     private void exportDictionary()
     {
-        Context context = getApplicationContext();
-        File dir= Environment.getExternalStorageDirectory();
+        int id = dictForOperation.getId();
+        Intent intent = new Intent( this, ActExportDictionary.class );
 
-        File destdir = new File( dir.getPath() + File.separator + "Scholar" );
-        if( !destdir.exists() )
-            destdir.mkdir();
 
-        try
-        {
-            BackupHelper.backup(context, destdir.getPath(), dictForOperation);
-            showMessage( getString( R.string.txt_dict_export_complete, destdir.getPath()
-                                                                        + File.separator
-                                                                        + dictForOperation.getName()
-                                                                        + ".zip" ) );
-        } catch( Exception ex )
-        {
-            ex.printStackTrace();
-            showError( ex.getMessage() );
-        }
+        intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, id );
+
+        startActivity( intent );
     }
 
     private void showMessage(String message)
