@@ -51,29 +51,41 @@ public class RestoreHelper
     WDdb database;
     DictionaryImageFileManager dictManager;
     Context context;
-    public RestoreHelper(WDdb _database)
+    File file;
+    ImportProgressListener listener;
+    boolean bLoadImages;
+    boolean bLoadStats;
+
+    public RestoreHelper(WDdb _database, Context _context, File _file,
+                         ImportProgressListener _listener,
+                         boolean _bLoadImages, boolean _bLoadStats )
     {
         database = _database;
+        context = _context;
+        file = _file;
+        listener = _listener;
+        bLoadImages = _bLoadImages;
+        bLoadStats = _bLoadStats;
     }
 
-    /**
-     * The function accepts ZIP file.
-     * @param file
-     */
-    public int load( Context _context, File file  ) throws Exception
+    public int load(  ) throws Exception
     {
-        context = _context;
+        if( listener != null )
+            listener.setState( ImportProgressListener.STATE_BEFORE_UNZIP );
 
         String dictFile = unzipEntry( file, context.getCacheDir() );
 
         if( dictFile == null )
             throw new DataFormatException();
 
+        if( listener != null )
+            listener.setState( ImportProgressListener.STATE_LOAD_TEXT );
+
         StringBuilder buff = internalLoad( dictFile );
-        return putInDB( database, buff );
+        return putInDB( buff );
     }
 
-    private int putInDB(WDdb database, StringBuilder buff) throws Exception {
+    private int putInDB(StringBuilder buff) throws Exception {
         int count = 0;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder docb = dbf.newDocumentBuilder();
@@ -121,6 +133,10 @@ public class RestoreHelper
 
         Exception ex = null;
         String w_uuid = null;
+
+        if( listener != null )
+            listener.setState( ImportProgressListener.STATE_LOAD_DB );
+
         try {
 
             dictManager = new DictionaryImageFileManager( context,dict );
@@ -129,14 +145,22 @@ public class RestoreHelper
             NodeList nList = doc.getElementsByTagName("word");
             DBWordFactory instance = DBWordFactory.getInstance( database, dict );
             Word word = null;
+
+            if( listener != null )
+                listener.setMaxValue( nList.getLength() );
+
             for (int j = 0; j < nList.getLength(); j++)
             {
                 String transcr = null;
                 Node n = nList.item(j);
 
-                int percent = Integer.parseInt( n.getAttributes().getNamedItem( "percent" ).getNodeValue() );
+                // TODO: dangerous code - starts here
                 w_uuid = n.getAttributes().getNamedItem( "uuid" ).getNodeValue();
+
+                int percent = Integer.parseInt( n.getAttributes().getNamedItem( "percent" ).getNodeValue() );
+
                 int state = Integer.parseInt( n.getAttributes().getNamedItem( "state" ).getNodeValue() );
+                // TODO: dangerous code - ends here
 
                 NodeList nodes = n.getChildNodes();
                 for( int i = 0; i < nodes.getLength(); i++  ) {
@@ -146,7 +170,7 @@ public class RestoreHelper
 
                     } else if (node.getNodeName().equals("transcription"))
                         transcr = getTextContent(node);
-                    else if( node.getNodeName().equals("image") )
+                    else if( node.getNodeName().equals("image") && bLoadImages )
                         writeImage( node, w_uuid );
                 }
 
@@ -155,9 +179,13 @@ public class RestoreHelper
 
                 word.setUUID( w_uuid );
                 word.setTranscription( transcr == null ? "" : transcr );
-                word.setLearnState( state == 0 ?
-                        IBaseWord.LearnState.learn : IBaseWord.LearnState.check );
-                word.setLearnPercent( percent );
+
+                if( bLoadStats )
+                {
+                    word.setLearnState(state == 0 ?
+                            IBaseWord.LearnState.learn : IBaseWord.LearnState.check);
+                    word.setLearnPercent(percent);
+                }
 
                 // An instance of the Word class creates with
                 // the one empty meaning so it should be removed
@@ -180,6 +208,8 @@ public class RestoreHelper
                 {
                     instance.technicalInsert(db, dict.getId(), word );
                     count++;
+                    if( listener != null )
+                        listener.setProgress( count );
                 }
                 else
                     Log.w( "[DictionaryLoader::putInDB]", "Word is empty, skipped" );
@@ -187,6 +217,8 @@ public class RestoreHelper
             db.setTransactionSuccessful();
         } catch (SQLiteConstraintException e) {
 
+            // TODO: It's a possible situation when UUID can be duplicated
+            // due to an aborted loading
             int dict_id = 2;
             int id;
             String name;
