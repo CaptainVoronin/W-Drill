@@ -2,6 +2,7 @@ package org.sc.w_drill.db;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -121,5 +122,14 @@ public class WDdb extends SQLiteOpenHelper
     private boolean needUpdate( int oldVersion, int newVersion  )
     {
         return oldVersion < newVersion ;
+    }
+
+    @Override
+    public SQLiteDatabase getWritableDatabase()
+    {
+        SQLiteDatabase db = super.getWritableDatabase();
+        Cursor crs = db.rawQuery( "PRAGMA foreign_keys=ON", null );
+        crs.close();
+        return db;
     }
 }

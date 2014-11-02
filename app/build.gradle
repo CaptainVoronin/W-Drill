@@ -17,7 +17,7 @@ android {
         targetSdkVersion 20
         versionName 'FirstDruft'
         signingConfig signingConfigs.defaul_config
-        versionCode 1
+        versionCode 3
     }
     buildTypes {
         release {

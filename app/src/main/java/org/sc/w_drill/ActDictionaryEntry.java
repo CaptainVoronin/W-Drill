@@ -1,6 +1,5 @@
 package org.sc.w_drill;
 
-import java.io.File;
 import java.util.Locale;
 
 import android.app.Activity;
@@ -303,7 +302,7 @@ public class ActDictionaryEntry
     }
 
     @Override
-    public void onStatActionModeForWordList()
+    public void onStartActionModeForWordList()
     {
         actionMode = startActionMode(callback);
     }
@@ -398,8 +397,11 @@ public class ActDictionaryEntry
         {
             switch (menuItem.getItemId())
             {
-                case R.id.bnt_delete_words:
+                case R.id.btn_delete_words:
                     fragmentDictWordList.deleteSelected();
+                    break;
+                case R.id.btn_move_words:
+                    fragmentDictWordList.moveSelected();
                     break;
                 default:
                     break;

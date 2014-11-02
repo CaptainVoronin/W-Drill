@@ -99,6 +99,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
     private void handleUncaughtException(Thread thread, Throwable e) {
         try {
+            e.printStackTrace();
             File dir = new File(Environment.getExternalStorageDirectory() +
                     File.separator + "Scholar");
 

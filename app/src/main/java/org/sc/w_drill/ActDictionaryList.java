@@ -2,37 +2,28 @@ package org.sc.w_drill;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.PopupMenu;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import org.sc.w_drill.backup.BackupHelper;
-import org.sc.w_drill.backup.RestoreHelper;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
-import org.sc.w_drill.utils.Langs;
 import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ActDictionaryList extends ActionBarActivity implements DlgDictionary.OnDictionaryOkClickListener
 {
@@ -45,7 +36,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
 
     ListView listDicts;
 
-    DistListAdapter adapter = null;
+    DictListAdapter adapter = null;
 
     Dictionary dictForOperation = null;
 
@@ -91,6 +82,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
          if( id == R.id.action_load_dictionary )
          {
              chooseZipFile();
+             return true;
          }
         return super.onOptionsItemSelected(item);
     }
@@ -106,7 +98,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
         Intent intent = new Intent( this, ActExportDictionary.class );
 
 
-        intent.putExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, id );
+        intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, id);
 
         startActivity( intent );
     }
@@ -184,24 +176,23 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
                 }
 
                 break;
+            case ActImportDictionary.CODE_ActImportDictionary:
+                if( resultCode == Activity.RESULT_OK )
+                    prepareList();
+                break;
             default:
                 break;
+
         }
     }
 
     private void loadFile(File file)
     {
-        RestoreHelper rh = new RestoreHelper( new WDdb( this ) );
-        try
-        {
-            rh.load(this, file);
-            prepareList();
-        }
-        catch( Exception ex )
-        {
-            ex.printStackTrace();
-            showError( getString( R.string.txt_restore_dictionary_error, ex.getMessage() ));
-        }
+        Intent intent = new Intent( this, ActImportDictionary.class );
+
+        intent.putExtra( ActImportDictionary.SRC_FILE_PARAM_NAME, file.getPath() );
+
+        startActivityForResult( intent, ActImportDictionary.CODE_ActImportDictionary );
     }
 
     private void prepareList()
@@ -213,7 +204,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
         // If we have some dictionaries, we will use a the real adapter
         if( dicts.size() != 0 )
         {
-            adapter = new DistListAdapter( this, dicts );
+            adapter = new DictListAdapter( this, dicts, DictListAdapter.ListForm.FULL );
             listDicts.setAdapter( adapter );
         }
         else // In other case we use fictive
@@ -231,47 +222,6 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
     public void onNewDictOkClick(int dictId)
     {
         prepareList();
-    }
-
-    /**
-     * Адаптер списка словарей
-     */
-    class DistListAdapter extends ArrayAdapter<Dictionary>
-    {
-        ArrayList<Dictionary> dictList;
-        Context context;
-        Langs langs;
-
-        public DistListAdapter(Context _context, List objects)
-        {
-            super(_context, R.layout.row_dict_list, objects);
-
-            dictList = ( ArrayList<Dictionary>) objects;
-
-            context = _context;
-
-            langs = Langs.getInstance( context );
-
-        }
-        @Override
-        public View getView( int position, View convertView, ViewGroup parent )
-        {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View rowView = inflater.inflate(R.layout.row_dict_list, parent, false);
-
-            TextView lbName = ( TextView ) rowView.findViewById( R.id.row_dict_list_dict_name );
-            TextView lbLang = ( TextView ) rowView.findViewById( R.id.row_dict_list_dict_lang );
-            TextView lbWordsCount = ( TextView ) rowView.findViewById( R.id.row_dict_list_dict_word_count );
-            Dictionary dict = dictList.get(position);
-
-            lbName.setText( dict.getName() );
-            lbLang.setText( langs.get( dict.getLang() ) );
-            lbWordsCount.setText( ActDictionaryList.this.getString( R.string.row_dict_list_dict_word_count, dict.getWordCount() ));
-            rowView.setTag( dict );
-
-            return rowView;
-        }
     }
 
     class OnDictItemClickListener implements AdapterView.OnItemClickListener
@@ -391,17 +341,17 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
             super.onBackPressed();
     }
 
-    public void openFile(String minmeType)
+    public void openFile(String mimeType)
     {
 
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType(minmeType);
+        intent.setType(mimeType);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
 
         // special intent for Samsung file manager
         Intent sIntent = new Intent("com.sec.android.app.myfiles.PICK_DATA");
         // if you want any file type, you can skip next line
-        sIntent.putExtra("CONTENT_TYPE", minmeType);
+        sIntent.putExtra("CONTENT_TYPE", mimeType);
         sIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
         Intent chooserIntent;

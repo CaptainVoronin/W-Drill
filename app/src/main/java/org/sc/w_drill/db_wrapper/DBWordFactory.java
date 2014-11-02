@@ -436,4 +436,35 @@ public class DBWordFactory
         return ids;
    }
 
+    public int moveWords(Dictionary dict, ArrayList<IBaseWord> selectedWords)
+    {
+        int count = 0;
+        SQLiteDatabase db = database.getWritableDatabase();
+        db.beginTransaction();
+        SQLiteException e = null;
+
+        try
+        {
+            ContentValues cv = new ContentValues();
+            for( IBaseWord word : selectedWords )
+            {
+                cv.clear();
+                cv.put( "dict_id", dict.getId() );
+                 int n = db.update( WDdb.T_WORDS, cv, "id = ?", new String[] { Integer.valueOf( word.getId() ).toString() } );
+                count += n;
+            }
+            db.setTransactionSuccessful();
+        } catch ( SQLiteException ex )
+        {
+            e = ex;
+        }
+        finally
+        {
+            db.endTransaction();
+            db.close();
+            if( e != null )
+                throw e;
+        }
+        return count;
+    }
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Handler;
 import android.util.Log;
 
 import org.sc.w_drill.db.WDdb;
@@ -50,15 +51,16 @@ public class RestoreHelper
 {
     WDdb database;
     DictionaryImageFileManager dictManager;
-    Context context;
     File file;
+    Context context;
     ImportProgressListener listener;
     boolean bLoadImages;
     boolean bLoadStats;
+    Handler handler;
 
-    public RestoreHelper(WDdb _database, Context _context, File _file,
+    public RestoreHelper( Context _context, WDdb _database, File _file,
                          ImportProgressListener _listener,
-                         boolean _bLoadImages, boolean _bLoadStats )
+                         boolean _bLoadImages, boolean _bLoadStats, Handler _handler )
     {
         database = _database;
         context = _context;
@@ -66,20 +68,21 @@ public class RestoreHelper
         listener = _listener;
         bLoadImages = _bLoadImages;
         bLoadStats = _bLoadStats;
+        handler = _handler;
     }
 
     public int load(  ) throws Exception
     {
-        if( listener != null )
-            listener.setState( ImportProgressListener.STATE_BEFORE_UNZIP );
+        if( handler != null )
+            handler.sendEmptyMessage( ImportProgressListener.STATE_BEFORE_UNZIP );
 
         String dictFile = unzipEntry( file, context.getCacheDir() );
 
         if( dictFile == null )
             throw new DataFormatException();
 
-        if( listener != null )
-            listener.setState( ImportProgressListener.STATE_LOAD_TEXT );
+        if( handler != null )
+            handler.sendEmptyMessage( ImportProgressListener.STATE_LOAD_TEXT );
 
         StringBuilder buff = internalLoad( dictFile );
         return putInDB( buff );
@@ -125,17 +128,17 @@ public class RestoreHelper
         if( content == null  )
             throw new DataFormatException( "Structure is incorrect" );
 
-        SQLiteDatabase db = this.database.getWritableDatabase();
+        SQLiteDatabase db = database.getWritableDatabase();
 
         db.beginTransaction();
 
-        Dictionary dict = DBDictionaryFactory.getInstance(this.database).createNewSpec(dictname, lang, db, uuid);
+        Dictionary dict = DBDictionaryFactory.getInstance(database).createNewSpec(dictname, lang, db, uuid);
 
         Exception ex = null;
         String w_uuid = null;
 
-        if( listener != null )
-            listener.setState( ImportProgressListener.STATE_LOAD_DB );
+        if( handler != null )
+            handler.sendEmptyMessage( ImportProgressListener.STATE_LOAD_DB );
 
         try {
 
@@ -240,6 +243,7 @@ public class RestoreHelper
             dictManager.deleteDictDir();
         } finally {
             db.endTransaction();
+            db.close();
             if (ex != null)
                 throw ex;
         }

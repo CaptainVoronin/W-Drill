@@ -5,8 +5,13 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="org.sc.w_drill.ActDictionaryEntry">
 
-    <item android:id="@+id/bnt_delete_words"
-          android:icon="@drawable/delete"
+    <item android:id="@+id/btn_delete_words"
+          android:icon="@android:drawable/ic_menu_delete"
+          app:showAsAction="always"
+          android:title=""></item>
+
+    <item android:id="@+id/btn_move_words"
+          android:icon="@android:drawable/ic_menu_set_as"
           app:showAsAction="always"
           android:title=""></item>
 </menu>

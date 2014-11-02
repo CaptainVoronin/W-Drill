@@ -24,7 +24,6 @@ import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.dict.BaseWord;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IBaseWord;
-import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.utils.AMutableFilter;
 import org.sc.w_drill.utils.FilterableList;
 import org.sc.w_drill.utils.IFilteredListChangeListener;
@@ -34,11 +33,10 @@ import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 
 import java.util.ArrayList;
 
-public class FragmentDictWordList extends Fragment
+public class FragmentDictWordList extends Fragment implements DialogSelectDict.DictionaryDialogListener
 {
 
     Dictionary activeDict;
-
     private DictWholeListListener mListener;
     private WDdb database;
     ListView listWords;
@@ -56,7 +54,6 @@ public class FragmentDictWordList extends Fragment
 
     enum FilterType { ALL, FOR_LEARN, FOR_CHECK };
     enum OrderProperty{ ALPHABET, PERCENT, ACCESS_TIME };
-
 
     boolean orderAscending = true;
     OrderProperty orderProperty = OrderProperty.ALPHABET;
@@ -93,7 +90,7 @@ public class FragmentDictWordList extends Fragment
      * This function must be called iff an instance
      * of the class has already created and it needs
      * change active dictionary
-     * @param _dictId
+     * @param dict
      */
     public void setDict( Dictionary dict )
     {
@@ -224,7 +221,7 @@ public class FragmentDictWordList extends Fragment
     {
         public void onWordSelected( int id );
         public void onWordsDeleted( );
-        public void onStatActionModeForWordList();
+        public void onStartActionModeForWordList();
         public void onFinishActionModeForWordList();
     }
 
@@ -249,7 +246,7 @@ public class FragmentDictWordList extends Fragment
         OnWordClickListener onClick;
         public WordListAdapter(Context _context, FilterableList<BaseWord> _words)
         {
-            super(_context, R.layout.word_list_row, _words);
+            super(_context, R.layout.row_word_list, _words);
             context = _context;
             words = _words;
             onClick = new OnWordClickListener();
@@ -260,7 +257,7 @@ public class FragmentDictWordList extends Fragment
         {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View rowView = inflater.inflate(R.layout.word_list_row, parent, false);
+            View rowView = inflater.inflate(R.layout.row_word_list, parent, false);
 
             BaseWord word = words.get(position);
             int color = LearnColors.getInstance( getActivity() ).getColor( word.getLearnState(), word.getLearnPercent() );
@@ -414,7 +411,7 @@ public class FragmentDictWordList extends Fragment
         if( operationButtonsVisible )
             return;
         operationButtonsVisible = true;
-        mListener.onStatActionModeForWordList();
+        mListener.onStartActionModeForWordList();
     }
 
     public void deleteSelected()
@@ -651,4 +648,36 @@ public class FragmentDictWordList extends Fragment
 
         return buff;
     }
-}
+
+    public void moveSelected()
+    {
+        DialogSelectDict dlg = new DialogSelectDict( getActivity(), activeDict, this );
+        dlg.show();
+    }
+
+    @Override
+    public void onDictSelected(Dictionary dict)
+    {
+        moveWords( dict );
+    }
+
+    private void moveWords(Dictionary dict)
+    {
+        int cnt = DBWordFactory.getInstance( database, activeDict ).moveWords( dict, selectedWords );
+
+        selectedWords.clear();
+
+        if( cnt != 0 )
+        {
+            if( mListener != null )
+                mListener.onWordsDeleted( );
+            refreshList();
+        }
+    }
+
+    @Override
+    public void onCanceled()
+    {
+        hideOperationButtons();
+    }
+ }

@@ -11,7 +11,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name="org.sc.w_drill.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,54 +20,62 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ActDictionaryList"
+            android:name="org.sc.w_drill.ActDictionaryList"
             android:icon="@drawable/logo_72_black"
             android:label="@string/title_activity_act_dictionary_list"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName="org.sc.w_drill.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.sc.w_drill.MainActivity" />
         </activity>
         <activity
-            android:name=".ActDictionaryEntry"
+            android:name="org.sc.w_drill.ActDictionaryEntry"
             android:label="@string/title_activity_act_dictionary_entry"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName="org.sc.w_drill.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.sc.w_drill.MainActivity" />
         </activity>
         <activity
-            android:name=".ActCheckWords"
+            android:name="org.sc.w_drill.ActCheckWords"
             android:label="@string/title_activity_act_check_words"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName="org.sc.w_drill.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.sc.w_drill.MainActivity" />
         </activity>
         <activity
-            android:name=".ActLearnWords"
+            android:name="org.sc.w_drill.ActLearnWords"
             android:label="@string/title_activity_act_learn_words"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName="org.sc.w_drill.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.sc.w_drill.MainActivity" />
         </activity>
         <activity
-            android:name=".ActSettings"
+            android:name="org.sc.w_drill.ActSettings"
             android:label="@string/title_activity_act_settings" >
         </activity>
         <activity
-            android:name=".ActAbout"
+            android:name="org.sc.w_drill.ActAbout"
             android:label="@string/title_activity_act_about"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName="org.sc.w_drill.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.sc.w_drill.MainActivity" />
         </activity>
         <activity
-            android:name=".ActExportDictionary"
+            android:name="org.sc.w_drill.ActExportDictionary"
             android:label="@string/title_activity_act_export_dictionary"
-            android:parentActivityName=".ActDictionaryList" >
+            android:parentActivityName="org.sc.w_drill.ActDictionaryList" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.sc.w_drill.ActDictionaryList" />
+        </activity>
+        <activity
+            android:name="org.sc.w_drill.ActImportDictionary"
+            android:label="@string/title_activity_act_import_dictionary"
+            android:parentActivityName="org.sc.w_drill.ActDictionaryList" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.sc.w_drill.ActDictionaryList" />
