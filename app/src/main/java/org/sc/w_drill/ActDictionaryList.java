@@ -29,6 +29,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
 {
 
     public static final int CHOOSE_FILE_CODE = Activity.RESULT_FIRST_USER + 1;
+    public static final int CODE_ActImportDictionary = 12334;
 
     WDdb db;
 
@@ -176,7 +177,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
                 }
 
                 break;
-            case ActImportDictionary.CODE_ActImportDictionary:
+            case CODE_ActImportDictionary:
                 if( resultCode == Activity.RESULT_OK )
                     prepareList();
                 break;
@@ -192,7 +193,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
 
         intent.putExtra( ActImportDictionary.SRC_FILE_PARAM_NAME, file.getPath() );
 
-        startActivityForResult( intent, ActImportDictionary.CODE_ActImportDictionary );
+        startActivityForResult( intent, CODE_ActImportDictionary );
     }
 
     private void prepareList()

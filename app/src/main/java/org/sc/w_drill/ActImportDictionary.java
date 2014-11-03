@@ -3,6 +3,7 @@ package org.sc.w_drill;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.sc.w_drill.backup.BackupHelper;
 import org.sc.w_drill.backup.ImportProgressListener;
 import org.sc.w_drill.backup.RestoreHelper;
 import org.sc.w_drill.db.WDdb;
@@ -23,7 +25,6 @@ import java.util.logging.Handler;
 public class ActImportDictionary extends ActionBarActivity
 {
     public static final String SRC_FILE_PARAM_NAME = "SRC_FILE_PARAM_NAME";
-    public static final int CODE_ActImportDictionary = 12334;
 
     File sourceFile;
     Button btnStart;
@@ -32,6 +33,7 @@ public class ActImportDictionary extends ActionBarActivity
     ProgressBar prgBar;
     TextView tvMessage;
     RestoreMessageHandler handler;
+    SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -69,7 +71,16 @@ public class ActImportDictionary extends ActionBarActivity
         prgBar = ( ProgressBar ) findViewById( R.id.prgBar );
         tvMessage = ( TextView  ) findViewById( R.id.stateMessage );
 
+        prefs = getPreferences( MODE_PRIVATE );
 
+        bImportImages = prefs.getBoolean(BackupHelper.PREF_IMPORT_IMAGES, true);
+        bImportStats = prefs.getBoolean(BackupHelper.PREF_IMPORT_STATS, true);
+
+        CheckBox chb = ( CheckBox ) findViewById( R.id.chbImportStats );
+        chb.setChecked( bImportStats );
+
+        chb = ( CheckBox ) findViewById( R.id.chbImportImages );
+        chb.setChecked( bImportImages );
     }
 
     private void preStartImport()
@@ -212,13 +223,20 @@ public class ActImportDictionary extends ActionBarActivity
         {
             case 0:
                 message = getString(R.string.txt_import_complete);
+                setResult( Activity.RESULT_OK );
+                SharedPreferences.Editor ed = prefs.edit();
+                ed.putBoolean( BackupHelper.PREF_IMPORT_IMAGES, bImportImages );
+                ed.putBoolean( BackupHelper.PREF_IMPORT_STATS, bImportStats );
+                ed.commit();
                 break;
             default:
+                setResult( Activity.RESULT_CANCELED );
                 message = getString(R.string.txt_import_error);
         }
 
         tvMessage.setText( message );
         btnStart.setEnabled( true );
+
     }
 
     class RestoreMessageHandler extends android.os.Handler

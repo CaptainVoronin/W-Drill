@@ -26,6 +26,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,6 +44,7 @@ import java.util.zip.ZipInputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Created by MaxSh on 09.10.2014.
@@ -85,19 +87,25 @@ public class RestoreHelper
             handler.sendEmptyMessage( ImportProgressListener.STATE_LOAD_TEXT );
 
         StringBuilder buff = internalLoad( dictFile );
-        return putInDB( buff );
+        Document doc = buffToDOM( buff );
+        return putInDB( doc );
     }
 
-    private int putInDB(StringBuilder buff) throws Exception {
-        int count = 0;
+    private Document buffToDOM( StringBuilder buff ) throws IOException, SAXException, ParserConfigurationException
+    {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder docb = dbf.newDocumentBuilder();
         InputSource is = new InputSource();
         is.setCharacterStream(new StringReader(buff.toString()));
 
         // Create an XML document from buffer
-        Document doc = docb.parse(is);
+        return docb.parse(is);
+    }
 
+    private int putInDB( Document doc ) throws Exception
+    {
+
+        int count = 0;
         // Take the root node, it must be "dictionary"
         Node root = doc.getFirstChild();
 
@@ -117,9 +125,8 @@ public class RestoreHelper
 
         for( int i = 0; i < children.getLength(); i++ )
             if( children.item( i ).getNodeName().equals( "name" ) )
-            {
-                dictname = children.item( i ).getTextContent();
-            } else if( children.item( i ).getNodeName().equals( "content" ) )
+               dictname = children.item( i ).getTextContent();
+            else if( children.item( i ).getNodeName().equals( "content" ) )
                 content = children.item( i );
 
          if( dictname == null  )
@@ -135,7 +142,6 @@ public class RestoreHelper
         Dictionary dict = DBDictionaryFactory.getInstance(database).createNewSpec(dictname, lang, db, uuid);
 
         Exception ex = null;
-        String w_uuid = null;
 
         if( handler != null )
             handler.sendEmptyMessage( ImportProgressListener.STATE_LOAD_DB );
@@ -147,96 +153,19 @@ public class RestoreHelper
 
             NodeList nList = doc.getElementsByTagName("word");
             DBWordFactory instance = DBWordFactory.getInstance( database, dict );
-            Word word = null;
 
             if( listener != null )
                 listener.setMaxValue( nList.getLength() );
 
             for (int j = 0; j < nList.getLength(); j++)
             {
-                String transcr = null;
-                Node n = nList.item(j);
-
-                // TODO: dangerous code - starts here
-                w_uuid = n.getAttributes().getNamedItem( "uuid" ).getNodeValue();
-
-                int percent = Integer.parseInt( n.getAttributes().getNamedItem( "percent" ).getNodeValue() );
-
-                int state = Integer.parseInt( n.getAttributes().getNamedItem( "state" ).getNodeValue() );
-                // TODO: dangerous code - ends here
-
-                NodeList nodes = n.getChildNodes();
-                for( int i = 0; i < nodes.getLength(); i++  ) {
-                    Node node = nodes.item(i);
-                    if (node.getNodeName().equals("value")) {
-                        word = new Word(getTextContent(node));
-
-                    } else if (node.getNodeName().equals("transcription"))
-                        transcr = getTextContent(node);
-                    else if( node.getNodeName().equals("image") && bLoadImages )
-                        writeImage( node, w_uuid );
-                }
-
-                if( word == null )
-                    throw new DataFormatException( "Dictionary file is corrupted" );
-
-                word.setUUID( w_uuid );
-                word.setTranscription( transcr == null ? "" : transcr );
-
-                if( bLoadStats )
-                {
-                    word.setLearnState(state == 0 ?
-                            IBaseWord.LearnState.learn : IBaseWord.LearnState.check);
-                    word.setLearnPercent(percent);
-                }
-
-                // An instance of the Word class creates with
-                // the one empty meaning so it should be removed
-                word.meanings().clear();
-
-                for( int i = 0; i < nodes.getLength(); i++  )
-                {
-                    Node node = nodes.item( i );
-                    if( node.getNodeType() != Node.ELEMENT_NODE )
-                        continue;
-
-                    if( node.getNodeName().equals( "meaning" ) )
-                    {
-                        IMeaning mean = extractMeaning( node );
-                        word.meanings().add( mean );
-                    }
-                }
-
-                if( word != null && word.getWord().length() != 0 )
-                {
-                    instance.technicalInsert(db, dict.getId(), word );
-                    count++;
-                    if( listener != null )
-                        listener.setProgress( count );
-                }
-                else
-                    Log.w( "[DictionaryLoader::putInDB]", "Word is empty, skipped" );
+                processWordNode( instance, db, dict.getId(), nList.item(j) );
+                count++;
+                if( listener != null )
+                    listener.setProgress( count );
             }
+
             db.setTransactionSuccessful();
-        } catch (SQLiteConstraintException e) {
-
-            // TODO: It's a possible situation when UUID can be duplicated
-            // due to an aborted loading
-            int dict_id = 2;
-            int id;
-            String name;
-
-            Cursor crs = db.rawQuery( "select id, word from words where uuid = '" + w_uuid + "'", null );
-            if( crs.getCount() != 0 ) {
-                while( crs.moveToNext() )
-                {
-                    id = crs.getInt( 0 );
-                    name = crs.getString( 1 );
-                    Log.e("[DictionaryLoader::putInDB]", "name : " + name );
-                }
-                crs.close();
-            }
-
         } catch (Exception e){
             ex = e;
             Log.e("[DictionaryLoader::putInDB]", "Exception: " + e.getMessage());
@@ -248,6 +177,77 @@ public class RestoreHelper
                 throw ex;
         }
         return count;
+    }
+
+    private void processWordNode( DBWordFactory instance, SQLiteDatabase db, int dictId, Node word_node ) throws IOException, DataFormatException
+    {
+        Word word = null;
+        String transcr = null;
+        int percent = 0;
+        int state = 0;
+
+        // TODO: dangerous code - starts here
+        Node att = word_node.getAttributes().getNamedItem( "uuid" );
+
+        if( att == null )
+            throw new DataFormatException( "A node word must has an attribute uuid" );
+
+        String w_uuid = att.getNodeValue();
+
+        att = word_node.getAttributes().getNamedItem( "percent" );
+        if( att != null  )
+            percent = Integer.parseInt( att.getNodeValue() );
+
+        att = word_node.getAttributes().getNamedItem("state");
+        if( att != null  )
+            state = Integer.parseInt( att.getNodeValue() );
+
+        NodeList nodes = word_node.getChildNodes();
+        for( int i = 0; i < nodes.getLength(); i++  ) {
+            Node node = nodes.item(i);
+            if (node.getNodeName().equals("value")) {
+                word = new Word(getTextContent(node));
+
+            } else if (node.getNodeName().equals("transcription"))
+                transcr = getTextContent(node);
+            else if( node.getNodeName().equals("image") && bLoadImages )
+                writeImage( node, w_uuid );
+        }
+
+        if( word == null )
+            throw new DataFormatException( "Dictionary file is corrupted" );
+
+        word.setUUID( w_uuid );
+        word.setTranscription( transcr == null ? "" : transcr );
+
+        if( bLoadStats )
+        {
+            word.setLearnState(state == 0 ?
+                    IBaseWord.LearnState.learn : IBaseWord.LearnState.check);
+            word.setLearnPercent(percent);
+        }
+
+        // An instance of the Word class creates with
+        // the one empty meaning so it should be removed
+        word.meanings().clear();
+
+        for( int i = 0; i < nodes.getLength(); i++  )
+        {
+            Node node = nodes.item( i );
+            if( node.getNodeType() != Node.ELEMENT_NODE )
+                continue;
+
+            if( node.getNodeName().equals( "meaning" ) )
+            {
+                IMeaning mean = extractMeaning( node );
+                word.meanings().add( mean );
+            }
+        }
+
+        if( word != null && word.getWord().length() != 0 )
+            instance.technicalInsert(db, dictId, word );
+        else
+            Log.w( "[DictionaryLoader::putInDB]", "Word is empty, skipped" );
     }
 
     private void writeImage(Node node, String uuid ) throws IOException

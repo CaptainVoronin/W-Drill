@@ -29,6 +29,8 @@ public class BackupHelper
 
     public final static String PREF_EXPORT_IMAGES = "PREF_EXPORT_IMAGES";
     public final static String PREF_EXPORT_STATS = "PREF_EXPORT_STATS";
+    public final static String PREF_IMPORT_STATS = "PREF_IMPORT_STATS";
+    public final static String PREF_IMPORT_IMAGES = "PREF_IMPORT_IMAGES";
 
     static final String innerFileName = "dictionary.xml";
 
