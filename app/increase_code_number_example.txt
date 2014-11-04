@@ -1,0 +1,19 @@
+task('increaseVersion') << {
+    def manifestFile = file("AndroidManifest.xml")
+    def patternVersionCode = Pattern.compile("versionCode=\"(\\d+)\"")
+    def manifestText = manifestFile.getText()
+    def matcherVersionCode = patternVersionCode.matcher(manifestText)
+    matcherVersionCode.find()
+    def versionCode = Integer.parseInt(matcherVersionCode.group(1))
+    def manifestContent = matcherVersionCode.replaceAll("versionCode=\"" + ++versionCode + "\"")
+
+    manifestFile.write(manifestContent)
+
+    def patternVersionNumber = Pattern.compile("versionName=\"0.0.(\\d+)\"")
+    manifestText = manifestFile.getText()
+    def matcherVersionNumber = patternVersionNumber.matcher(manifestText)
+    matcherVersionNumber.find()
+    def versionNumber = Integer.parseInt(matcherVersionNumber.group(1))
+    manifestContent = matcherVersionNumber.replaceAll("versionName=\"0.0." + ++versionNumber + "\"")
+    manifestFile.write(manifestContent)
+}
