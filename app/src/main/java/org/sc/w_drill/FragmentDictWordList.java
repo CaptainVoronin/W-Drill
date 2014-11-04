@@ -50,6 +50,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
     private CompoundButton.OnCheckedChangeListener checkBoxClickListener;
     private boolean operationButtonsVisible;
     FilterDialog dlgFilter = null;
+    WordListFilter wordFilter = null;
     private OrderDialog orderDialog;
 
     enum FilterType { ALL, FOR_LEARN, FOR_CHECK };
@@ -200,6 +201,13 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         if( searchTextWatcher != null )
             edSearchPattern.removeTextChangedListener( searchTextWatcher  );
         searchTextWatcher = new SearchTextWatcher( wordList );
+
+        if( wordFilter != null )
+        {
+            wordList.setFilter(wordFilter);
+            wordFilter.addListener( wordList );
+        }
+
         edSearchPattern.addTextChangedListener( searchTextWatcher );
 
         WordListAdapter adapter = new WordListAdapter(getActivity(), wordList);
@@ -313,7 +321,6 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
     class SearchTextWatcher implements TextWatcher
     {
         FilterableList<BaseWord> list;
-        WordListFilter filter = null;
 
         public SearchTextWatcher( FilterableList<BaseWord> _list )
         {
@@ -330,13 +337,13 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         public void onTextChanged(CharSequence charSequence, int i, int i2, int i3)
         {
             if( charSequence.length() == 0 ) {
-                if (filter == null) {
-                    filter = new WordListFilter("");
-                    list.setFilter(filter);
-                    filter.addListener(list);
+                if (wordFilter == null) {
+                    wordFilter = new WordListFilter("");
+                    list.setFilter(wordFilter);
+                    wordFilter.addListener(list);
                 }
                 else
-                    filter.setNewPattern("");
+                    wordFilter.setNewPattern("");
             }
         }
 
@@ -344,14 +351,14 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         public void afterTextChanged(Editable editable)
         {
             String text = editable.toString();
-            if( filter == null )
+            if( wordFilter == null )
             {
-                filter = new WordListFilter(text);
-                list.setFilter( filter );
-                filter.addListener( list );
+                wordFilter = new WordListFilter(text);
+                list.setFilter(wordFilter);
+                wordFilter.addListener( list );
             }
             else
-                filter.setNewPattern( text );
+                wordFilter.setNewPattern( text );
         }
     }
 
@@ -536,7 +543,6 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
                     {
                         filterType = newFilterType;
                         setNeedRefresh();
-                        //refreshList();
                     }
                 }
                 case R.id.btnCancel:
@@ -669,7 +675,10 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
             DictionaryImageFileManager manager = new DictionaryImageFileManager( getActivity(), activeDict );
 
             for( IBaseWord word : selectedWords )
-                manager.moveImageToDict( word, dict );
+            {
+                if( manager.getImageFile( word ) != null)
+                    manager.moveImageToDict(word, dict);
+            }
 
             selectedWords.clear();
 
@@ -691,4 +700,9 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
     {
         hideOperationButtons();
     }
- }
+
+    public void operationModeDestroyed()
+    {
+        operationButtonsVisible = false;
+    }
+}

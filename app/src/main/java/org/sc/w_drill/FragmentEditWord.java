@@ -368,7 +368,15 @@ public class FragmentEditWord extends Fragment
     private class AddImageListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            if (dictImageManager.getImageFile(activeWord) != null )
+            if( cachedImageFilename != null )
+            {
+                File f = new File( cachedImageFilename );
+                f.delete();
+                cachedImageFilename = null;
+                wordIllustration.setImageBitmap(null);
+                btnAddImg.setImageDrawable(getActivity().getResources().getDrawable(android.R.drawable.ic_menu_gallery));
+            }
+            else if ( dictImageManager.getImageFile(activeWord) != null )
             {
                 removeImage();
             } else {

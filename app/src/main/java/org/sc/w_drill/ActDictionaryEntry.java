@@ -414,7 +414,8 @@ public class ActDictionaryEntry
         @Override
         public void onDestroyActionMode(ActionMode actionMode)
         {
-
+            if( fragmentDictWordList != null )
+                fragmentDictWordList.operationModeDestroyed();
         }
     };
 

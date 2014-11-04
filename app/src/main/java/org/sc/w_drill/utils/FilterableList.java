@@ -112,8 +112,6 @@ public class FilterableList<T> extends ArrayList<T> implements IFilterChangedLis
                 return false;
          else
             return false;
-
-
     }
 
     public void addListener( IFilteredListChangeListener listener )

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hour">час</string>
+    <string name="hours1">часа</string>
+    <string name="hours2">часов</string>
+
+    <string name="day">день</string>
+    <string name="days1">дня</string>
+    <string name="days2">дней</string>
+
+    <string name="month">месяц</string>
+    <string name="months1">месяца</string>
+    <string name="months2">месяцев</string>
+
+</resources>

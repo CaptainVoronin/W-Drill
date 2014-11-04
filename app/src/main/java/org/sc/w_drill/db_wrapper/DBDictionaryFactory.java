@@ -7,7 +7,7 @@ import android.util.Log;
 
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.dict.Dictionary;
-import org.sc.w_drill.utils.DateTimeUtils;
+import org.sc.w_drill.utils.datetime.DateTimeUtils;
 
 import java.util.ArrayList;
 import java.util.Date;

@@ -28,6 +28,8 @@ import java.util.zip.DataFormatException;
  */
 public class ImageFileHelper {
     Context context;
+    static final Bitmap.CompressFormat format = Bitmap.CompressFormat.JPEG;
+    static final int compressQuality = 80;
 
     static ImageFileHelper instance = null;
 
@@ -49,7 +51,7 @@ public class ImageFileHelper {
         String filename = manager.mkPath( word );
 
         FileOutputStream fous = new FileOutputStream( new File( filename ) );
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fous);
+        bitmap.compress(format, compressQuality, fous);
         fous.flush();
         fous.close();
         Log.d("[ImageFileHelper::putBitmapInInternalStorage", "The file " + filename + " has been put in the storage " );
@@ -61,10 +63,12 @@ public class ImageFileHelper {
         String name = cachDir.getPath() + File.separator + UUID.randomUUID().toString() + ".png";
         File file = new File( name );
         FileOutputStream fous = new FileOutputStream( file );
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fous);
+        bitmap.compress( format, compressQuality, fous);
         fous.flush();
         fous.close();
-        Log.d("[ImageFileHelper::putBitmapInCache", "The TMP file has been put in the cache " + name );
+        file = new File( name );
+
+        Log.d("[ImageFileHelper::putBitmapInCache", "The TMP file (size= " + file.length() + " )has been put in the cache " + name );
         return name;
     }
 
