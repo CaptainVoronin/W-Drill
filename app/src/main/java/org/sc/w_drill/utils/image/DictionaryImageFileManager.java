@@ -32,7 +32,7 @@ public class DictionaryImageFileManager
 
     public File getDir()
     {
-        return context.getDir( dict.getUUID(), Context.MODE_PRIVATE );
+        return mkDictPath( dict );
     }
 
     public void checkDir() throws FileNotFoundException {
@@ -63,12 +63,7 @@ public class DictionaryImageFileManager
 
     public String mkPath( IBaseWord word )
     {
-        return mkPath( word.getUUID() );
-    }
-
-    public String mkPath( String word_uuid )
-    {
-        return getDir().getPath() + File.separator + word_uuid + ".png";
+        return getDir().getPath() + File.separator + mkFilename( word );
     }
 
     public File getImageFile( IBaseWord word )
@@ -117,4 +112,56 @@ public class DictionaryImageFileManager
         else
             Log.d("[DictionaryImageFileManager::moveImageFromCache", "The cache file " + cachedImageFilename + " has not been deleted");
     }
+
+    public void moveImageToDict( IBaseWord word, Dictionary dstDict ) throws IOException
+    {
+        String imagePath = mkPath( word );
+        String targetPath = mkDictPath( dstDict ) + File.separator + mkFilename( word );
+        moveFile( imagePath, targetPath );
+    }
+
+    private String mkFilename(IBaseWord word)
+    {
+        return word.getUUID() + ".png";
+    }
+
+    private File mkDictPath(Dictionary dictionary)
+    {
+        return context.getDir(dictionary.getUUID(), Context.MODE_PRIVATE);
+    }
+
+    private void moveFile( String srcFile, String dstFile ) throws IOException
+    {
+        byte[] buff = new byte[1024];
+        FileOutputStream fous = new FileOutputStream( dstFile );
+        FileInputStream fin = new FileInputStream( srcFile );
+
+        while( fin.read( buff ) > 0 )
+            fous.write( buff );
+
+        fous.flush();
+        fous.close();
+        fin.close();
+
+        File f = new File( srcFile );
+        if( f.delete() )
+            Log.d("[DictionaryImageFileManager::moveFile", "The src file " + srcFile + " has been deleted");
+        else
+            Log.d("[DictionaryImageFileManager::moveFile", "The src file " + srcFile + " has not been deleted");
+
+    }
+
+    public long getTotalFileSize()
+    {
+        long size = 0;
+        File[] files = getFiles();
+
+        for( int i = 0; i < files.length; i++ )
+        {
+            size += files[i].length();
+        }
+
+        return size;
+    }
+
 }

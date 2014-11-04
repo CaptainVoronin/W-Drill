@@ -52,7 +52,7 @@ public class ActLearnWords extends ActionBarActivity
     //public static final int LearnMode = 0;
 
     Dictionary activeDict;
-    IBaseWord.LearnState learnStage;
+//    IBaseWord.LearnState learnStage;
     IWord activeWord;
     TextView wordPlace;
     TextView wordTranscription;
@@ -60,7 +60,7 @@ public class ActLearnWords extends ActionBarActivity
     WDdb database;
     ArrayList<WordTmpStats> wordStats;
     private boolean confirmed;
-    long deltaTime = 0;
+//    long deltaTime = 0;
     Calendar start;
     CircularArrayList<IWord> words = null;
     Triangle learnIndicator;
@@ -284,10 +284,10 @@ public class ActLearnWords extends ActionBarActivity
         }
     }
 
-    public IWord getActiveWord( )
+    /*public IWord getActiveWord( )
     {
         return activeWord;
-    }
+    } */
 
     protected void onActivityResult (int requestCode, int resultCode, Intent data)
     {
@@ -316,7 +316,8 @@ public class ActLearnWords extends ActionBarActivity
             words.set( index, activeWord );
 
             bringWordToScreen(activeWord);
-
+            if( state == State.WAIT_CONFIRMATION )
+                showMeaning();
         }
     }
 
@@ -353,9 +354,6 @@ public class ActLearnWords extends ActionBarActivity
         public boolean onFling(MotionEvent event1, MotionEvent event2,
                                float velocityX, float velocityY)
         {
-            //Log.d(DEBUG_TAG, "onFling: " + event1.toString()+event2.toString());
-            //Log.d(DEBUG_TAG, "onFling: vX=" + velocityX + " velocityY=" + velocityY);
-
             float x1 = event1.getRawX();
             float y1 = event1.getRawY();
             float x2 = event2.getRawX();
@@ -363,13 +361,6 @@ public class ActLearnWords extends ActionBarActivity
             Direction d = getDirection( x1, y1, x2, y2 );
 
             processAction( d );
-
-            /*if( d == Direction.UP )
-                processUserAnswer(true);
-            else if( d == Direction.DOWN )
-                processUserAnswer(false);
-            else if ( d == Direction.LEFT )
-                processUserLeftScratch(); */
 
             return true;
         }
@@ -526,7 +517,7 @@ public class ActLearnWords extends ActionBarActivity
             if( words == null || words.size() == 0 ) {
                 // If there are words for learning
                 // we'll make a transition.
-                if( DBDictionaryFactory.getInstance( database ).getWordsTo( activeDict.getId(), DBDictionaryFactory.STAGE_CHECK ) != 0 )
+                if( DBDictionaryFactory.getInstance( database ).getWordsTo( activeDict.getId(), DBDictionaryFactory.STAGE_CHECK ) >= 4 )
                     showWhatToDoDialog();
                 else
                 {

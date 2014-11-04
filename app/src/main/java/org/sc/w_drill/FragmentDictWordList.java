@@ -85,7 +85,6 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         dlgFilter.show();
     }
 
-
     /**
      * This function must be called iff an instance
      * of the class has already created and it needs
@@ -663,15 +662,27 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
     private void moveWords(Dictionary dict)
     {
-        int cnt = DBWordFactory.getInstance( database, activeDict ).moveWords( dict, selectedWords );
-
-        selectedWords.clear();
-
-        if( cnt != 0 )
+        try
         {
-            if( mListener != null )
-                mListener.onWordsDeleted( );
-            refreshList();
+            int cnt = DBWordFactory.getInstance(database, activeDict).moveWords(dict, selectedWords);
+
+            DictionaryImageFileManager manager = new DictionaryImageFileManager( getActivity(), activeDict );
+
+            for( IBaseWord word : selectedWords )
+                manager.moveImageToDict( word, dict );
+
+            selectedWords.clear();
+
+            if (cnt != 0)
+            {
+                if (mListener != null)
+                    mListener.onWordsDeleted();
+                refreshList();
+            }
+        } catch( Exception e )
+        {
+            e.printStackTrace();
+            //TODO: There must be a handler
         }
     }
 

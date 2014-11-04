@@ -5,6 +5,9 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -22,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
@@ -30,7 +34,8 @@ import org.sc.w_drill.utils.DateTimeUtils;
 import org.sc.w_drill.utils.Langs;
 import org.sc.w_drill.utils.image.ImageConstraints;
 
-public class MainActivity extends ActionBarActivity implements DlgDictionary.OnDictionaryOkClickListener {
+public class MainActivity extends ActionBarActivity implements DlgDictionary.OnDictionaryOkClickListener
+{
     public static final int CODE_ActDictionaryList = 1;
     public static final int CODE_ActDictionaryEntry = 2;
     public static final int CODE_ActSettings = 3;
@@ -40,7 +45,6 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
      * База данных приложения
      */
     private WDdb database;
-
 
     /**
      * Фабрика словарей
@@ -62,14 +66,17 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     ImageConstraints imageConstraints;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         // Set uncough exception handler
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
+        {
             @Override
-            public void uncaughtException(Thread thread, Throwable e) {
+            public void uncaughtException(Thread thread, Throwable e)
+            {
                 handleUncaughtException(thread, e);
             }
         });
@@ -97,8 +104,10 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         detectState(activeDictID);
     }
 
-    private void handleUncaughtException(Thread thread, Throwable e) {
-        try {
+    private void handleUncaughtException(Thread thread, Throwable e)
+    {
+        try
+        {
             e.printStackTrace();
             File dir = new File(Environment.getExternalStorageDirectory() +
                     File.separator + "Scholar");
@@ -115,13 +124,16 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
             fw.write(sw.toString());
             fw.close();
 
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             ex.printStackTrace();
         }
         System.exit(1);
     }
 
-    private void detectState(int activeDictID) {
+    private void detectState(int activeDictID)
+    {
         // Are there
         dictionaryFactory = DBDictionaryFactory.getInstance(database);
         ArrayList<Dictionary> dictList = dictionaryFactory.getList();
@@ -132,13 +144,16 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         // It's possible when no dictionaries in database
         if (dictList == null || dictList.size() == 0)
             currentView = createNoDictionaryInterface();
-        else {
+        else
+        {
             // In case of a mistake when the active dictionary
             // has been deleted from DB
             boolean activeDictExistsInDB = false;
-            if (activeDictID != -1) {
+            if (activeDictID != -1)
+            {
                 for (Dictionary dict : dictList)
-                    if (dict.getId() == activeDictID) {
+                    if (dict.getId() == activeDictID)
+                    {
                         activeDictExistsInDB = true;
                         activeDict = dict;
                         break;
@@ -147,7 +162,8 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
                     currentView = restoreState(); // yes, it was deleted
                 else
                     currentView = createChooseDictionaryInterface(); // no, it wasn't
-            } else
+            }
+            else
                 currentView = createChooseDictionaryInterface(); // no active dictionary
         }
 
@@ -158,42 +174,49 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
      * Эта функция создает инфтерфейс и восстанавливаетс
      * состояние программы
      */
-    View restoreState() {
+    View restoreState()
+    {
         // Set up the action bar.
         actionBar = getSupportActionBar();
         //actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         return setupActiveDict();
     }
 
-    private ArrayList<Dictionary> getDictList() {
+    private ArrayList<Dictionary> getDictList()
+    {
         return dictionaryFactory.getList();
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         Intent intent;
-        switch (id) {
+        switch (id)
+        {
             case R.id.action_settings:
                 intent = new Intent(this, ActSettings.class);
                 startActivityForResult(intent, CODE_ActSettings);
                 return true;
-            case R.id.action_dict_list: {
+            case R.id.action_dict_list:
+            {
                 intent = new Intent(this, ActDictionaryList.class);
                 startActivityForResult(intent, CODE_ActDictionaryList);
             }
             break;
-            case R.id.action_about: {
+            case R.id.action_about:
+            {
                 intent = new Intent(this, ActAbout.class);
                 startActivity(intent);
             }
@@ -201,19 +224,23 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         return super.onOptionsItemSelected(item);
     }
 
-    private void showNewDictionaryDialog() {
+    private void showNewDictionaryDialog()
+    {
         DlgDictionary dlg = new DlgDictionary(this);
         dlg.setOkListsner(this);
         dlg.show();
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
         int id;
-        switch (requestCode) {
+        switch (requestCode)
+        {
             case CODE_ActDictionaryList:
                 if (data != null)
                     id = data.getIntExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
-                else {
+                else
+                {
                     if (activeDict == null)
                         id = -1;
                     else
@@ -222,9 +249,11 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
                 detectState(id);
                 break;
             case CODE_ActDictionaryEntry:
-                if (data != null) {
+                if (data != null)
+                {
                     // Here we are interested in changing of a dictionary
-                    if (resultCode == ActDictionaryEntry.DICTIONARY_CHANGED) {
+                    if (resultCode == ActDictionaryEntry.DICTIONARY_CHANGED)
+                    {
                         id = data.getIntExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
                         detectState(id);
                     }
@@ -246,6 +275,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         View view = inflater.inflate(R.layout.active_dict_state_fragment, rootView, false);
 
         DBDictionaryFactory.getInstance(database).getAdditionalInfo(activeDict);
+
         // Set the active dictionary name
         TextView text = (TextView) view.findViewById(R.id.dict_name);
         text.setText(activeDict.getName());
@@ -254,22 +284,30 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         text = (TextView) view.findViewById(R.id.tvDictLang);
         text.setText(Langs.getInstance(this).get(activeDict.getLang()));
 
+        // Set last access time
+        text = ( TextView ) view.findViewById( R.id.tvLastAccess );
+
+        if( activeDict.getLastAccess() == null )
+            text.setText( getString( R.string.txt_last_access_date, getString( R.string.txt_never )));
+        else
+            text.setText( getString( R.string.txt_last_access_date,
+                          DateTimeUtils.getDateTimeString( activeDict.getLastAccess())));
+
         /**************************************
          *
          * Set the word count
          *
          * ************************************/
 
-         text = (TextView) view.findViewById(R.id.word_count);
-        //text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-         text.setText(Integer.valueOf(activeDict.getWordCount()).toString());
+        text = (TextView) view.findViewById(R.id.word_count);
+        text.setText(Integer.valueOf(activeDict.getWordCount()).toString());
 
-        if( activeDict.getWordCount() != 0 )
+        if (activeDict.getWordCount() != 0)
         {
             OnTotalWordsClick handler = new OnTotalWordsClick();
-            text.setOnClickListener( handler );
+            text.setOnClickListener(handler);
             text = (TextView) view.findViewById(R.id.total_words_label);
-            text.setOnClickListener( handler );
+            text.setOnClickListener(handler);
         }
 
         /**************************************
@@ -278,20 +316,20 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
          *
          * ************************************/
 
-         TextView label = (TextView) view.findViewById(R.id.words_to_learn_label);
-         TextView counter = (TextView) view.findViewById(R.id.words_for_learn);
+        TextView label = (TextView) view.findViewById(R.id.words_to_learn_label);
+        TextView counter = (TextView) view.findViewById(R.id.words_for_learn);
 
-        if( activeDict.getWordsToLearn() != 0 )
+        if (activeDict.getWordsToLearn() != 0)
         {
-            label.setText( R.string.txt_words_for_learn );
+            label.setText(R.string.txt_words_for_learn);
             counter.setText(Integer.valueOf(activeDict.getWordsToLearn()).toString());
 
-            label.setOnClickListener( new OnLearnWordsClick() );
-            counter.setOnClickListener( new OnLearnWordsClick() );
+            label.setOnClickListener(new OnLearnWordsClick());
+            counter.setOnClickListener(new OnLearnWordsClick());
         }
         else
         {
-            label.setText( R.string.txt_no_words_to_learn );
+            label.setText(R.string.txt_no_words_to_learn);
             counter.setText("");
         }
         //text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
@@ -307,35 +345,17 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
         if (activeDict.getWordsToCheck() != 0)
         {
-            label.setText( R.string.txt_words_for_check );
+            label.setText(R.string.txt_words_for_check);
             counter.setText(Integer.valueOf(activeDict.getWordsToCheck()).toString());
             label.setOnClickListener(new OnCheckClick());
             counter.setOnClickListener(new OnCheckClick());
 
-        }else{
-            label.setText( R.string.txt_no_words_for_check );
+        }
+        else
+        {
+            label.setText(R.string.txt_no_words_for_check);
             counter.setText("");
         }
-        //text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-
-        //Set the "edit dict" label
-        /*text = (TextView) view.findViewById(R.id.word_count);
-
-        text.setOnClickListener(
-                new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ActDictionaryEntry.class);
-                if (activeDict != null)
-                    intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
-                else
-                    intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
-
-                intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WHOLE_LIST_ENTRY);
-
-                startActivityForResult(intent, CODE_ActDictionaryEntry);
-            }
-        }); */
 
         /**************************************
          *
@@ -343,14 +363,15 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
          *
          * ************************************/
 
-        text = ( TextView ) view.findViewById( R.id.add_words );
-        text.setOnClickListener( new View.OnClickListener() {
+        text = (TextView) view.findViewById(R.id.add_words);
+        text.setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View view)
             {
                 Intent intent = new Intent(MainActivity.this, ActDictionaryEntry.class);
                 intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
-                intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.ADD_WORDS );
+                intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.ADD_WORDS);
                 startActivityForResult(intent, CODE_ActDictionaryEntry);
             }
         });
@@ -367,7 +388,8 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
      * @param entryPart - a kind of entry. 0 - a whole word list, 1 - words to learn
      *                  2 - words to study, 3 - add new words
      */
-    public void goToDictionaryEntry(int dictId, int entryPart) {
+    public void goToDictionaryEntry(int dictId, int entryPart)
+    {
         Intent intent = new Intent(this, ActDictionaryEntry.class);
         intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, dictId);
         Log.d("[MainActivity::goToDictionaryEntry]", "Start ActDictionaryEntry for part " + entryPart + ", dict ID " + dictId);
@@ -375,10 +397,13 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         startActivity(intent);
     }
 
-    protected void showAlert(String message) {
+    protected void showAlert(String message)
+    {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(message).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
+        builder.setMessage(message).setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+        {
+            public void onClick(DialogInterface dialog, int id)
+            {
                 // User cancelled the dialog
             }
         });
@@ -391,7 +416,8 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     public static final String ST_ACTIVE_DICTIONARY_ID = "ST_ACTIVE_DICTIONARY_ID";
 
     @Override
-    protected void onPause() {
+    protected void onPause()
+    {
         super.onPause();
 
         SharedPreferences.Editor ed = sharedPrefs.edit();
@@ -409,13 +435,16 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
      *
      * @return
      */
-    View createNoDictionaryInterface() {
+    View createNoDictionaryInterface()
+    {
         // Inflate the layout for this fragment
         View view = getLayoutInflater().inflate(R.layout.fragment_no_dicts, rootView, false);
         TextView text = (TextView) view.findViewById(R.id.tvPressToCreateDictionary);
-        text.setOnClickListener(new View.OnClickListener() {
+        text.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view)
+            {
                 showNewDictionaryDialog();
             }
         });
@@ -428,14 +457,17 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
      *
      * @return
      */
-    View createChooseDictionaryInterface() {
+    View createChooseDictionaryInterface()
+    {
         LayoutInflater inflater = getLayoutInflater();
 
         View view = inflater.inflate(R.layout.fragment_choose_dicts, rootView, false);
         TextView text = (TextView) view.findViewById(R.id.txt_press_to_choose_dict);
-        text.setOnClickListener(new View.OnClickListener() {
+        text.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view)
+            {
                 Intent intent = new Intent(MainActivity.this, ActDictionaryList.class);
                 if (activeDict != null)
                     intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
@@ -449,13 +481,16 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     }
 
     @Override
-    public void onNewDictOkClick(int dictId) {
+    public void onNewDictOkClick(int dictId)
+    {
         detectState(dictId);
     }
 
-    class OnLearnWordsClick implements View.OnClickListener {
+    class OnLearnWordsClick implements View.OnClickListener
+    {
         @Override
-        public void onClick(View view) {
+        public void onClick(View view)
+        {
             Intent intent = new Intent(MainActivity.this, ActLearnWords.class);
             if (activeDict != null)
                 intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
@@ -468,9 +503,11 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         }
     }
 
-    private class OnCheckClick implements View.OnClickListener {
+    private class OnCheckClick implements View.OnClickListener
+    {
         @Override
-        public void onClick(View view) {
+        public void onClick(View view)
+        {
             Intent intent = new Intent(MainActivity.this, ActCheckWords.class);
             if (activeDict != null)
                 intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
@@ -483,7 +520,8 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         }
     }
 
-    private class OnTotalWordsClick implements View.OnClickListener {
+    private class OnTotalWordsClick implements View.OnClickListener
+    {
         @Override
         public void onClick(View view)
         {

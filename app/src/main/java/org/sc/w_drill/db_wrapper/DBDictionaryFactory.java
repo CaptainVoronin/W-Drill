@@ -7,8 +7,10 @@ import android.util.Log;
 
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.utils.DateTimeUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -60,7 +62,8 @@ public class DBDictionaryFactory
             String lang = crs.getString( 2 );
             int count = crs.getInt( 3 );
             String uuid = crs.getString( 4 );
-            list.add(  new Dictionary( id, name, uuid, lang, count ) );
+            Dictionary dict = new Dictionary( id, name, uuid, lang, count );
+            list.add( dict );
         }
         crs.close();
         db.close();
@@ -95,7 +98,6 @@ public class DBDictionaryFactory
 
         return dict;
     }
-
 
     public boolean dictionaryExists( String _uuid )
     {
@@ -150,7 +152,8 @@ public class DBDictionaryFactory
         return cnt == 0;
     }
 
-     public Dictionary getDictionaryById( int id ) {
+     public Dictionary getDictionaryById( int id )
+     {
          String statement = "select d.id, d.name, d.language, count( w.dict_id ), d.uuid " +
                  "from dictionary d left outer join words w on d.id = w.dict_id " +
                  "where d.id = ?";
@@ -165,7 +168,7 @@ public class DBDictionaryFactory
              int cnt1 = internalGetWordsToLearn(  db, id ); // words to learn
              int cnt2 = internalGetWordsToCheck( db, id ); // words to check
              dict = new Dictionary(id, crs.getString(1), crs.getString(4), crs.getString(2), crs.getInt(3), cnt1, cnt2 );
-         }
+             }
          else
          {
              crs.close();
@@ -267,16 +270,6 @@ public class DBDictionaryFactory
     }
 
     /**
-     * Переносит слова из одного словаря в другой и удалает первый
-     * @param destDict - словарь, куда надо перенести слова
-     * @param sourceDict - словарь, из которого надо перенести слова и потом удалить
-     */
-    public void move_and_delete( Dictionary destDict, Dictionary sourceDict )
-    {
-        throw new UnsupportedOperationException( "Dictionary::move_and_delete" );
-    }
-
-    /**
      * It gets additional information such as a count of words for learning
      * and a count of words for check up.
      * @param dict
@@ -289,6 +282,8 @@ public class DBDictionaryFactory
         dict.setWordsToLear( count );
         count = internalGetWordsToCheck( db, dict.getId() );
         dict.setWordsToCheck(count);
+        dict.setLastAccess( getLastAccess( db, dict ) );
+
         db.close();
         return dict;
     }
@@ -320,5 +315,29 @@ public class DBDictionaryFactory
         float result = ((float) percent_count ) / count;
 
         return 0;
+    }
+
+    /**
+     *
+     * @param dict
+     * @return
+     */
+    public Date getLastAccess( SQLiteDatabase db, Dictionary dict )
+    {
+        Date dt = null;
+
+        String statement = "select min( last_access ) from words where dict_id = ?";
+
+        Cursor crs = db.rawQuery( statement, new String[] { Integer.valueOf( dict.getId() ).toString() } );
+
+        if( crs.moveToNext() )
+        {
+            String str = crs.getString(0);
+            if( str != null )
+                dt = DateTimeUtils.strToDate(str);
+            crs.close();
+        }
+
+        return dt;
     }
 }

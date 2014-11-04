@@ -1,5 +1,7 @@
 package org.sc.w_drill.dict;
 
+import java.util.Date;
+
 /**
  * Created by maxsh on 29.09.2014.
  */
@@ -12,6 +14,9 @@ public class Dictionary {
     int words_to_check;
     private String lang;
     String uuid;
+    private Date lastAccess;
+    private int imagesCount;
+    private long imagesSize;
 
     public Dictionary( int _id, String _name, String _uuid, String _lang, int _word_count )
     {
@@ -20,6 +25,8 @@ public class Dictionary {
         lang = _lang;
         word_count = _word_count;
         uuid = _uuid;
+        imagesCount = -1;
+        imagesSize = -1;
     }
 
     public Dictionary( int _id, String _name, String _uuid, String _lang, int _word_count, int _words_to_learn, int _words_to_check )
@@ -31,6 +38,9 @@ public class Dictionary {
         words_to_learn = _words_to_learn;
         words_to_check = _words_to_check;
         uuid = _uuid;
+        imagesCount = -1;
+        imagesSize = -1;
+
     }
 
     public Dictionary( int _id, String _name, String _uuid, String _lang )
@@ -40,6 +50,8 @@ public class Dictionary {
         lang = _lang;
         word_count = 0;
         uuid = _uuid;
+        imagesCount = -1;
+        imagesSize = -1;
     }
 
     @Override
@@ -95,5 +107,36 @@ public class Dictionary {
     public void setWordsToCheck( int val )
     {
         words_to_check = val;
+    }
+
+
+    public Date getLastAccess()
+    {
+        return lastAccess;
+    }
+
+    public void setLastAccess(Date lastAccess)
+    {
+        this.lastAccess = lastAccess;
+    }
+
+    public int getImagesCount()
+    {
+        return imagesCount;
+    }
+
+    public void setImagesCount(int imagesCount)
+    {
+        this.imagesCount = imagesCount;
+    }
+
+    public long getImagesSize()
+    {
+        return imagesSize;
+    }
+
+    public void setImagesSize(long imagesSize)
+    {
+        this.imagesSize = imagesSize;
     }
 }

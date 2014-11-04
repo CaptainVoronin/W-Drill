@@ -112,6 +112,14 @@
     </TableLayout>
 
     <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="aasdasd"
+        android:layout_marginLeft="6pt"
+        android:layout_marginBottom="6pt"
+        android:id="@+id/tvLastAccess"/>
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="1pt"
         android:background="@color/DkBrown"

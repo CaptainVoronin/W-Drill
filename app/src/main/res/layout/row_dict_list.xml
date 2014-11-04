@@ -40,6 +40,13 @@
                     android:layout_height="match_parent"
                     android:text= "@string/row_dict_list_dict_word_count" />
                 </LinearLayout>
+                <TextView
+                    style="@style/NoteText"
+                    android:id="@+id/tv_dictionary_images_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="@string/txt_dictionary_images_info"/>
+
             </LinearLayout>
 
         </TableRow>

@@ -203,19 +203,22 @@ public class RestoreHelper
             state = Integer.parseInt( att.getNodeValue() );
 
         NodeList nodes = word_node.getChildNodes();
+        Node imageNode = null;
         for( int i = 0; i < nodes.getLength(); i++  ) {
             Node node = nodes.item(i);
-            if (node.getNodeName().equals("value")) {
+            if (node.getNodeName().equals("value"))
                 word = new Word(getTextContent(node));
-
-            } else if (node.getNodeName().equals("transcription"))
+            else if (node.getNodeName().equals("transcription"))
                 transcr = getTextContent(node);
             else if( node.getNodeName().equals("image") && bLoadImages )
-                writeImage( node, w_uuid );
+                imageNode = node;
         }
 
         if( word == null )
             throw new DataFormatException( "Dictionary file is corrupted" );
+
+        if( imageNode != null )
+            writeImage( imageNode, word );
 
         word.setUUID( w_uuid );
         word.setTranscription( transcr == null ? "" : transcr );
@@ -250,7 +253,7 @@ public class RestoreHelper
             Log.w( "[DictionaryLoader::putInDB]", "Word is empty, skipped" );
     }
 
-    private void writeImage(Node node, String uuid ) throws IOException
+    private void writeImage(Node node, IBaseWord word ) throws IOException
     {
         NodeList list = node.getChildNodes();
         CDATASection cdata;
@@ -262,7 +265,7 @@ public class RestoreHelper
             {
                 cdata = ( CDATASection ) child;
                 String value = cdata.getData();
-                String path = dictManager.mkPath(uuid);
+                String path = dictManager.mkPath(word);
                 ImageFileHelper.imageFileFromBASE64( path, value );
                 break;
             }
