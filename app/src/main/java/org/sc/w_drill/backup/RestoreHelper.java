@@ -88,6 +88,9 @@ public class RestoreHelper
 
         StringBuilder buff = internalLoad( dictFile );
         Document doc = buffToDOM( buff );
+        int count = DBDictionaryFactory.toughRestoreIntegrity( database );
+        if( count != 0 )
+            Log.d( "RestoreHelper::load", "Lost words have been deleted. Total " + count );
         return putInDB( doc );
     }
 

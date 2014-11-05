@@ -340,4 +340,28 @@ public class DBDictionaryFactory
 
         return dt;
     }
+
+    public static int toughRestoreIntegrity( WDdb database )
+    {
+
+        String statement = "select dict_id, count( dict_id ) from words group by dict_id";
+
+        SQLiteDatabase db = database.getWritableDatabase();
+
+        Cursor crs = db.rawQuery( statement, null );
+
+        while( crs.moveToNext() )
+        {
+            Log.d( "TEMP", "THere is dictionary id " + crs.getInt( 0 ) );
+        }
+
+        crs.close();
+
+        //  WDdb.T_DICTIONARY, "id = " + dict.getId(), null );
+        //int cnt = db.delete( WDdb.T_WORDS, " dict_id not in ( select id from dictionary )", null );
+
+        db.close();
+
+        return 0;
+    }
 }

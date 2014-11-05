@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -54,12 +56,20 @@ public class ActCheckWords extends ActionBarActivity {
     boolean missed = false;
     EditText edWordAnswer = null;
     Button btnIDontKnow;
+    int bkColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_act_check_words);
         rootView = ( LinearLayout ) findViewById( R.id.root_view );
+
+        Drawable drw = rootView.getBackground();
+
+        if( drw instanceof ColorDrawable )
+            bkColor = ( ( ColorDrawable ) drw ).getColor();
+        else
+            bkColor = Color.WHITE;
 
         Intent args = getIntent();
         int dictId = args.getIntExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
@@ -202,10 +212,10 @@ public class ActCheckWords extends ActionBarActivity {
             });
         //}
 
-        tv1.setBackgroundColor( Color.WHITE );
-        tv2.setBackgroundColor( Color.WHITE );
-        tv3.setBackgroundColor( Color.WHITE );
-        tv4.setBackgroundColor( Color.WHITE );
+        tv1.setBackgroundColor( bkColor );
+        tv2.setBackgroundColor( bkColor );
+        tv3.setBackgroundColor( bkColor );
+        tv4.setBackgroundColor( bkColor );
 
         subset.clear();
         subset.add( activeWord );
