@@ -445,4 +445,21 @@ public class DBWordFactory
         }
         return count;
     }
+
+    public int checkUUID( SQLiteDatabase db, String uuid )
+    {
+        int dict_id = -1;
+
+        String stmt = "select dict_id from words where uuid = '" + uuid + "'";
+
+        Cursor crs = db.rawQuery( stmt, null );
+
+        if( crs.moveToNext() )
+        {
+            dict_id = crs.getInt( 0 );
+            crs.close();
+        }
+
+        return dict_id;
+    }
 }

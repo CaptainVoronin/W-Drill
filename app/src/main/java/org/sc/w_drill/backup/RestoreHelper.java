@@ -251,7 +251,15 @@ public class RestoreHelper
         }
 
         if( word != null && word.getWord().length() != 0 )
-            instance.technicalInsert(db, dictId, word );
+        {
+            if( instance.checkUUID( db, word.getUUID() ) == -1 )
+                instance.technicalInsert(db, dictId, word);
+            else
+            {
+                // There is a word with the same UUID.
+                // TODO: I must decide what  I must to do
+            }
+        }
         else
             Log.w( "[DictionaryLoader::putInDB]", "Word is empty, skipped" );
     }

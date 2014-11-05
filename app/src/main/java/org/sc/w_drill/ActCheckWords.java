@@ -64,13 +64,6 @@ public class ActCheckWords extends ActionBarActivity {
         setContentView(R.layout.activity_act_check_words);
         rootView = ( LinearLayout ) findViewById( R.id.root_view );
 
-        Drawable drw = rootView.getBackground();
-
-        if( drw instanceof ColorDrawable )
-            bkColor = ( ( ColorDrawable ) drw ).getColor();
-        else
-            bkColor = Color.WHITE;
-
         Intent args = getIntent();
         int dictId = args.getIntExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
         if( dictId == -1 )
@@ -211,6 +204,13 @@ public class ActCheckWords extends ActionBarActivity {
                 }
             });
         //}
+
+        Drawable drw = rootView.getBackground();
+
+        if( drw instanceof ColorDrawable )
+            bkColor = ( ( ColorDrawable ) drw ).getColor();
+        else
+            bkColor = Color.WHITE;
 
         tv1.setBackgroundColor( bkColor );
         tv2.setBackgroundColor( bkColor );
