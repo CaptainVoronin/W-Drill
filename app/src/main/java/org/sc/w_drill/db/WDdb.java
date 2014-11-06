@@ -13,7 +13,7 @@ public class WDdb extends SQLiteOpenHelper
 {
     public final static int SCHEME_VERSION = 17;
     public final static String learnTimeOut = "0.08"; // It's two hours
-    public final static String checkTimeOut = "0.96"; // It's 24 hours
+    public final static String checkTimeOut = "0.8"; // It's 10 hours
 
     public final static String T_DICTIONARY = "dictionary";
     public final static String T_WORDS = "words";

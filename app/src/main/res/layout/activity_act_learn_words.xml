@@ -57,6 +57,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:gravity="center_horizontal"
+            android:layout_marginBottom="6pt"
             android:background="#aaa"/>
 
     <LinearLayout

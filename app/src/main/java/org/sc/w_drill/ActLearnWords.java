@@ -171,7 +171,7 @@ public class ActLearnWords extends ActionBarActivity
 
     private void showMessageAndExit(String string)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder( getApplicationContext() );
+        AlertDialog.Builder builder = new AlertDialog.Builder( this );
         builder.setMessage( string ).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id)
             {
