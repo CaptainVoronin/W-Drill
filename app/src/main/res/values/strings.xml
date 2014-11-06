@@ -106,12 +106,13 @@
     <string name="txt_state_unzip">распаковка словаря...</string>
     <string name="txt_state_parsing">разбор словаря...</string>
     <string name="txt_state_load">загрузка словаря...</string>
-    <string name="txt_import_complete">Импорт словаря успешно завершен</string>
-    <string name="txt_import_error">Словарь не загружен из-за ошибок</string>
+    <string name="txt_import_complete">Импорт словаря успешно завершен\nимпотировано %d слов</string>
+    <string name="txt_import_error">Словарь не загружен из-за ошибок\n%s</string>
     <string name="txt_dlg_select_dict">Выбор словаря</string>
     <string name="txt_last_access_date">последнее обращение %s</string>
     <string name="txt_never">никогда</string>
     <string name="txt_dictionary_images_info" formatted="false">картинок %d, их размер %.2f %s</string>
     <string name="no_one_image">изображений нет</string>
+    <string name="txt_skipped_duplications">Не загружены по причине повтора следующие слова:</string>
 
 </resources>

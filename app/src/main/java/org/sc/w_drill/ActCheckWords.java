@@ -3,6 +3,7 @@ package org.sc.w_drill;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -14,9 +15,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
@@ -28,7 +32,11 @@ import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.utils.ArrayListRandomizer;
+import org.sc.w_drill.utils.image.DictionaryImageFileManager;
+import org.sc.w_drill.utils.image.ImageConstraints;
+import org.sc.w_drill.utils.image.ImageHelper;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 
@@ -57,6 +65,7 @@ public class ActCheckWords extends ActionBarActivity {
     EditText edWordAnswer = null;
     Button btnIDontKnow;
     int bkColor;
+    DictionaryImageFileManager dManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +92,8 @@ public class ActCheckWords extends ActionBarActivity {
         subset = new ArrayList<IWord>();
         arrayRandomizer = new ArrayListRandomizer<IWord>();
         meaningRandomizer = new ArrayListRandomizer<IMeaning>();
+        dManager = new DictionaryImageFileManager( this, activeDict );
+
         changeWord();
     }
 
@@ -207,15 +218,10 @@ public class ActCheckWords extends ActionBarActivity {
 
         Drawable drw = rootView.getBackground();
 
-        if( drw instanceof ColorDrawable )
-            bkColor = ( ( ColorDrawable ) drw ).getColor();
-        else
-            bkColor = Color.WHITE;
-
-        tv1.setBackgroundColor( bkColor );
-        tv2.setBackgroundColor( bkColor );
-        tv3.setBackgroundColor( bkColor );
-        tv4.setBackgroundColor( bkColor );
+        tv1.setBackgroundColor(0xffffffff);
+        tv1.setBackgroundColor(0xffffffff);
+        tv1.setBackgroundColor(0xffffffff);
+        tv1.setBackgroundColor(0xffffffff);
 
         subset.clear();
         subset.add( activeWord );
@@ -230,6 +236,20 @@ public class ActCheckWords extends ActionBarActivity {
         setText( subset.get(1), tv2 );
         setText( subset.get(2), tv3 );
         setText( subset.get(3), tv4 );
+
+        if( dManager.getImageFile( activeWord ) != null )
+        {
+            ImageView iv = ( ImageView ) chooseOptionView.findViewById( R.id.imgIllustration );
+            Bitmap bmp = null;
+            try {
+                bmp = dManager.getImageBitmap(activeWord);
+                ImageConstraints constraints = ImageConstraints.getInstance( this );
+                iv.setImageBitmap(ImageHelper.resizeBitmapForShow(constraints, bmp) );
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Toast.makeText( this, "Error: can't load image", Toast.LENGTH_LONG );
+            }
+        }
 
         return chooseOptionView;
     }

@@ -171,9 +171,10 @@ public class ActLearnWords extends ActionBarActivity
 
     private void showMessageAndExit(String string)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
+        AlertDialog.Builder builder = new AlertDialog.Builder( getApplicationContext() );
         builder.setMessage( string ).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
+            public void onClick(DialogInterface dialog, int id)
+            {
                 onBackPressed();
             }
         });
@@ -183,8 +184,9 @@ public class ActLearnWords extends ActionBarActivity
         builder.show();
     }
 
-    private void showNothingToDoDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
+    private void showNothingToDoDialog()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder( getApplicationContext() );
         builder.setMessage( R.string.nothing_to_do ).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User cancelled the dialog
@@ -202,7 +204,7 @@ public class ActLearnWords extends ActionBarActivity
     {
         // TODO: This dialog can be shown if there are a words for checking
 
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
+        AlertDialog.Builder builder = new AlertDialog.Builder( getApplicationContext() );
         builder.setMessage( R.string.no_more_words ).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User cancelled the dialog

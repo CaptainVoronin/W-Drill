@@ -207,7 +207,9 @@ public class DBDictionaryFactory
         int count = 0;
         String statement = "select count( id ) " +
                 "from words " +
-                "where dict_id = ? and stage = 1";
+                "where ( julianday( 'now' ) - julianday( last_access ) ) >= " + WDdb.checkTimeOut +
+                " and " +
+                "dict_id = ? and stage = 1";
 
         Cursor crs = db.rawQuery(statement, new String[] { Integer.toString( dict_id ) });
 

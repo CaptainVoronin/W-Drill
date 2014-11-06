@@ -1,10 +1,10 @@
 package org.sc.w_drill;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -17,9 +17,10 @@ import org.sc.w_drill.backup.BackupHelper;
 import org.sc.w_drill.backup.ImportProgressListener;
 import org.sc.w_drill.backup.RestoreHelper;
 import org.sc.w_drill.db.WDdb;
+import org.sc.w_drill.dict.IBaseWord;
 
 import java.io.File;
-import java.util.logging.Handler;
+import java.util.ArrayList;
 
 
 public class ActImportDictionary extends ActionBarActivity
@@ -34,6 +35,9 @@ public class ActImportDictionary extends ActionBarActivity
     TextView tvMessage;
     RestoreMessageHandler handler;
     SharedPreferences prefs;
+    ArrayList<String> duplications;
+    int importedWordCount;
+    String errorString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -57,6 +61,10 @@ public class ActImportDictionary extends ActionBarActivity
             // TODO: There should be a message
             showErrorAndFinish( "" );
         }
+
+        duplications = null;
+        importedWordCount = 0;
+        errorString = null;
 
         btnStart = ( Button ) findViewById( R.id.btnStart );
         btnStart.setOnClickListener( new View.OnClickListener()
@@ -177,7 +185,11 @@ public class ActImportDictionary extends ActionBarActivity
                                                       handler );
             try
             {
-                helper.load();
+                int count = helper.load();
+                Message msg = new Message();
+                msg.arg1 = RestoreHelper.MSG_IMPORT_COMPLETE;
+                msg.obj = Integer.valueOf( count );
+                handler.sendMessage( msg );
             }
             catch (Exception e)
             {
@@ -216,22 +228,15 @@ public class ActImportDictionary extends ActionBarActivity
     private void onFinish(Long result)
     {
         String message = "";
-
         prgBar.setVisibility( View.INVISIBLE );
 
         switch( ( int ) result.longValue() )
         {
             case 0:
-                message = getString(R.string.txt_import_complete);
-                setResult( Activity.RESULT_OK );
-                SharedPreferences.Editor ed = prefs.edit();
-                ed.putBoolean( BackupHelper.PREF_IMPORT_IMAGES, bImportImages );
-                ed.putBoolean( BackupHelper.PREF_IMPORT_STATS, bImportStats );
-                ed.commit();
+                message = onSuccessfulImport();
                 break;
             default:
-                setResult( Activity.RESULT_CANCELED );
-                message = getString(R.string.txt_import_error);
+                message = onImportError();
         }
 
         tvMessage.setText( message );
@@ -239,12 +244,77 @@ public class ActImportDictionary extends ActionBarActivity
 
     }
 
+    private String onImportError()
+    {
+        String message, errorMessage = "";
+        setResult( Activity.RESULT_CANCELED );
+        if( errorString != null )
+            errorMessage = errorString;
+        message = getString(R.string.txt_import_error, errorMessage );
+
+        return message;
+    }
+
+    private String onSuccessfulImport()
+    {
+        String message = getString(R.string.txt_import_complete, importedWordCount);
+
+        if( duplications != null && duplications.size() != 0 )
+        {
+            StringBuffer buff = new StringBuffer();
+            buff.append( getString( R.string.txt_skipped_duplications ) ).append( '\n');
+            for(String word : duplications )
+                buff.append( word ).append( '\n' );
+
+            message += "\n" + buff.toString();
+        }
+
+        setResult( Activity.RESULT_OK );
+        SharedPreferences.Editor ed = prefs.edit();
+        ed.putBoolean( BackupHelper.PREF_IMPORT_IMAGES, bImportImages );
+        ed.putBoolean( BackupHelper.PREF_IMPORT_STATS, bImportStats );
+        ed.commit();
+
+        return message;
+    }
+
     class RestoreMessageHandler extends android.os.Handler
     {
         @Override
         public void handleMessage(android.os.Message msg)
         {
-            showState( msg.what );
+            switch( msg.arg1 )
+            {
+                case RestoreHelper.MSG_WORD_DUPLICATED:
+                    ActImportDictionary.this.addDuplicatedWord((String) msg.obj);
+                    break;
+                case RestoreHelper.MSG_IMPORT_ERROR:
+                    ActImportDictionary.this.setErrorInfo( msg.obj.toString() );
+                    break;
+                case RestoreHelper.MSG_IMPORT_COMPLETE:
+                    ActImportDictionary.this.setImportedWordCount((Integer) msg.obj);
+                    break;
+                default:
+                    showState( msg.what );
+            }
         };
+    }
+
+    private void setImportedWordCount(Integer obj)
+    {
+        importedWordCount = obj.intValue();
+    }
+
+    private void setErrorInfo(String obj)
+    {
+        errorString = obj;
+    }
+
+    private void addDuplicatedWord(String obj)
+    {
+        if( duplications == null )
+            duplications = new ArrayList<String>();
+
+        duplications.add( obj );
     }
 }

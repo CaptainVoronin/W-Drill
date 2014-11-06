@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import org.sc.w_drill.db.WDdb;
@@ -35,7 +36,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.zip.DataFormatException;
@@ -51,6 +54,10 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public class RestoreHelper
 {
+    public final static int MSG_WORD_DUPLICATED = 10;
+    public final static int MSG_IMPORT_COMPLETE = 11;
+    public final static int MSG_IMPORT_ERROR    = 12;
+
     WDdb database;
     DictionaryImageFileManager dictManager;
     File file;
@@ -88,9 +95,13 @@ public class RestoreHelper
 
         StringBuilder buff = internalLoad( dictFile );
         Document doc = buffToDOM( buff );
+
+        //TODO: I'm not certain about necessity of this code
         int count = DBDictionaryFactory.toughRestoreIntegrity( database );
         if( count != 0 )
             Log.d( "RestoreHelper::load", "Lost words have been deleted. Total " + count );
+        //--------------------------------------------
+
         return putInDB( doc );
     }
 
@@ -107,7 +118,6 @@ public class RestoreHelper
 
     private int putInDB( Document doc ) throws Exception
     {
-
         int count = 0;
         // Take the root node, it must be "dictionary"
         Node root = doc.getFirstChild();
@@ -173,6 +183,13 @@ public class RestoreHelper
             ex = e;
             Log.e("[DictionaryLoader::putInDB]", "Exception: " + e.getMessage());
             dictManager.deleteDictDir();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace( new PrintWriter( sw ) );
+            Message msg = new Message ();
+            msg.arg1 = MSG_IMPORT_ERROR;
+            msg.obj = sw.toString();
+            if( handler != null )
+                handler.sendMessage( msg );
         } finally {
             db.endTransaction();
             db.close();
@@ -256,6 +273,12 @@ public class RestoreHelper
                 instance.technicalInsert(db, dictId, word);
             else
             {
+                if( handler != null ) {
+                    Message msg = new Message();
+                    msg.arg1 = MSG_WORD_DUPLICATED;
+                    msg.obj = word.getWord();
+                    handler.sendMessage(msg);
+                }
                 // There is a word with the same UUID.
                 // TODO: I must decide what  I must to do
             }
