@@ -113,9 +113,9 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
             if (!dir.exists())
                 dir.mkdirs();
 
-            File f = new File(dir.getPath() + File.separator + DateTimeUtils.getDateTimeString()
+            File f = new File(dir.getPath() + File.separator + DateTimeUtils.mkFilenameForTime()
                     + ".stacktrace");
-
+            f.createNewFile();
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
             FileWriter fw = new FileWriter(f);

@@ -1,6 +1,7 @@
 package org.sc.w_drill.backup;
 
 import android.content.Context;
+import android.os.Handler;
 
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
@@ -9,6 +10,7 @@ import org.sc.w_drill.dict.IBaseWord;
 import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.utils.DBPair;
+import org.sc.w_drill.utils.datetime.DateTimeUtils;
 import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 import org.sc.w_drill.utils.image.ImageFileHelper;
 
@@ -24,7 +26,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * Created by Max on 10/20/2014.
  */
-public class BackupHelper
+public class ExportHelper
 {
 
     public final static String PREF_EXPORT_IMAGES = "PREF_EXPORT_IMAGES";
@@ -40,11 +42,12 @@ public class BackupHelper
     String destdir;
     Dictionary dict;
     ExportProgressListener listener;
+    Handler handler;
 
-    public BackupHelper( Context _context, String _destdir,
-                         Dictionary _dict, boolean _bExportImages,
-                         boolean _bExportStats,
-                         ExportProgressListener _listener )
+    public ExportHelper(Context _context, String _destdir,
+                        Dictionary _dict, boolean _bExportImages,
+                        boolean _bExportStats,
+                        ExportProgressListener _listener, Handler _handler)
     {
         bExportImages = _bExportImages;
         bExportStats = _bExportStats;
@@ -52,6 +55,7 @@ public class BackupHelper
         destdir = _destdir;
         dict = _dict;
         listener = _listener;
+        handler = _handler;
     }
 
     public final void backup( ) throws IOException
@@ -155,6 +159,9 @@ public class BackupHelper
         {
             buff.append("state=\"").append(word.getLearnState() == IBaseWord.LearnState.learn ? 0 : 1).append("\" ");
             buff.append("percent=\"").append(word.getLearnPercent()).append("\"");
+            buff.append( " updated=\"").append(DateTimeUtils.getDateTimeString( word.getLastUpdate(), true ) ).append( "\"" );
+            if( word.getLastAccess() != null )
+                    buff.append( " accessed=\"").append(DateTimeUtils.getDateTimeString( word.getLastAccess(), true ) ).append( "\"" );
         }
 
         buff.append( ">\n");
@@ -182,6 +189,7 @@ public class BackupHelper
                 catch (IOException e)
                 {
                     e.printStackTrace();
+                    // TODO: What must to be here?
                 }
             }
         }

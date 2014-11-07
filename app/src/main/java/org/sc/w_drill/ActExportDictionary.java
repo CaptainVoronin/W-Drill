@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -16,8 +17,9 @@ import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.sc.w_drill.backup.BackupHelper;
+import org.sc.w_drill.backup.ExportHelper;
 import org.sc.w_drill.backup.ExportProgressListener;
+import org.sc.w_drill.backup.ImportHelper;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
@@ -35,11 +37,17 @@ public class ActExportDictionary extends ActionBarActivity {
     SharedPreferences prefs;
     boolean bExportImages = false;
     boolean bExportStats  = false;
+    String errorString;
+    int exportedCount;
+    ExportHandler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_export_dictionary);
+
+        errorString = null;
+        exportedCount = 0;
 
         database = new WDdb( this );
 
@@ -55,9 +63,11 @@ public class ActExportDictionary extends ActionBarActivity {
         else
             showErrorAndExit();
 
+        handler = new ExportHandler();
+
         prefs = getPreferences(Activity.MODE_PRIVATE);
-        bExportImages = prefs.getBoolean( BackupHelper.PREF_EXPORT_IMAGES, false );
-        bExportStats  = prefs.getBoolean( BackupHelper.PREF_EXPORT_STATS, false );
+        bExportImages = prefs.getBoolean( ExportHelper.PREF_EXPORT_IMAGES, false );
+        bExportStats  = prefs.getBoolean( ExportHelper.PREF_EXPORT_STATS, false );
 
         CheckBox chb = ( CheckBox ) findViewById( R.id.chbExportStats );
         chb.setChecked( bExportStats );
@@ -98,8 +108,8 @@ public class ActExportDictionary extends ActionBarActivity {
         prefs = getPreferences(Activity.MODE_PRIVATE);
 
         SharedPreferences.Editor ed = prefs.edit();
-        ed.putBoolean( BackupHelper.PREF_EXPORT_IMAGES, bExportImages );
-        ed.putBoolean( BackupHelper.PREF_EXPORT_STATS, bExportStats );
+        ed.putBoolean( ExportHelper.PREF_EXPORT_IMAGES, bExportImages );
+        ed.putBoolean( ExportHelper.PREF_EXPORT_STATS, bExportStats );
         ed.commit();
 
         startExport(bExportStats, bExportImages);
@@ -114,6 +124,7 @@ public class ActExportDictionary extends ActionBarActivity {
         params.dict = activeDict;
         params.bExportImages = bExportImages;
         params.bExportStats = bExportStats;
+
         task = new ExportTask( );
         task.execute( params );
     }
@@ -141,8 +152,12 @@ public class ActExportDictionary extends ActionBarActivity {
         }
         else
         {
-            tv.setText( getString( R.string.txt_dict_export_complete, destdir + File.separator
-                    + activeDict.getName() + ".zip" ));
+            String message = "";
+
+            if( errorString != null )
+                message = errorString;
+
+            tv.setText( getString( R.string.txt_dict_export_error, message ));
         }
 
         task = null;
@@ -174,15 +189,15 @@ public class ActExportDictionary extends ActionBarActivity {
             long res = 0;
             try
             {
-                BackupHelper helper = new BackupHelper( params.context,
+                ExportHelper helper = new ExportHelper( params.context,
                                                         params.destdir.getPath(),
                                                         params.dict, params.bExportImages,
-                                                        params.bExportStats, this );
+                                                        params.bExportStats, this, handler );
                 helper.backup();
             } catch( Exception ex )
             {
                 ex.printStackTrace();
-                res = 1;
+                res = -1;
             }
 
              return Long.valueOf( res );
@@ -239,5 +254,34 @@ public class ActExportDictionary extends ActionBarActivity {
         builder.setCancelable(true);
         builder.create();
         builder.show();
+    }
+
+    class ExportHandler extends Handler
+    {
+        @Override
+        public void handleMessage(android.os.Message msg)
+        {
+            switch( msg.arg1 )
+            {
+                case ImportHelper.MSG_IMPORT_ERROR:
+                    ActExportDictionary.this.setErrorInfo( msg.obj.toString() );
+                    break;
+                case ImportHelper.MSG_IMPORT_COMPLETE:
+                    ActExportDictionary.this.setExportedWordCount((Integer) msg.obj);
+                    break;
+                default:
+                    break;
+            }
+        };
+    }
+
+    private void setExportedWordCount(Integer obj)
+    {
+        exportedCount = obj.intValue();
+    }
+
+    private void setErrorInfo(String s)
+    {
+        errorString = s;
     }
 }
