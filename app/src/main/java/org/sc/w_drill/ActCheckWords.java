@@ -5,13 +5,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,24 +17,23 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
-import org.sc.w_drill.db_wrapper.RandomArrayUniqWords;
 import org.sc.w_drill.db_wrapper.RandomizerEmptyException;
 import org.sc.w_drill.db_wrapper.RandomizerException;
-import org.sc.w_drill.db_wrapper.WordRandomizer;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.utils.ArrayListRandomizer;
+import org.sc.w_drill.utils.CircularArrayList;
 import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 import org.sc.w_drill.utils.image.ImageConstraints;
 import org.sc.w_drill.utils.image.ImageHelper;
-
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 
 public class ActCheckWords extends ActionBarActivity {
@@ -55,17 +51,16 @@ public class ActCheckWords extends ActionBarActivity {
     IWord activeWord;
     WDdb database;
     Dictionary activeDict;
-    WordRandomizer randomizer;
+    CircularArrayList<IWord> words;
     String whereSTMT = " stage = 1 ";
-    ArrayList<IWord> subset;
     ArrayListRandomizer<IWord> arrayRandomizer;
     ArrayListRandomizer<IMeaning> meaningRandomizer;
     TextView tv1, tv2, tv3, tv4;
     boolean missed = false;
     EditText edWordAnswer = null;
     Button btnIDontKnow;
-    int bkColor;
     DictionaryImageFileManager dManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,16 +75,16 @@ public class ActCheckWords extends ActionBarActivity {
         database = new WDdb( getApplicationContext() );
 
         activeDict = DBDictionaryFactory.getInstance( database ).getDictionaryById( dictId );
-        randomizer = new WordRandomizer( database, activeDict );
+
         try {
-            randomizer.init(whereSTMT);
+            prepareWordList();
         }
         catch( RandomizerEmptyException ex )
         {
-            showErrorEndExit( "Нет слов для проверки по графику" );
+            showErrorEndExit( getString( R.string.txt_no_words_to_check) );
             return;
         }
-        subset = new ArrayList<IWord>();
+
         arrayRandomizer = new ArrayListRandomizer<IWord>();
         meaningRandomizer = new ArrayListRandomizer<IMeaning>();
         dManager = new DictionaryImageFileManager( this, activeDict );
@@ -97,27 +92,26 @@ public class ActCheckWords extends ActionBarActivity {
         changeWord();
     }
 
+    void prepareWordList() throws RandomizerEmptyException
+    {
+        ArrayList<IWord> list = DBWordFactory.getInstance( database, activeDict ).getWordsToCheck( 10 );
+
+        if( list.size() < 4 )
+            throw new RandomizerEmptyException();
+        Collections.shuffle(list, new Random() );
+
+        words = new CircularArrayList<IWord>( list );
+    }
+
     private void fatalError()
     {
 
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     void changeWord()
     {
         try {
-            activeWord = getWord();
+            activeWord = words.next();
             if (activeView != null)
                 rootView.removeView(activeView);
             activeView = getView();
@@ -144,7 +138,6 @@ public class ActCheckWords extends ActionBarActivity {
         builder.setCancelable( true );
         builder.create();
         builder.show();
-
     }
 
     private View getView() throws RandomizerException {
@@ -160,16 +153,8 @@ public class ActCheckWords extends ActionBarActivity {
         }
     }
 
-    private IWord getWord()
+    View getChooseOptionView() throws RandomizerException
     {
-        if( activeWord != null )
-            return randomizer.getRandomWord( activeWord );
-        else
-            return randomizer.getRandomWord( );
-    }
-
-    View getChooseOptionView() throws RandomizerException {
-
         //if( chooseOptionView == null )
         //{
             chooseOptionView = (RelativeLayout) getLayoutInflater()
@@ -218,16 +203,13 @@ public class ActCheckWords extends ActionBarActivity {
 
         Drawable drw = rootView.getBackground();
 
+        /*tv1.setBackgroundColor(0xffffffff);
         tv1.setBackgroundColor(0xffffffff);
         tv1.setBackgroundColor(0xffffffff);
-        tv1.setBackgroundColor(0xffffffff);
-        tv1.setBackgroundColor(0xffffffff);
+        tv1.setBackgroundColor(0xffffffff); )*/
 
-        subset.clear();
-        subset.add( activeWord );
-        IWord word;
 
-        subset = RandomArrayUniqWords.make(subset, randomizer, 4);
+        ArrayList<IWord> subset = makeSubset( activeDict, activeWord, 4);
 
         TextView tv = ( TextView ) chooseOptionView.findViewById( R.id.word_for_check );
         tv.setText( activeWord.getWord() );
@@ -302,6 +284,9 @@ public class ActCheckWords extends ActionBarActivity {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent)
             {
+                if( keyEvent.getAction() != KeyEvent.ACTION_DOWN )
+                    return true;
+
                 if( keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER )
                 {
                     String word = edWordAnswer.getText().toString();
@@ -370,7 +355,7 @@ public class ActCheckWords extends ActionBarActivity {
 
         try {
             if (reinit)
-                randomizer.init(whereSTMT);
+                prepareWordList();
         } catch( RandomizerEmptyException ex )
         {
             showErrorEndExit( getString( R.string.txt_no_words_to_check ) );
@@ -397,7 +382,6 @@ public class ActCheckWords extends ActionBarActivity {
         tv.setText( activeWord.getWord() );
     }
 
-
     private void showCorrectOption( View incorrectView )
     {
         incorrectView.setBackgroundColor(Color.RED);
@@ -414,6 +398,30 @@ public class ActCheckWords extends ActionBarActivity {
 
     private void correct()
     {
+        increasePercent( activeWord );
         changeWord();
+    }
+
+    private ArrayList<IWord> makeSubset( Dictionary dict, IWord word, int upperLimit)
+            throws RandomizerException {
+
+        ArrayList<IWord> subset = new ArrayList<IWord>();
+
+        ArrayList<Integer> ids = DBWordFactory.getInstance( database, dict ).getIdsListWithExclusion( word.getId() );
+
+        Collections.shuffle( ids, new Random());
+
+        int count = upperLimit < ids.size() ? upperLimit : ids.size();
+
+        count--;
+
+        subset.add( word );
+
+        for( int i = 0; i < count; i++ )
+            subset.add ( DBWordFactory.getInstance( database, dict ).getWordEx( ids.get( i ).intValue() ) );
+
+        Collections.shuffle( subset, new Random());
+
+        return subset;
     }
 }
