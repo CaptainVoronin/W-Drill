@@ -13,11 +13,10 @@ import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.sc.w_drill.backup.BackupHelper;
+import org.sc.w_drill.backup.ExportHelper;
 import org.sc.w_drill.backup.ImportProgressListener;
-import org.sc.w_drill.backup.RestoreHelper;
+import org.sc.w_drill.backup.ImportHelper;
 import org.sc.w_drill.db.WDdb;
-import org.sc.w_drill.dict.IBaseWord;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -81,8 +80,8 @@ public class ActImportDictionary extends ActionBarActivity
 
         prefs = getPreferences( MODE_PRIVATE );
 
-        bImportImages = prefs.getBoolean(BackupHelper.PREF_IMPORT_IMAGES, true);
-        bImportStats = prefs.getBoolean(BackupHelper.PREF_IMPORT_STATS, true);
+        bImportImages = prefs.getBoolean(ExportHelper.PREF_IMPORT_IMAGES, true);
+        bImportStats = prefs.getBoolean(ExportHelper.PREF_IMPORT_STATS, true);
 
         CheckBox chb = ( CheckBox ) findViewById( R.id.chbImportStats );
         chb.setChecked( bImportStats );
@@ -178,7 +177,7 @@ public class ActImportDictionary extends ActionBarActivity
             long res = 0;
             ImportTaskParams params = importTaskParams[0];
 
-            RestoreHelper helper = new RestoreHelper( getBaseContext(), params.database,
+            ImportHelper helper = new ImportHelper( getBaseContext(), params.database,
                                                       params.srcFile,
                                                       this, params.bImportImages,
                                                       params.bImportStats,
@@ -187,7 +186,7 @@ public class ActImportDictionary extends ActionBarActivity
             {
                 int count = helper.load();
                 Message msg = new Message();
-                msg.arg1 = RestoreHelper.MSG_IMPORT_COMPLETE;
+                msg.arg1 = ImportHelper.MSG_IMPORT_COMPLETE;
                 msg.obj = Integer.valueOf( count );
                 handler.sendMessage( msg );
             }
@@ -271,8 +270,8 @@ public class ActImportDictionary extends ActionBarActivity
 
         setResult( Activity.RESULT_OK );
         SharedPreferences.Editor ed = prefs.edit();
-        ed.putBoolean( BackupHelper.PREF_IMPORT_IMAGES, bImportImages );
-        ed.putBoolean( BackupHelper.PREF_IMPORT_STATS, bImportStats );
+        ed.putBoolean( ExportHelper.PREF_IMPORT_IMAGES, bImportImages );
+        ed.putBoolean( ExportHelper.PREF_IMPORT_STATS, bImportStats );
         ed.commit();
 
         return message;
@@ -285,13 +284,13 @@ public class ActImportDictionary extends ActionBarActivity
         {
             switch( msg.arg1 )
             {
-                case RestoreHelper.MSG_WORD_DUPLICATED:
+                case ImportHelper.MSG_WORD_DUPLICATED:
                     ActImportDictionary.this.addDuplicatedWord((String) msg.obj);
                     break;
-                case RestoreHelper.MSG_IMPORT_ERROR:
+                case ImportHelper.MSG_IMPORT_ERROR:
                     ActImportDictionary.this.setErrorInfo( msg.obj.toString() );
                     break;
-                case RestoreHelper.MSG_IMPORT_COMPLETE:
+                case ImportHelper.MSG_IMPORT_COMPLETE:
                     ActImportDictionary.this.setImportedWordCount((Integer) msg.obj);
                     break;
                 default:

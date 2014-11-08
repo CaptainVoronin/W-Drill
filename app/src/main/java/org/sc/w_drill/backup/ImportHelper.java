@@ -19,6 +19,7 @@ import org.sc.w_drill.dict.Meaning;
 import org.sc.w_drill.dict.Word;
 import org.sc.w_drill.utils.DBPair;
 import org.sc.w_drill.utils.PartsOfSpeech;
+import org.sc.w_drill.utils.datetime.DateTimeUtils;
 import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 import org.sc.w_drill.utils.image.ImageFileHelper;
 import org.w3c.dom.CDATASection;
@@ -40,6 +41,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Properties;
 import java.util.zip.DataFormatException;
 import java.util.zip.ZipEntry;
@@ -52,7 +54,7 @@ import javax.xml.parsers.ParserConfigurationException;
 /**
  * Created by MaxSh on 09.10.2014.
  */
-public class RestoreHelper
+public class ImportHelper
 {
     public final static int MSG_WORD_DUPLICATED = 10;
     public final static int MSG_IMPORT_COMPLETE = 11;
@@ -67,9 +69,9 @@ public class RestoreHelper
     boolean bLoadStats;
     Handler handler;
 
-    public RestoreHelper( Context _context, WDdb _database, File _file,
-                         ImportProgressListener _listener,
-                         boolean _bLoadImages, boolean _bLoadStats, Handler _handler )
+    public ImportHelper(Context _context, WDdb _database, File _file,
+                        ImportProgressListener _listener,
+                        boolean _bLoadImages, boolean _bLoadStats, Handler _handler)
     {
         database = _database;
         context = _context;
@@ -205,6 +207,7 @@ public class RestoreHelper
         String transcr = null;
         int percent = 0;
         int state = 0;
+        Date updated = null, accessed = null;
 
         // TODO: dangerous code - starts here
         Node att = word_node.getAttributes().getNamedItem( "uuid" );
@@ -214,13 +217,30 @@ public class RestoreHelper
 
         String w_uuid = att.getNodeValue();
 
-        att = word_node.getAttributes().getNamedItem( "percent" );
-        if( att != null  )
-            percent = Integer.parseInt( att.getNodeValue() );
+        if( bLoadStats )
+        {
+            att = word_node.getAttributes().getNamedItem("percent");
+            if (att != null)
+                percent = Integer.parseInt(att.getNodeValue());
 
-        att = word_node.getAttributes().getNamedItem("state");
-        if( att != null  )
-            state = Integer.parseInt( att.getNodeValue() );
+            att = word_node.getAttributes().getNamedItem("state");
+            if (att != null)
+                state = Integer.parseInt(att.getNodeValue());
+
+            att = word_node.getAttributes().getNamedItem( "updated" );
+
+            if( att != null ) {
+                String strUpdated = att.getNodeValue();
+                updated = DateTimeUtils.strToDate( strUpdated );
+            }
+
+            att = word_node.getAttributes().getNamedItem( "accessed" );
+
+            if( att != null ) {
+                String str = att.getNodeValue();
+                accessed = DateTimeUtils.strToDate( str );
+            }
+        }
 
         NodeList nodes = word_node.getChildNodes();
         Node imageNode = null;
@@ -248,6 +268,8 @@ public class RestoreHelper
             word.setLearnState(state == 0 ?
                     IBaseWord.LearnState.learn : IBaseWord.LearnState.check);
             word.setLearnPercent(percent);
+            word.setLastUpdate( updated );
+            word.setLastAccess( accessed  );
         }
 
         // An instance of the Word class creates with

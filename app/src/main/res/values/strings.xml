@@ -76,6 +76,7 @@
     <string name="txt_press_to_choose_dict">Нажмите здесь, чтобы выбрать словарь...</string>
     <string name="action_export">Экспортировать в файл</string>
     <string name="txt_dict_export_complete">Словарь экспортирован в файл\n%s</string>
+    <string name="txt_dict_export_error">Словарь не экспортирован по причине ошибок\n%s</string>
     <string name="txt_dictionary_export">Экспорт словаря</string>
     <string name="txt_directory">Директория</string>
     <string name="txt_file_name">Имя файла</string>

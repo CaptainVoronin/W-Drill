@@ -1,6 +1,7 @@
 package org.sc.w_drill.dict;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by Max on 10/4/2014.
@@ -9,6 +10,8 @@ public class Word extends BaseWord implements IWord
 {
     ArrayList<IMeaning> meanings;
     String transcription;
+    private Date lastUpdate;
+    private Date lastAccess;
 
     public Word ( int _id, String _word, int _learnPercent, LearnState _state, int _avgTime, int _accessCount, String uuid  )
     {
@@ -62,5 +65,23 @@ public class Word extends BaseWord implements IWord
             meanings = new ArrayList<IMeaning>();
 
         return meanings;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    @Override
+    public Date getLastAccess() {
+        return lastAccess;
+    }
+
+    @Override
+    public void setLastAccess(Date lastAccess) {
+        this.lastAccess = lastAccess;
     }
 }

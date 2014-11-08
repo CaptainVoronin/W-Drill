@@ -1,5 +1,7 @@
 package org.sc.w_drill.dict;
 
+import java.util.Date;
+
 /**
  * Created by maxsh on 30.09.2014.
  */

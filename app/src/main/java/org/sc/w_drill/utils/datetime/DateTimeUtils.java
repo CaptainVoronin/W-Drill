@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Created by Max on 10/24/2014.
@@ -30,18 +31,49 @@ public class DateTimeUtils
                 cl.get( Calendar.MINUTE ));
     }
 
-    public static String getDateTimeString( Date dt )
+    public static String mkFilenameForTime()
     {
-        //String str = "%d-%d-%d %d.%d";
-        String str = "%d-%02d-%02d %02d:%02d";
+        String str = "%d-%02d-%02d %02d.%02d";
+        Calendar cl = Calendar.getInstance();
+        return String.format( str, cl.get( Calendar.DAY_OF_MONTH ),
+                cl.get( Calendar.MONTH ),
+                cl.get( Calendar.DAY_OF_MONTH ),
+                cl.get( Calendar.HOUR ),
+                cl.get( Calendar.MINUTE ));
+    }
+
+    public static String getSQLDateTimeString( Date dt )
+    {
+        SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+        return sdf.format( dt ).toString();
+    }
+
+    public static String getDateTimeString( Date dt, boolean seconds )
+    {
+
+        String str;
+
+        if( !seconds )
+            str = "%d-%02d-%02d %02d:%02d";
+        else
+            str = "%d-%02d-%02d %02d:%02d:%02d";
+
         Calendar cl = Calendar.getInstance();
         cl.setTimeInMillis( dt.getTime() );
 
-        return String.format( str, cl.get( Calendar.YEAR ),
-                cl.get( Calendar.MONTH ),
-                cl.get( Calendar.DAY_OF_MONTH ),
-                cl.get( Calendar.HOUR_OF_DAY ),
-                cl.get( Calendar.MINUTE ));
+        if( !seconds )
+            return String.format( str, cl.get( Calendar.YEAR ),
+                    cl.get( Calendar.MONTH ),
+                    cl.get( Calendar.DAY_OF_MONTH ),
+                    cl.get( Calendar.HOUR_OF_DAY ),
+                    cl.get( Calendar.MINUTE ));
+        else
+            return String.format( str, cl.get( Calendar.YEAR ),
+                    cl.get( Calendar.MONTH ),
+                    cl.get( Calendar.DAY_OF_MONTH ),
+                    cl.get( Calendar.HOUR_OF_DAY ),
+                    cl.get( Calendar.MINUTE ),
+                    cl.get( Calendar.SECOND ));
     }
 
     /**
@@ -53,11 +85,13 @@ public class DateTimeUtils
     {
         Date dt = null;
         SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+        TimeZone tz = TimeZone.getDefault();
+        sdf.setTimeZone( tz );
         try
         {
             dt = sdf.parse( str );
         }
-        catch (ParseException e)
+        catch (Exception e)
         {
             e.printStackTrace();
         }
@@ -77,7 +111,7 @@ public class DateTimeUtils
             return intervalToString(context, ti);
         } catch ( IntervalToBigException ex )
         {
-            return getDateTimeString( dt );
+            return getDateTimeString( dt, false );
         }
     }
 

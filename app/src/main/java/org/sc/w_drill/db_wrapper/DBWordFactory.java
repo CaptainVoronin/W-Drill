@@ -15,6 +15,8 @@ import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.dict.Meaning;
 import org.sc.w_drill.dict.Word;
 import org.sc.w_drill.utils.DBPair;
+import org.sc.w_drill.utils.datetime.DateTimeUtils;
+
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -67,22 +69,21 @@ public class DBWordFactory
             statement = String.format(statement +  order, orderSTMT);
         }
 
-        Log.d( "[DBWordFactory::getBriefList]", statement );
-
         SQLiteDatabase db = database.getReadableDatabase();
 
         Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( dict.getId() ).toString()});
         ArrayList<BaseWord> words = new ArrayList<BaseWord>();
-
+        BaseWord word;
         while( crs.moveToNext() )
         {
-            words.add( new BaseWord( crs.getInt( 0 ),
+            word = new BaseWord( crs.getInt( 0 ),
                     crs.getString( 1 ),
                     crs.getInt( 2 ),
                     crs.getInt( 3 ) == 0 ? IBaseWord.LearnState.learn : IBaseWord.LearnState.check,
                     crs.getInt( 4 ),
                     crs.getInt( 5 ),
-                    crs.getString( 6 )));
+                    crs.getString( 6 ));
+            words.add( word );
         }
         return words;
     }
@@ -208,7 +209,7 @@ public class DBWordFactory
 
     private IWord internalGetWordBrief(SQLiteDatabase db, int wordId)
     {
-        String statement = "select id, word, percent, stage, avg_time, access_count, transcription, uuid from words where id = ?";
+        String statement = "select id, word, percent, stage, avg_time, access_count, transcription, uuid, updated, last_access from words where id = ?";
 
         Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( wordId ).toString()});
         ArrayList<BaseWord> words = new ArrayList<BaseWord>();
@@ -222,9 +223,14 @@ public class DBWordFactory
                     crs.getInt( 3 ) == 0 ? IBaseWord.LearnState.learn : IBaseWord.LearnState.check,  // stage
                     crs.getInt( 4 ), // avg_time
                     crs.getInt( 5 ),
-                    crs.getString(7)); // access_time
-
+                    crs.getString(7)); // uuid
             word.setTranscription( crs.getString( 6 ) );
+
+            word.setLastUpdate(DateTimeUtils.strToDate( crs.getString( 8 ) ) );
+
+            if( crs.getString( 9 ) != null )
+                word.setLastAccess(DateTimeUtils.strToDate( crs.getString( 9 ) ) );
+
         }
         crs.close();
         return word;
@@ -235,6 +241,7 @@ public class DBWordFactory
         IWord word = internalGetWordBrief(db, wordId );
 
         String statement = "select id, meaning, is_formal, is_disapproving, is_rude, part_of_speech from meanings where word_id = ?";
+
         String examples = "select id, example from examples where meaning_id = ?";
 
         Cursor crs = db.rawQuery(statement, new String[]{Integer.valueOf( wordId ).toString()});
@@ -388,6 +395,11 @@ public class DBWordFactory
         cv.put( "uuid", word.getUUID() );
         cv.put( "percent", word.getLearnPercent() );
         cv.put( "stage", word.getLearnState() == IBaseWord.LearnState.learn ? 0 : 1 );
+
+        if( word.getLastUpdate() != null )
+            cv.put( "updated", DateTimeUtils.getSQLDateTimeString( word.getLastUpdate() ));
+        if( word.getLastAccess() != null )
+            cv.put( "last_access", DateTimeUtils.getSQLDateTimeString( word.getLastAccess() ));
 
         int id = (int) db.insertOrThrow( WDdb.T_WORDS, null, cv);
         word.setId( id );

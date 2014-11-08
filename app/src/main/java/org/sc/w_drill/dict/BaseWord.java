@@ -1,5 +1,8 @@
 package org.sc.w_drill.dict;
 
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  * Created by Max on 10/4/2014.
  */
@@ -112,4 +115,5 @@ public class BaseWord implements IBaseWord
 
         return ((d.getId() == id ) && ( (d.getWord().equalsIgnoreCase( word ))));
     }
+
 }

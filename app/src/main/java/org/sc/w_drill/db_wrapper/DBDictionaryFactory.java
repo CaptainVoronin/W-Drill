@@ -328,7 +328,7 @@ public class DBDictionaryFactory
     {
         Date dt = null;
 
-        String statement = "select min( last_access ) from words where dict_id = ?";
+        String statement = "select max( last_access ) from words where dict_id = ?";
 
         Cursor crs = db.rawQuery( statement, new String[] { Integer.valueOf( dict.getId() ).toString() } );
 
