@@ -705,4 +705,17 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
     {
         operationButtonsVisible = false;
     }
+
+    public void clearStats()
+    {
+        DBWordFactory.getInstance( database, activeDict ).clearLearnStatistic();
+        refreshList();
+    }
+
+    public void setAllLearned()
+    {
+        DBWordFactory.getInstance( database, activeDict ).setAllLearned();
+        refreshList();
+    }
+
 }

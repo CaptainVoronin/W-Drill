@@ -75,9 +75,8 @@ public class ActDictionaryEntry
     private boolean wordsAdded = false;
     private boolean wordsDeleted = false;
     private boolean editAndReturn = false;
-    MenuItem btnSave, btnClear;
+    MenuItem btnSave, btnClear, menuClearStats, menuSetAllLearned;
     private boolean showButtons;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -195,15 +194,42 @@ public class ActDictionaryEntry
             }
         });
 
+        menuClearStats = ( MenuItem ) menu.findItem(  R.id.action_clear_stats );
+        menuClearStats.setOnMenuItemClickListener( new MenuItem.OnMenuItemClickListener()
+        {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem)
+            {
+                fragmentDictWordList.clearStats();
+                return true;
+            }
+        });
+
+        menuSetAllLearned = ( MenuItem ) menu.findItem(  R.id.action_set_all_learned );
+        menuSetAllLearned.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
+        {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem)
+            {
+                fragmentDictWordList.setAllLearned();
+                return true;
+            }
+        });
+
         if( !showButtons )
         {
             btnClear.setVisible( false );
             btnSave.setVisible( false );
+            menuSetAllLearned.setVisible(true);
+            menuClearStats.setVisible(true);
         }
         else
         {
             btnClear.setVisible( true );
             btnSave.setVisible( true );
+            menuSetAllLearned.setVisible(false);
+            menuClearStats.setVisible(false);
+
         }
         showButtons = true;
         return true;
@@ -212,14 +238,6 @@ public class ActDictionaryEntry
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings)
-        {
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 

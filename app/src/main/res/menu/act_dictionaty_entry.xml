@@ -14,4 +14,17 @@
           app:showAsAction="always"
           android:visible="false"
           android:icon="@android:drawable/ic_menu_close_clear_cancel"/>
+
+    <item android:id="@+id/action_clear_stats"
+          android:orderInCategory="100"
+          app:showAsAction="never"
+          android:visible="false"
+          android:title="@string/txt_clear_stats"/>
+
+    <item android:id="@+id/action_set_all_learned"
+          android:orderInCategory="100"
+          app:showAsAction="never"
+          android:title="@string/txt_set_all_learned"
+          android:visible="false"/>
+
 </menu>

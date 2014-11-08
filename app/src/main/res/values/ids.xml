@@ -2,4 +2,5 @@
 <resources>
     <item name="txt_need_wait_for_end" type="id">Нужно дождаться завершения экспорта словаря</item>
     <item name="txt_never" type="id">никогда</item>
+    <item name="txt_no_words_to_check" type="id">Нет слов для проверки</item>
 </resources>

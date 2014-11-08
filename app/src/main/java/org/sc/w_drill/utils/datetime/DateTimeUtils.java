@@ -53,27 +53,14 @@ public class DateTimeUtils
 
         String str;
 
-        if( !seconds )
-            str = "%d-%02d-%02d %02d:%02d";
+        if( seconds )
+            str = getSQLDateTimeString(  dt );
         else
-            str = "%d-%02d-%02d %02d:%02d:%02d";
-
-        Calendar cl = Calendar.getInstance();
-        cl.setTimeInMillis( dt.getTime() );
-
-        if( !seconds )
-            return String.format( str, cl.get( Calendar.YEAR ),
-                    cl.get( Calendar.MONTH ),
-                    cl.get( Calendar.DAY_OF_MONTH ),
-                    cl.get( Calendar.HOUR_OF_DAY ),
-                    cl.get( Calendar.MINUTE ));
-        else
-            return String.format( str, cl.get( Calendar.YEAR ),
-                    cl.get( Calendar.MONTH ),
-                    cl.get( Calendar.DAY_OF_MONTH ),
-                    cl.get( Calendar.HOUR_OF_DAY ),
-                    cl.get( Calendar.MINUTE ),
-                    cl.get( Calendar.SECOND ));
+        {
+            SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm" );
+            str = sdf.format( dt );
+        }
+        return str;
     }
 
     /**
@@ -136,6 +123,9 @@ public class DateTimeUtils
                                                         ti.hours, getHourWord(context, ti.hours));
             else
                 message = String.format( "%d %s", ti.days, getDayWord( context, ti.days ) );
+        else
+        if( ti.hours >= 1)
+            message = String.format( context.getString( R.string.about_one_hour ) );
         else
             message = String.format( "%d %s", ti.hours, getHourWord( context, ti.hours ) );
 

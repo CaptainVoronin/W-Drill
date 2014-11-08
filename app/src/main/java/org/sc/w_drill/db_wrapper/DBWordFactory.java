@@ -283,8 +283,7 @@ public class DBWordFactory
         ArrayList<Integer> ids = new ArrayList<Integer>();
 
         SQLiteDatabase db = database.getReadableDatabase();
-        String statement =
-        "select id, (julianday( 'now' ) - julianday( last_access )) as result " +
+        String statement = "select id, (julianday( 'now' ) - julianday( last_access )) as result " +
                 "from words where " +
                 "stage = 0 and " +
                 "( result >= " +  WDdb.learnTimeOut + " or last_access IS NULL ) and  " +
@@ -298,6 +297,40 @@ public class DBWordFactory
         {
             ids.add( crs.getInt( 0 ));
         }
+        crs.close();
+
+        if( ids.size() == 0 )
+            return null;
+
+        ArrayList<IWord> words = new ArrayList<IWord>();
+
+        for( Integer id : ids )
+        {
+            IWord word = internalGetWordEx(db, id.intValue());
+            words.add( word );
+        }
+        db.close();
+        return words;
+    }
+
+    public ArrayList<IWord> getWordsToCheck( int limit )
+    {
+        ArrayList<Integer> ids = new ArrayList<Integer>();
+
+        SQLiteDatabase db = database.getReadableDatabase();
+        String statement = "select id, (julianday( 'now' ) - julianday( last_access )) as result " +
+                "from words where " +
+                "stage = 1 and " +
+                "( result >= " +  WDdb.checkTimeOut + " or last_access IS NULL ) and  " +
+                "dict_id = ? " +
+                "order by access_count asc, percent asc, result desc, avg_time desc " +
+                "limit ?; ";
+
+        Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( dict.getId() ).toString(), Integer.valueOf( limit ).toString()} );
+
+        while( crs.moveToNext() )
+            ids.add( crs.getInt( 0 ));
+
         crs.close();
 
         if( ids.size() == 0 )
@@ -474,4 +507,52 @@ public class DBWordFactory
 
         return dict_id;
     }
+
+    public ArrayList<Integer> getIdsListWithExclusion(int id)
+    {
+        ArrayList<Integer> ids = new ArrayList<Integer>();
+
+        SQLiteDatabase db = database.getReadableDatabase();
+        String statement = "select id " +
+                "from words where " +
+                "stage = 1 and " +
+                " dict_id = " + dict.getId() + " and " +
+                " id != " + id;
+
+        Cursor crs = db.rawQuery( statement, null );
+
+        while( crs.moveToNext() )
+            ids.add( Integer.valueOf( crs.getInt( 0 ) ) );
+
+        crs.close();
+        db.close();
+
+        return ids;
+
+    }
+
+    public void clearLearnStatistic()
+    {
+        SQLiteDatabase db = database.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put( "stage", 0 );
+        cv.put( "percent", 0 );
+
+        db.update( WDdb.T_WORDS, cv, "dict_id = ?", new String[]{ Integer.valueOf( dict.getId() ).toString() } );
+
+        db.close();
+    }
+
+    public void setAllLearned()
+    {
+        SQLiteDatabase db = database.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put( "stage", 1 );
+        cv.put( "percent", 200 );
+
+        db.update( WDdb.T_WORDS, cv, "dict_id = ?", new String[]{ Integer.valueOf( dict.getId() ).toString() } );
+
+        db.close();
+    }
+
 }

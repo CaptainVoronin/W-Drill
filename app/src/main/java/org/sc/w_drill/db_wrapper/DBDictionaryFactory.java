@@ -359,9 +359,6 @@ public class DBDictionaryFactory
 
         crs.close();
 
-        //  WDdb.T_DICTIONARY, "id = " + dict.getId(), null );
-        //int cnt = db.delete( WDdb.T_WORDS, " dict_id not in ( select id from dictionary )", null );
-
         db.close();
 
         return 0;
