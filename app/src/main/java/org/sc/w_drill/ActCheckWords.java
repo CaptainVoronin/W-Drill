@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -27,6 +28,7 @@ import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.utils.ArrayListRandomizer;
 import org.sc.w_drill.utils.CircularArrayList;
+import org.sc.w_drill.utils.TextHelper;
 import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 import org.sc.w_drill.utils.image.ImageConstraints;
 import org.sc.w_drill.utils.image.ImageHelper;
@@ -157,9 +159,8 @@ public class ActCheckWords extends ActionBarActivity {
         }
     }
 
-    View getChooseOptionView() throws RandomizerException, RandomizerEmptyException {
-        //if( chooseOptionView == null )
-        //{
+    View getChooseOptionView() throws RandomizerException, RandomizerEmptyException
+    {
             chooseOptionView = (RelativeLayout) getLayoutInflater()
                     .inflate(R.layout.fragment_act_check_words_choose_option, null);
 
@@ -202,20 +203,15 @@ public class ActCheckWords extends ActionBarActivity {
                     checkChoise( view );
                 }
             });
-        //}
 
-        Drawable drw = rootView.getBackground();
-
-        /*tv1.setBackgroundColor(0xffffffff);
-        tv1.setBackgroundColor(0xffffffff);
-        tv1.setBackgroundColor(0xffffffff);
-        tv1.setBackgroundColor(0xffffffff); )*/
-
+    //    Drawable drw = rootView.getBackground();
 
         ArrayList<IWord> subset = makeSubset( activeDict, activeWord, 4);
 
         TextView tv = ( TextView ) chooseOptionView.findViewById( R.id.word_for_check );
-        tv.setText( activeWord.getWord() );
+        int color = getResources().getColor( R.color.TextPartSelection );
+
+        tv.setText( Html.fromHtml(TextHelper.decorate( activeWord.getWord(), Integer.valueOf( color ).toString() ) ) );
 
         setText( subset.get(0), tv1 );
         setText( subset.get(1), tv2 );
@@ -225,7 +221,7 @@ public class ActCheckWords extends ActionBarActivity {
         if( dManager.getImageFile( activeWord ) != null )
         {
             ImageView iv = ( ImageView ) chooseOptionView.findViewById( R.id.imgIllustration );
-            Bitmap bmp = null;
+            Bitmap bmp;
             try {
                 bmp = dManager.getImageBitmap(activeWord);
                 ImageConstraints constraints = ImageConstraints.getInstance( this );
@@ -279,7 +275,7 @@ public class ActCheckWords extends ActionBarActivity {
         });
 
         edWordAnswer = ( EditText ) enterWordView.findViewById( R.id.word_answer );
-
+        edWordAnswer.requestFocus();
         edWordAnswer.setTag( activeWord.getWord() );
         edWordAnswer.setText( "" );
 
@@ -367,7 +363,7 @@ public class ActCheckWords extends ActionBarActivity {
 
     void compareWords( String word )
     {
-        if( activeWord.getWord().equalsIgnoreCase(word) )
+        if( TextHelper.compare(activeWord.getWord(), word) )
             correct();
         else
             incorrect();

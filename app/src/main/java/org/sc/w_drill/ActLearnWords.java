@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,6 +29,7 @@ import org.sc.w_drill.utils.CircularArrayList;
 import org.sc.w_drill.utils.DBPair;
 import org.sc.w_drill.utils.LearnColors;
 import org.sc.w_drill.utils.PartsOfSpeech;
+import org.sc.w_drill.utils.TextHelper;
 import org.sc.w_drill.utils.Triangle;
 import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 import org.sc.w_drill.utils.image.ImageConstraints;
@@ -230,7 +232,9 @@ public class ActLearnWords extends ActionBarActivity
     {
         clearScreen();
         activeWord = word;
-        wordPlace.setText( activeWord.getWord() );
+        int color = getResources().getColor( R.color.TextPartSelection );
+
+        wordPlace.setText(Html.fromHtml( TextHelper.decorate( activeWord.getWord(), Integer.valueOf( color ).toString() ) ) );
         learnIndicator.setColor( learnColors.getColor(activeWord) );
 
         if( activeWord.getTranscription() != null && activeWord.getTranscription().length() != 0 )
