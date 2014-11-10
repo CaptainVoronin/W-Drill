@@ -94,10 +94,12 @@ public class ActCheckWords extends ActionBarActivity {
 
     void prepareWordList() throws RandomizerEmptyException
     {
-        ArrayList<IWord> list = DBWordFactory.getInstance( database, activeDict ).getWordsToCheck( 10 );
+        ArrayList<IWord> list = DBWordFactory.getInstance( database, activeDict ).getWordsToCheck( 110 );
 
-        if( list.size() < 4 )
+
+        if( list == null && list.size() == 0 )
             throw new RandomizerEmptyException();
+
         Collections.shuffle(list, new Random() );
 
         words = new CircularArrayList<IWord>( list );
@@ -118,10 +120,12 @@ public class ActCheckWords extends ActionBarActivity {
             rootView.addView(activeView);
         } catch( RandomizerException ex )
         {
+            ex.printStackTrace();
             showErrorEndExit(getString(R.string.msg_not_enough_words_for_check));
         }
         catch ( Exception ex )
         {
+            ex.printStackTrace();
             showErrorEndExit(ex.getMessage());
         }
     }
@@ -140,7 +144,7 @@ public class ActCheckWords extends ActionBarActivity {
         builder.show();
     }
 
-    private View getView() throws RandomizerException {
+    private View getView() throws RandomizerException, RandomizerEmptyException {
         if( activeWord.getLearnPercent() >= 200 )
         {
             mode = Mode.COMPARE;
@@ -153,8 +157,7 @@ public class ActCheckWords extends ActionBarActivity {
         }
     }
 
-    View getChooseOptionView() throws RandomizerException
-    {
+    View getChooseOptionView() throws RandomizerException, RandomizerEmptyException {
         //if( chooseOptionView == null )
         //{
             chooseOptionView = (RelativeLayout) getLayoutInflater()
@@ -402,8 +405,16 @@ public class ActCheckWords extends ActionBarActivity {
         changeWord();
     }
 
+    /**
+     *
+     * @param dict dictionary where are words
+     * @param word the word to check. One of it's meanings must be included
+     * @param upperLimit how many words must be in subset
+     * @return a list which is populated by words
+     * @throws RandomizerException if dictionary hasn't enough words this exception will be throw
+     */
     private ArrayList<IWord> makeSubset( Dictionary dict, IWord word, int upperLimit)
-            throws RandomizerException {
+            throws RandomizerException, RandomizerEmptyException {
 
         ArrayList<IWord> subset = new ArrayList<IWord>();
 
@@ -411,13 +422,12 @@ public class ActCheckWords extends ActionBarActivity {
 
         Collections.shuffle( ids, new Random());
 
-        int count = upperLimit < ids.size() ? upperLimit : ids.size();
-
-        count--;
+        if( ids.size() < upperLimit - 1 )
+            throw new RandomizerEmptyException();
 
         subset.add( word );
 
-        for( int i = 0; i < count; i++ )
+        for( int i = 0; i < upperLimit - 1; i++ )
             subset.add ( DBWordFactory.getInstance( database, dict ).getWordEx( ids.get( i ).intValue() ) );
 
         Collections.shuffle( subset, new Random());

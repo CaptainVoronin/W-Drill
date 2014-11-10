@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import org.sc.w_drill.db.Utils;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.datetime.DateTimeUtils;
@@ -327,6 +328,9 @@ public class DBDictionaryFactory
     public Date getLastAccess( SQLiteDatabase db, Dictionary dict )
     {
         Date dt = null;
+
+        Utils.dumpQuery(db,  "select id, word, updated, last_access, (julianday( 'now' ) - julianday( last_access )) as result" +
+                " from words where dict_id = " + dict.getId() + " order by result asc, percent asc, avg_time desc " );
 
         String statement = "select max( last_access ) from words where dict_id = ?";
 

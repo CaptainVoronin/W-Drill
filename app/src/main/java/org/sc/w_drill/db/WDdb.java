@@ -13,7 +13,8 @@ public class WDdb extends SQLiteOpenHelper
 {
     public final static int SCHEME_VERSION = 18;
     public final static String learnTimeOut = "0.08"; // It's two hours
-    public final static String checkTimeOut = "0.8"; // It's 10 hours
+    //public final static String checkTimeOut = "0.8"; // It's 10 hours
+    public final static String checkTimeOut = "0"; // It's 10 hours
 
     public final static String T_DICTIONARY = "dictionary";
     public final static String T_WORDS = "words";
@@ -100,6 +101,8 @@ public class WDdb extends SQLiteOpenHelper
         if( !needUpdate( oldVersion, newVersion ) )
             return;
 
+
+
   /*      ContentValues cv = new ContentValues();
         cv.put( "language", "eng" );
         db.update( T_DICTIONARY, cv, null, null );
@@ -113,11 +116,11 @@ public class WDdb extends SQLiteOpenHelper
         stmt = "alter table dictionary add type INTEGER NOT NULL DEFAULT 0;";
         db.execSQL( stmt ); */
 
-        db.execSQL("DROP TABLE IF EXISTS examples");
+        /*db.execSQL("DROP TABLE IF EXISTS examples");
         db.execSQL("DROP TABLE IF EXISTS meanings");
         db.execSQL("DROP TABLE IF EXISTS words");
         db.execSQL("DROP TABLE IF EXISTS dictionary");
-        onCreate(db);
+        onCreate(db); */
     }
 
     private boolean needUpdate( int oldVersion, int newVersion  )

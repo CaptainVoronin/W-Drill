@@ -321,9 +321,9 @@ public class DBWordFactory
         String statement = "select id, (julianday( 'now' ) - julianday( last_access )) as result " +
                 "from words where " +
                 "stage = 1 and " +
-                "( result >= " +  WDdb.checkTimeOut + " or last_access IS NULL ) and  " +
+               // "( result >= " +  WDdb.checkTimeOut + " or last_access IS NULL ) and  " +
                 "dict_id = ? " +
-                "order by access_count asc, percent asc, result desc, avg_time desc " +
+                "order by result asc, percent asc, avg_time desc " +
                 "limit ?; ";
 
         Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( dict.getId() ).toString(), Integer.valueOf( limit ).toString()} );
@@ -412,7 +412,7 @@ public class DBWordFactory
             cv.put( "avg_time", time );
             cv.put( "stage", 0 );
         }
-        cv.put( "last_access", "CURRENT_TIMESTAMP" );
+        //cv.put( "last_access", "CURRENT_TIMESTAMP" );
 
         db.update( WDdb.T_WORDS, cv, "id = ?", new String [] {Integer.valueOf( wordId ).toString() } );
 
@@ -515,7 +515,6 @@ public class DBWordFactory
         SQLiteDatabase db = database.getReadableDatabase();
         String statement = "select id " +
                 "from words where " +
-                "stage = 1 and " +
                 " dict_id = " + dict.getId() + " and " +
                 " id != " + id;
 

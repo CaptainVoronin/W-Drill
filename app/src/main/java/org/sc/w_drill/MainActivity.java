@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -28,6 +29,7 @@ import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.ActiveDictionaryStateFragment;
+import org.sc.w_drill.utils.TextComparator;
 import org.sc.w_drill.utils.datetime.DateTimeUtils;
 import org.sc.w_drill.utils.Langs;
 import org.sc.w_drill.utils.image.ImageConstraints;
