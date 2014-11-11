@@ -54,7 +54,6 @@ public class ActCheckWords extends ActionBarActivity {
     WDdb database;
     Dictionary activeDict;
     CircularArrayList<IWord> words;
-    String whereSTMT = " stage = 1 ";
     ArrayListRandomizer<IWord> arrayRandomizer;
     ArrayListRandomizer<IMeaning> meaningRandomizer;
     TextView tv1, tv2, tv3, tv4;
@@ -98,7 +97,6 @@ public class ActCheckWords extends ActionBarActivity {
     {
         ArrayList<IWord> list = DBWordFactory.getInstance( database, activeDict ).getWordsToCheck( 110 );
 
-
         if( list == null && list.size() == 0 )
             throw new RandomizerEmptyException();
 
@@ -115,6 +113,8 @@ public class ActCheckWords extends ActionBarActivity {
     void changeWord()
     {
         try {
+            if( words.size() == 0 )
+                prepareWordList();
             activeWord = words.next();
             if (activeView != null)
                 rootView.removeView(activeView);
@@ -161,50 +161,48 @@ public class ActCheckWords extends ActionBarActivity {
 
     View getChooseOptionView() throws RandomizerException, RandomizerEmptyException
     {
-            chooseOptionView = (RelativeLayout) getLayoutInflater()
-                    .inflate(R.layout.fragment_act_check_words_choose_option, null);
+        chooseOptionView = (RelativeLayout) getLayoutInflater()
+                .inflate(R.layout.fragment_act_check_words_choose_option, null);
 
-            tv1 = ( TextView ) chooseOptionView.findViewById( R.id.version1 );
-            tv1.setOnClickListener( new View.OnClickListener()
+        tv1 = ( TextView ) chooseOptionView.findViewById( R.id.version1 );
+        tv1.setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
             {
-                @Override
-                public void onClick(View view)
-                {
-                    checkChoise( view );
-                }
-            });
+                checkChoise( view );
+            }
+        });
 
-            tv2 = ( TextView ) chooseOptionView.findViewById( R.id.version2 );
-            tv2.setOnClickListener( new View.OnClickListener()
+        tv2 = ( TextView ) chooseOptionView.findViewById( R.id.version2 );
+        tv2.setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
             {
-                @Override
-                public void onClick(View view)
-                {
-                    checkChoise( view );
-                }
-            });
+                checkChoise( view );
+            }
+        });
 
-            tv3 = ( TextView ) chooseOptionView.findViewById( R.id.version3 );
-            tv3.setOnClickListener( new View.OnClickListener()
+        tv3 = ( TextView ) chooseOptionView.findViewById( R.id.version3 );
+        tv3.setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
             {
-                @Override
-                public void onClick(View view)
-                {
-                    checkChoise( view );
-                }
-            });
+                checkChoise( view );
+            }
+        });
 
-            tv4 = ( TextView ) chooseOptionView.findViewById( R.id.version4 );
-            tv4.setOnClickListener( new View.OnClickListener()
+        tv4 = ( TextView ) chooseOptionView.findViewById( R.id.version4 );
+        tv4.setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
             {
-                @Override
-                public void onClick(View view)
-                {
-                    checkChoise( view );
-                }
-            });
-
-    //    Drawable drw = rootView.getBackground();
+                checkChoise( view );
+            }
+        });
 
         ArrayList<IWord> subset = makeSubset( activeDict, activeWord, 4);
 
@@ -308,6 +306,7 @@ public class ActCheckWords extends ActionBarActivity {
                     increasePercent(activeWord);
                 else
                     missed = false;
+                words.remove( activeWord );
                 changeWord();
             }
             else
@@ -364,15 +363,20 @@ public class ActCheckWords extends ActionBarActivity {
     void compareWords( String word )
     {
         if( TextHelper.compare(activeWord.getWord(), word) )
-            correct();
+        {
+            if (!missed)
+                increasePercent( activeWord );
+            else
+                missed = false;
+            words.remove( activeWord );
+            changeWord();
+        }
         else
-            incorrect();
-    }
-
-    private void incorrect()
-    {
-        decreasePercent( activeWord );
-        showCorrectMeaning();
+        {
+            missed = true;
+            decreasePercent( activeWord );
+            showCorrectMeaning();
+        }
     }
 
     private void showCorrectMeaning()
@@ -393,12 +397,6 @@ public class ActCheckWords extends ActionBarActivity {
             tv3.setBackgroundColor( Color.LTGRAY );
         else if( ((IWord)tv4.getTag()).getId() == activeWord.getId())
             tv4.setBackgroundColor( Color.LTGRAY );
-    }
-
-    private void correct()
-    {
-        increasePercent( activeWord );
-        changeWord();
     }
 
     /**
@@ -430,4 +428,5 @@ public class ActCheckWords extends ActionBarActivity {
 
         return subset;
     }
+
 }

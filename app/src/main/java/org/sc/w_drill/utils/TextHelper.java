@@ -2,6 +2,7 @@ package org.sc.w_drill.utils;
 
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 /**
  * Created by MaxSh on 10.11.2014.
@@ -31,6 +32,7 @@ public class TextHelper
 
     public static final boolean compare( String pattern, String text )
     {
+
         String[] textTokens = text.split( "\\[(.*?)\\]" );
 
         StringBuilder buff1 = new StringBuilder();
