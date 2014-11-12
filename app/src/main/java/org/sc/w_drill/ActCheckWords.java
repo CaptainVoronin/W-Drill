@@ -209,6 +209,11 @@ public class ActCheckWords extends ActionBarActivity {
             }
         });
 
+        if( optionChecker == null )
+            optionChecker = new OptionChecker();
+
+        checker = optionChecker;
+
         ArrayList<IWord> subset = makeSubset( activeDict, activeWord, 4);
 
         TextView tv = ( TextView ) chooseOptionView.findViewById( R.id.word_for_check );
@@ -255,25 +260,18 @@ public class ActCheckWords extends ActionBarActivity {
         tv = ( TextView ) enterWordView.findViewById( R.id.tvWord );
         tv.setText( "" );
 
+        if( inputChecker == null )
+            inputChecker = new InputTextChecker();
+
+        checker = inputChecker;
+
         btnIDontKnow = ( Button ) enterWordView.findViewById( R.id.dont_know );
         btnIDontKnow.setText( "?" );
         btnIDontKnow.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view)
             {
-                if( !userGaveUp )
-                {
-                    userGaveUp = true;
-                    btnIDontKnow.setText( ">>" );
-                    showCorrectMeaning();
-                }
-                else
-                {
-                    userGaveUp = false;
-                    btnIDontKnow.setText( "?" );
-                    decreasePercent( activeWord );
-                    changeWord();
-                }
+                compareWords( "", null );
             }
         });
 
@@ -292,7 +290,7 @@ public class ActCheckWords extends ActionBarActivity {
                 if( keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER )
                 {
                     String word = edWordAnswer.getText().toString();
-                    compareWords( word );
+                    compareWords( word, null );
                     return true;
                 }
                 return false;
