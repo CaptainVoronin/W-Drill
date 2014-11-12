@@ -61,7 +61,9 @@ public class ActCheckWords extends ActionBarActivity {
     EditText edWordAnswer = null;
     Button btnIDontKnow;
     DictionaryImageFileManager dManager;
-
+    InputChecker checker;
+    InputTextChecker inputChecker;
+    OptionChecker optionChecker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +91,9 @@ public class ActCheckWords extends ActionBarActivity {
         arrayRandomizer = new ArrayListRandomizer<IWord>();
         meaningRandomizer = new ArrayListRandomizer<IMeaning>();
         dManager = new DictionaryImageFileManager( this, activeDict );
+
+        inputChecker = null;
+        optionChecker = null;
 
         changeWord();
     }
@@ -256,7 +261,7 @@ public class ActCheckWords extends ActionBarActivity {
             @Override
             public void onClick(View view)
             {
-                if( !userGaveUp)
+                if( !userGaveUp )
                 {
                     userGaveUp = true;
                     btnIDontKnow.setText( ">>" );
@@ -300,21 +305,7 @@ public class ActCheckWords extends ActionBarActivity {
     {
         Object tag = view.getTag();
         if( tag != null )
-            if( ((IWord) tag ).getId() == activeWord.getId() )
-            {
-                if( !missed )
-                    increasePercent(activeWord);
-                else
-                    missed = false;
-                words.remove( activeWord );
-                changeWord();
-            }
-            else
-            {
-                missed = true;
-                decreasePercent( activeWord );
-                showCorrectOption(view);
-            }
+            compareWords( ((IWord) tag).getWord(), view );
     }
 
     private void increasePercent(IWord activeWord)
@@ -360,9 +351,9 @@ public class ActCheckWords extends ActionBarActivity {
         }
     }
 
-    void compareWords( String word )
+    void compareWords( String word, View view )
     {
-        if( TextHelper.compare(activeWord.getWord(), word) )
+        if( checker.check(word) )
         {
             if (!missed)
                 increasePercent( activeWord );
@@ -375,28 +366,11 @@ public class ActCheckWords extends ActionBarActivity {
         {
             missed = true;
             decreasePercent( activeWord );
-            showCorrectMeaning();
+            if( checker instanceof OptionChecker )
+                ( ( OptionChecker ) checker ).setIncorrectView( view );
+
+            checker.onError();
         }
-    }
-
-    private void showCorrectMeaning()
-    {
-        TextView tv = ( TextView ) enterWordView.findViewById( R.id.tvWord );
-        tv.setText( activeWord.getWord() );
-    }
-
-    private void showCorrectOption( View incorrectView )
-    {
-        incorrectView.setBackgroundColor(Color.RED);
-
-        if( ((IWord)tv1.getTag()).getId() == activeWord.getId())
-            tv1.setBackgroundColor( Color.LTGRAY );
-        else if( ((IWord)tv2.getTag()).getId() == activeWord.getId())
-            tv2.setBackgroundColor( Color.LTGRAY );
-        else if( ((IWord)tv3.getTag()).getId() == activeWord.getId())
-            tv3.setBackgroundColor( Color.LTGRAY );
-        else if( ((IWord)tv4.getTag()).getId() == activeWord.getId())
-            tv4.setBackgroundColor( Color.LTGRAY );
     }
 
     /**
@@ -429,4 +403,51 @@ public class ActCheckWords extends ActionBarActivity {
         return subset;
     }
 
+
+    abstract class InputChecker
+    {
+        public boolean check( String word )
+        {
+            return TextHelper.compare( activeWord.getWord(), word  );
+        }
+
+        public abstract void onError();
+    }
+
+    class OptionChecker extends InputChecker
+    {
+
+        View incorrectView;
+
+        public void setIncorrectView( View view  )
+        {
+            incorrectView = view;
+        }
+
+        @Override
+        public void onError()
+        {
+            incorrectView.setBackgroundColor( Color.RED );
+
+            if( ((IWord)tv1.getTag()).getId() == activeWord.getId())
+                tv1.setBackgroundColor( Color.LTGRAY );
+            else if( ((IWord)tv2.getTag()).getId() == activeWord.getId())
+                tv2.setBackgroundColor( Color.LTGRAY );
+            else if( ((IWord)tv3.getTag()).getId() == activeWord.getId())
+                tv3.setBackgroundColor( Color.LTGRAY );
+            else if( ((IWord)tv4.getTag()).getId() == activeWord.getId())
+                tv4.setBackgroundColor( Color.LTGRAY );
+        }
+    }
+
+    class InputTextChecker extends InputChecker
+    {
+
+        @Override
+        public void onError()
+        {
+            TextView tv = ( TextView ) enterWordView.findViewById( R.id.tvWord );
+            tv.setText( activeWord.getWord() );
+        }
+    }
 }
