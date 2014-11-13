@@ -34,6 +34,8 @@ public class DialogAddWordQuick extends Dialog implements View.OnClickListener
 
         Button btn = ( Button ) findViewById( R.id.btnOk );
         btn.setOnClickListener( this );
+        btn = ( Button ) findViewById( R.id.btnCancel );
+        btn.setOnClickListener( this );
     }
 
     @Override
