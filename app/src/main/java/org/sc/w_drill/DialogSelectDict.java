@@ -11,6 +11,7 @@ import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
 
+import java.sql.SQLDataException;
 import java.util.ArrayList;
 
 /**
@@ -35,16 +36,19 @@ public class DialogSelectDict extends Dialog
     }
 
     public void onCreate( Bundle savedInstance )
-    {
-        super.onCreate(savedInstance);
-        setTitle(R.string.txt_dlg_select_dict);
-        setContentView(R.layout.dlg_select_dict);
-        setCancelable( true );
+{
+    super.onCreate(savedInstance);
+    setTitle(R.string.txt_dlg_select_dict);
+    setContentView(R.layout.dlg_select_dict);
+    setCancelable( true );
+    try {
         fillList();
+    } catch (SQLDataException e) {
+        e.printStackTrace();
     }
+}
 
-    private void fillList()
-    {
+    private void fillList() throws SQLDataException {
         database = new WDdb( context );
         dicts = DBDictionaryFactory.getInstance( database ).getList();
         dicts.remove( excludeDict );

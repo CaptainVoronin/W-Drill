@@ -1,8 +1,11 @@
 package org.sc.w_drill;
 
+import java.sql.SQLDataException;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
@@ -22,6 +25,7 @@ import android.view.MenuItem;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
+import org.sc.w_drill.db_wrapper.DefaultDictionary;
 import org.sc.w_drill.dict.Dictionary;
 
 public class ActDictionaryEntry
@@ -77,6 +81,7 @@ public class ActDictionaryEntry
     private boolean editAndReturn = false;
     MenuItem btnSave, btnClear, menuClearStats, menuSetAllLearned;
     private boolean showButtons;
+    private boolean defaultDictionary;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -84,6 +89,7 @@ public class ActDictionaryEntry
         super.onCreate(savedInstanceState);
 
         int entryKind = ADD_WORDS;
+        defaultDictionary = false;
 
         setContentView(R.layout.activity_act_dictionaty_entry);
 
@@ -95,8 +101,17 @@ public class ActDictionaryEntry
         if (data != null)
         {
             dictId = data.getIntExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
-            if (dictId != -1)
+            if (dictId != -1) {
                 activeDict = DBDictionaryFactory.getInstance(database).getDictionaryById(dictId);
+
+                try {
+                    if( dictId == DefaultDictionary.getInstance( database ).getId() )
+                        defaultDictionary = true;
+                } catch (SQLDataException e) {
+                    e.printStackTrace();
+                    fatalError();
+                }
+            }
             else
                 fatalError();
 
@@ -114,7 +129,11 @@ public class ActDictionaryEntry
         final ActionBar actionBar = getSupportActionBar();
 
         // TODO: Change the title
-        actionBar.setTitle(activeDict.getName());
+        if( !defaultDictionary )
+            actionBar.setTitle(activeDict.getName());
+        else
+            actionBar.setTitle(getString(R.string.txt_default_dictionary_title));
+
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
@@ -164,7 +183,8 @@ public class ActDictionaryEntry
 
     private void fatalError()
     {
-
+        setResult( Activity.RESULT_CANCELED );
+        finish();
     }
 
     @Override
@@ -484,6 +504,18 @@ public class ActDictionaryEntry
 
     private void showError(String message)
     {
-        //TODO: There should be a dialog for errors
+        AlertDialog.Builder builder = new AlertDialog.Builder( this );
+        builder.setMessage( message ).setPositiveButton( android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
+
+            }
+        });
+        builder.setTitle( R.string.txt_error );
+        builder.setIcon( android.R.drawable.ic_dialog_alert );
+        builder.setCancelable( true );
+        builder.create();
+        builder.show();
     }
 }

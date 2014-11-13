@@ -2,6 +2,7 @@ package org.sc.w_drill.db_wrapper;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -10,6 +11,7 @@ import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.datetime.DateTimeUtils;
 
+import java.sql.SQLDataException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
@@ -44,7 +46,7 @@ public class DBDictionaryFactory
      * Возвращает список словарей
      * @return список словарей
      */
-    public ArrayList<Dictionary> getList() throws android.database.sqlite.SQLiteException
+    public ArrayList<Dictionary> getList() throws android.database.sqlite.SQLiteException, SQLDataException
     {
         ArrayList<Dictionary> list = new ArrayList<Dictionary>();
 
@@ -56,9 +58,15 @@ public class DBDictionaryFactory
         SQLiteDatabase db = database.getReadableDatabase();
         Cursor crs = db.rawQuery( statement, null );
 
+        int dd_id = DefaultDictionary.getInstance(database).getId();
+
         while( crs.moveToNext() )
         {
             int id = crs.getInt( 0 );
+
+            // Skip the default dictionary
+            if( id == dd_id )
+                continue;
             String name = crs.getString( 1 );
             String lang = crs.getString( 2 );
             int count = crs.getInt( 3 );
@@ -111,6 +119,7 @@ public class DBDictionaryFactory
         db.close();
         return cnt >= 1;
     }
+
     /**
      * this is special version for bulk operations
      * It doesn't close database, so it is useful in transactions
@@ -184,6 +193,24 @@ public class DBDictionaryFactory
          return dict;
      }
 
+    public int getDictionaryIDByUUID( String uuid )
+    {
+        String statement = "select id from dictionary " +
+                "where uuid = '" + uuid + "'";
+        int id = -1;
+
+        SQLiteDatabase db = database.getReadableDatabase();
+        Cursor crs = db.rawQuery(statement, null);
+
+        if( crs.moveToNext() )
+            id = crs.getInt( 0 );
+
+        crs.close();
+        db.close();
+
+        return id;
+    }
+
     /**
      * It returns count of words in a dictionary, which specified
      * with dict_id. The type of words depends on stage param.
@@ -250,11 +277,12 @@ public class DBDictionaryFactory
      * It counts dictionaries in table and return result
      * @return count of dictionaries
      */
-     public int getDictCount()
+     public int getDictCount() throws SQLDataException
      {
-         String statement = "select count(id) from dictionary";
+         String statement = "select count(id) from dictionary where dict_id != ?";
          SQLiteDatabase db = database.getReadableDatabase();
-         Cursor crs = db.rawQuery( statement, null );
+         int id = DefaultDictionary.getInstance( database ).getId();
+         Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( id ).toString()} );
          crs.moveToFirst();
          int cnt = crs.getInt(0);
          crs.close();
@@ -265,8 +293,10 @@ public class DBDictionaryFactory
      * Удаляет словарь бесследно
      * @param - словарь для удаления
      */
-    public void delete( Dictionary dict )
-    {
+    public void delete( Dictionary dict ) throws SQLDataException {
+        if( dict.getId() == DefaultDictionary.getInstance( database ).getId() )
+            throw new SQLiteConstraintException( "Tha default dictionary can't be deleted");
+
         SQLiteDatabase db = database.getWritableDatabase();
         db.delete( WDdb.T_DICTIONARY, "id = " + dict.getId(), null );
         db.close();
@@ -367,4 +397,5 @@ public class DBDictionaryFactory
 
         return 0;
     }
+
 }

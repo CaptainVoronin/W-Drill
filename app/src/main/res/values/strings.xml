@@ -118,5 +118,13 @@
     <string name="about_one_hour">около часа назад</string>
     <string name="txt_clear_stats">Удалить результаты обучения</string>
     <string name="txt_set_all_learned">Отметить все слова как выученные</string>
+    <string name="txt_dlg_add_word_quick">Добавление слова в блокнот</string>
+    <string name="txt_fatal_internal_error">Фатальная внутренняя ошибка приложения.\\n%s</string>
+    <string name="txt_error_dectionary_deletition">Ошибка при удалении словаря\\n%s</string>
+    <string name="action_view_quick_words">Необработанные слова</string>
+    <string name="action_add_word_quick">Быстро добавить слово</string>
+    <string name="txt_error_open_default_dictionary">Внутренняя ошибка: невозможно открыть список непошитых слов.\\n%s</string>
+    <string name="txt_error">Ошибка</string>
+    <string name="txt_default_dictionary_title">Список неподшитых слов</string>
 
 </resources>

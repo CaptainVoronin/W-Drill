@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.SQLDataException;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -24,14 +25,16 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.sc.w_drill.db_wrapper.DefaultDictionary;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.ActiveDictionaryStateFragment;
-import org.sc.w_drill.utils.TextHelper;
 import org.sc.w_drill.utils.datetime.DateTimeUtils;
 import org.sc.w_drill.utils.Langs;
 import org.sc.w_drill.utils.image.ImageConstraints;
+
+import static java.lang.System.exit;
 
 public class MainActivity extends ActionBarActivity implements DlgDictionary.OnDictionaryOkClickListener
 {
@@ -97,10 +100,29 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
          *
          ********************************************/
         database = new WDdb(getApplicationContext());
-
         SQLiteDatabase db = database.getWritableDatabase();
         db.close();
-        detectState(activeDictID);
+
+        checkDefaultDictionary();
+
+        try {
+            detectState(activeDictID);
+        }
+        catch ( Exception e )
+        {
+            showFatalError();
+            exit( -1 );
+        }
+    }
+
+    private void showFatalError() {
+
+    }
+
+    private void checkDefaultDictionary()
+    {
+        DefaultDictionary defDict = DefaultDictionary.getInstance( database );
+        defDict.init();
     }
 
     private void handleUncaughtException(Thread thread, Throwable e)
@@ -128,14 +150,22 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         {
             ex.printStackTrace();
         }
-        System.exit(1);
+        exit(1);
     }
 
     private void detectState(int activeDictID)
     {
         // Are there
         dictionaryFactory = DBDictionaryFactory.getInstance(database);
-        ArrayList<Dictionary> dictList = dictionaryFactory.getList();
+
+        ArrayList<Dictionary> dictList = null;
+        try {
+            dictList = dictionaryFactory.getList();
+        } catch (SQLDataException e) {
+            e.printStackTrace();
+            showFatalError();
+            exit( -1 );
+        }
 
         if (currentView != null)
             rootView.removeView(currentView);
@@ -181,16 +211,12 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         return setupActiveDict();
     }
 
-    private ArrayList<Dictionary> getDictList()
-    {
-        return dictionaryFactory.getList();
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
         return true;
     }
 
@@ -219,8 +245,52 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
                 intent = new Intent(this, ActAbout.class);
                 startActivity(intent);
             }
+            break;
+            case R.id.action_add_word_quick:
+                addWordQuick();
+                break;
+            case R.id.action_goto_quick_words:
+                gotoQuickWords();
+                break;
+
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void gotoQuickWords()
+    {
+        Intent intent = new Intent(this, ActDictionaryEntry.class);
+        try {
+            intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, DefaultDictionary.getInstance( database ).getId() );
+            intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WHOLE_LIST_ENTRY );
+            startActivity(intent);
+        } catch (SQLDataException e) {
+            e.printStackTrace();
+            showError( getString( R.string.txt_error_open_default_dictionary, e.getMessage() ));
+        }
+    }
+
+    private void showError(String message)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder( this );
+        builder.setMessage( message ).setPositiveButton( android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
+
+            }
+        });
+        builder.setTitle( R.string.txt_error );
+        builder.setIcon( android.R.drawable.ic_dialog_alert );
+        builder.setCancelable( true );
+        builder.create();
+        builder.show();
+    }
+
+    private void addWordQuick()
+    {
+        DialogAddWordQuick dlg = new DialogAddWordQuick( this );
+        dlg.show();
     }
 
     private void showNewDictionaryDialog()

@@ -23,7 +23,10 @@ import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 
 import java.io.File;
+import java.sql.SQLDataException;
 import java.util.ArrayList;
+
+import static java.lang.System.exit;
 
 public class ActDictionaryList extends ActionBarActivity implements DlgDictionary.OnDictionaryOkClickListener
 {
@@ -200,7 +203,14 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
     {
         listDicts = (ListView) findViewById( R.id.listDictionaries );
 
-        dicts = DBDictionaryFactory.getInstance( db ).getList();
+
+        try {
+            dicts = DBDictionaryFactory.getInstance( db ).getList();
+        } catch (SQLDataException e) {
+            e.printStackTrace();
+            showError( getString( R.string.txt_fatal_internal_error, e.getMessage() ));
+            exit(-1);
+        }
 
         // If we have some dictionaries, we will use a the real adapter
         if( dicts.size() != 0 )
@@ -315,7 +325,12 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
                 ex.printStackTrace();
                 //TODO: there should be something more clever
             }
-            DBDictionaryFactory.getInstance(db).delete(dictForOperation);
+            try {
+                DBDictionaryFactory.getInstance(db).delete(dictForOperation);
+            } catch (SQLDataException e) {
+                e.printStackTrace();
+                showError( getString( R.string.txt_error_dectionary_deletition, e.getMessage() ) );
+            }
         }
         if( dictForOperation.getId() == activeDictId )
             activeDictDeleted = true;
