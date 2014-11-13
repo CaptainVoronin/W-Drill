@@ -126,5 +126,7 @@
     <string name="txt_error_open_default_dictionary">Внутренняя ошибка: невозможно открыть список непошитых слов.\\n%s</string>
     <string name="txt_error">Ошибка</string>
     <string name="txt_default_dictionary_title">Список неподшитых слов</string>
+    <string name="appwidget_text">Quick add word</string>
+    <string name="add_widget">Add widget</string>
 
 </resources>
