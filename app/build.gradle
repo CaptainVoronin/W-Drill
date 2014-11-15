@@ -6,7 +6,7 @@ android {
         defaul_config {
             keyAlias 'key for signing apks'
             keyPassword 'toledo'
-            storeFile file('C:/Users/maxsh/.android/android_key_store.jks')
+            storeFile file('C:/Users/Max/android_key_store.jks')
             storePassword 'toledo'
         }
     }
@@ -16,7 +16,7 @@ android {
         applicationId 'org.sc.w_drill'
         minSdkVersion 13
         targetSdkVersion 20
-        versionName 'FirstDraft'
+        versionName '0.1 The First Draft'
         signingConfig signingConfigs.defaul_config
     }
     buildTypes {

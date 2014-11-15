@@ -21,13 +21,12 @@
     <string name="l_fr">французский</string>
     <string name="l_sp">испанский</string>
     <string name="action_dict_list">Словари</string>
-    <string name="action_move_and_delete">Перести слова и удалить</string>
+    <!-- <string name="action_move_and_delete">Перести слова и удалить</string> -->
     <string name="action_delete">Удалить</string>
     <string name="txt_new_dictionary">Создать</string>
     <string name="delete_dictionary_question">Вы действительно хотите удалить словарь %s?</string>
     <string name="current_dict_info" formatted="false">%s (%s)</string>
     <string name="txt_have_to_choose_dict">Не выбран словарь</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="txt_words_total">Всего слов</string>
     <string name="txt_words_for_learn">Слов для изучения</string>
     <string name="txt_words_for_check">Слов для проверки</string>
@@ -38,7 +37,6 @@
     <string name="the_word">Слово</string>
     <string name="transcription">Транскрипция</string>
     <string name="edit_dict">Редактировать словарь</string>
-    <string name="incorrect_word">Такое слово не может быть использовано</string>
     <string name="word_meaning">Значение</string>
     <string name="usage_sample">Пример использования</string>
     <string name="dont_know">Не знаю</string>
@@ -128,5 +126,8 @@
     <string name="txt_default_dictionary_title">Список неподшитых слов</string>
     <string name="appwidget_text">Quick add word</string>
     <string name="add_widget">Add widget</string>
+    <string name="txt_word_already_exists">Такое слово уже есть</string>
+    <string name="txt_malformed_word">Непримлемое слово</string>
+    <string name="txt_word_must_has_menings">Слово должно иметь значения</string>
 
 </resources>

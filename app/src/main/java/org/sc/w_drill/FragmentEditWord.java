@@ -23,7 +23,10 @@ import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.EPartOfSpeech;
 import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
+import org.sc.w_drill.dict.MalformedWord;
 import org.sc.w_drill.dict.Meaning;
+import org.sc.w_drill.dict.MeaningException;
+import org.sc.w_drill.dict.UniqueException;
 import org.sc.w_drill.dict.Word;
 import org.sc.w_drill.dict.WordChecker;
 import org.sc.w_drill.utils.PartsOfSpeech;
@@ -197,10 +200,26 @@ public class FragmentEditWord extends Fragment
     private void saveWord() {
         int id;
 
-        if (!WordChecker.isCorrect(DBWordFactory.getInstance(database, activeDict), activeWord)) {
-            showError(getString(R.string.incorrect_word));
+        try
+        {
+            WordChecker.isCorrect(DBWordFactory.getInstance(database, activeDict), activeWord);
+        }
+        catch (MalformedWord malformedWord)
+        {
+            showError(getString(R.string.txt_malformed_word));
             return;
         }
+        catch (UniqueException e)
+        {
+            showError(getString(R.string.txt_word_already_exists));
+            return;
+        }
+        catch (MeaningException e)
+        {
+            e.printStackTrace();
+            showError(getString(R.string.txt_word_must_has_menings));
+            return;
+        };
 
         if ((id = activeWord.getId()) != -1) {
             try {
@@ -338,7 +357,11 @@ public class FragmentEditWord extends Fragment
             public void onClick(DialogInterface dialog, int id) {
                 // User cancelled the dialog
             }
-        }).setCancelable(true).create().show();
+        }).setCancelable(true)
+                .setTitle( R.string.txt_error)
+                .setIcon( android.R.drawable.ic_dialog_alert )
+                .create()
+                .show();
     }
 
     class OnAddMeaningClickListener implements View.OnClickListener {
