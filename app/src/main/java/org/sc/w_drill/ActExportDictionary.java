@@ -23,6 +23,7 @@ import org.sc.w_drill.backup.ImportHelper;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.utils.MessageDialog;
 
 import java.io.File;
 
@@ -244,16 +245,7 @@ public class ActExportDictionary extends ActionBarActivity {
 
     private void showMessage(String message)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(message).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User cancelled the dialog
-            }
-        });
-        builder.setTitle( R.string.txt_warning);
-        builder.setCancelable(true);
-        builder.create();
-        builder.show();
+        MessageDialog.showInfo( this, message, null, null );
     }
 
     class ExportHandler extends Handler

@@ -28,6 +28,7 @@ import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.utils.ArrayListRandomizer;
 import org.sc.w_drill.utils.CircularArrayList;
+import org.sc.w_drill.utils.MessageDialog;
 import org.sc.w_drill.utils.TextHelper;
 import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 import org.sc.w_drill.utils.image.ImageConstraints;
@@ -139,16 +140,14 @@ public class ActCheckWords extends ActionBarActivity {
 
     private void showErrorEndExit(String message)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
-        builder.setMessage(message).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
+        MessageDialog.showError( this, message, new MessageDialog.Handler()
+        {
+            @Override
+            public void doAction()
+            {
                 finish();
             }
-        });
-
-        builder.setCancelable( true );
-        builder.create();
-        builder.show();
+        }, null );
     }
 
     private View getView() throws RandomizerException, RandomizerEmptyException {

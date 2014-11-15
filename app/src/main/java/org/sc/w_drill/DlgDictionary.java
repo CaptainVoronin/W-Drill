@@ -22,6 +22,7 @@ import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.Langs;
+import org.sc.w_drill.utils.MessageDialog;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -106,20 +107,7 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
                 listener.onNewDictOkClick(newDict.getId());
         }
         else
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder( getContext() );
-            builder.setMessage(R.string.dict_name_already_exists).setNegativeButton( "Cancel", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int id)
-                {
-                    // User cancelled the dialog
-                }
-            });
-
-            builder.setCancelable( true );
-            builder.create();
-            builder.show();
-        }
+            MessageDialog.showError( getContext(), R.string.dict_name_already_exists, null, null );
     }
 
     public interface OnDictionaryOkClickListener
@@ -136,18 +124,7 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
     {
         if( name.length() == 0 )
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder( getContext() );
-            builder.setMessage(R.string.incorrect_name).setNegativeButton( "Cancel", new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int id)
-                {
-                    // User cancelled the dialog
-                }
-            });
-
-            builder.setCancelable( true );
-            builder.create();
-            builder.show();
+            MessageDialog.showError( getContext(), R.string.incorrect_name, null, null );
             return false;
         }
 

@@ -20,6 +20,7 @@ import android.widget.Toast;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.utils.MessageDialog;
 import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 
 import java.io.File;
@@ -107,7 +108,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
         startActivity( intent );
     }
 
-    private void showMessage(String message)
+    /*private void showMessage(String message)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder( this );
         builder.setMessage( message ).setPositiveButton( android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -123,23 +124,12 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
         builder.create();
         builder.show();
 
-    }
+    } */
 
     private void showError(String message)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
-        builder.setMessage( message ).setPositiveButton( android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i)
-            {
-
-            }
-        });
-        builder.setTitle( R.string.txt_dictionary_export );
-        builder.setIcon( android.R.drawable.ic_dialog_alert );
-        builder.setCancelable( true );
-        builder.create();
-        builder.show();
+        String title = getString( R.string.txt_dictionary_export );
+        MessageDialog.showError( this, message, null, title );
     }
 
     /**
@@ -293,24 +283,14 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
     {
         String message = getString( R.string.delete_dictionary_question, name );
 
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
-        builder.setMessage( message ).setNegativeButton( "Cancel", new DialogInterface.OnClickListener()
+        MessageDialog.showQuestion( this, message, null, new MessageDialog.Handler()
         {
-            public void onClick(DialogInterface dialog, int id)
-            {
-                // User cancelled the dialog
-            }
-        }).setPositiveButton( android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i)
+            public void doAction()
             {
                 deleteDictionary();
-           }
-        });
-
-        builder.setCancelable( true );
-        builder.create();
-        builder.show();
+            }
+        }, null);
     }
 
     private void deleteDictionary()

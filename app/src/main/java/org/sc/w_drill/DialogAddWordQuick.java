@@ -15,6 +15,7 @@ import org.sc.w_drill.db_wrapper.DefaultDictionary;
 import org.sc.w_drill.dict.MalformedWord;
 import org.sc.w_drill.dict.UniqueException;
 import org.sc.w_drill.dict.WordChecker;
+import org.sc.w_drill.utils.MessageDialog;
 
 /**
  * Created by MaxSh on 13.11.2014.
@@ -82,13 +83,13 @@ public class DialogAddWordQuick extends Dialog implements View.OnClickListener
         catch (MalformedWord malformedWord)
         {
             malformedWord.printStackTrace();
-            showWarning( getContext().getString(R.string.txt_malformed_word ) );
+            showError(getContext().getString(R.string.txt_malformed_word));
             ret = false;
         }
         catch (UniqueException e)
         {
             e.printStackTrace();
-            showWarning( getContext().getString(R.string.txt_word_already_exists ) );
+            showError(getContext().getString(R.string.txt_word_already_exists));
             ret = false;
         }
 
@@ -96,21 +97,9 @@ public class DialogAddWordQuick extends Dialog implements View.OnClickListener
 
     }
 
-    private void showWarning(String string)
+    private void showError(String string)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setMessage(string).setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-        {
-            public void onClick(DialogInterface dialog, int id)
-            {
-
-            }
-        });
-        builder.setTitle( R.string.txt_error );
-        builder.setIcon( android.R.drawable.ic_dialog_alert );
-        builder.setCancelable(true);
-        builder.create();
-        builder.show();
+        MessageDialog.showError( getContext(), R.string.nothing_to_do, null, null );
     }
 
     private void insertWord()

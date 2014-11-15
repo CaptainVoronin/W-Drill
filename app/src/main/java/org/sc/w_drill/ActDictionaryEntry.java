@@ -27,6 +27,7 @@ import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.db_wrapper.DefaultDictionary;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.utils.MessageDialog;
 
 public class ActDictionaryEntry
         extends ActionBarActivity
@@ -504,18 +505,6 @@ public class ActDictionaryEntry
 
     private void showError(String message)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
-        builder.setMessage( message ).setPositiveButton( android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i)
-            {
-
-            }
-        });
-        builder.setTitle( R.string.txt_error );
-        builder.setIcon( android.R.drawable.ic_dialog_alert );
-        builder.setCancelable( true );
-        builder.create();
-        builder.show();
+        MessageDialog.showError(this, message, null, null );
     }
 }

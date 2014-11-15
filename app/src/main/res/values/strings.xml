@@ -129,5 +129,7 @@
     <string name="txt_word_already_exists">Такое слово уже есть</string>
     <string name="txt_malformed_word">Непримлемое слово</string>
     <string name="txt_word_must_has_menings">Слово должно иметь значения</string>
+    <string name="txt_info">Информация</string>
+    <string name="txt_question">Вопрос</string>
 
 </resources>

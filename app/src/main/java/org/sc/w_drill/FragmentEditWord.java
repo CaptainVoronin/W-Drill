@@ -29,6 +29,7 @@ import org.sc.w_drill.dict.MeaningException;
 import org.sc.w_drill.dict.UniqueException;
 import org.sc.w_drill.dict.Word;
 import org.sc.w_drill.dict.WordChecker;
+import org.sc.w_drill.utils.MessageDialog;
 import org.sc.w_drill.utils.PartsOfSpeech;
 import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 import org.sc.w_drill.utils.image.ImageConstraints;
@@ -350,18 +351,9 @@ public class FragmentEditWord extends Fragment
             activeWord = Word.getDummy();
     }
 
-    void showError(String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-        builder.setMessage(message).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User cancelled the dialog
-            }
-        }).setCancelable(true)
-                .setTitle( R.string.txt_error)
-                .setIcon( android.R.drawable.ic_dialog_alert )
-                .create()
-                .show();
+    void showError(String message)
+    {
+        MessageDialog.showError( getActivity(), message, null, null );
     }
 
     class OnAddMeaningClickListener implements View.OnClickListener {

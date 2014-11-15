@@ -30,6 +30,7 @@ import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.ActiveDictionaryStateFragment;
+import org.sc.w_drill.utils.MessageDialog;
 import org.sc.w_drill.utils.datetime.DateTimeUtils;
 import org.sc.w_drill.utils.Langs;
 import org.sc.w_drill.utils.image.ImageConstraints;
@@ -272,19 +273,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
     private void showError(String message)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
-        builder.setMessage( message ).setPositiveButton( android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i)
-            {
-
-            }
-        });
-        builder.setTitle( R.string.txt_error );
-        builder.setIcon( android.R.drawable.ic_dialog_alert );
-        builder.setCancelable( true );
-        builder.create();
-        builder.show();
+        MessageDialog.showError( this, message, null, null );
     }
 
     private void addWordQuick()
@@ -469,7 +458,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         startActivity(intent);
     }
 
-    protected void showAlert(String message)
+    /*protected void showAlert(String message)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(message).setNegativeButton("Cancel", new DialogInterface.OnClickListener()
@@ -483,7 +472,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         builder.setCancelable(true);
         builder.create();
         builder.show();
-    }
+    } */
 
     public static final String ST_ACTIVE_DICTIONARY_ID = "ST_ACTIVE_DICTIONARY_ID";
 

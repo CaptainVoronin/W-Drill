@@ -28,6 +28,7 @@ import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.utils.CircularArrayList;
 import org.sc.w_drill.utils.DBPair;
 import org.sc.w_drill.utils.LearnColors;
+import org.sc.w_drill.utils.MessageDialog;
 import org.sc.w_drill.utils.PartsOfSpeech;
 import org.sc.w_drill.utils.TextHelper;
 import org.sc.w_drill.utils.Triangle;
@@ -173,59 +174,52 @@ public class ActLearnWords extends ActionBarActivity
 
     private void showMessageAndExit(String string)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
-        builder.setMessage( string ).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id)
+        String title = getString( R.string.txt_words_learning );
+        MessageDialog.showInfo(this, string, new MessageDialog.Handler()
+        {
+            @Override
+            public void doAction()
             {
                 onBackPressed();
             }
-        });
-        builder.setTitle( R.string.txt_words_learning );
-        builder.setCancelable(true);
-        builder.create();
-        builder.show();
+        }, title);
     }
 
     private void showNothingToDoDialog()
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
-        builder.setMessage( R.string.nothing_to_do ).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User cancelled the dialog
+        String title = getString( R.string.txt_words_learning );
+        MessageDialog.showInfo( this, R.string.nothing_to_do, new MessageDialog.Handler()
+        {
+            @Override
+            public void doAction()
+            {
                 onBackPressed();
             }
-        });
-        builder.setTitle( R.string.txt_words_learning );
-        builder.setCancelable(true);
-        builder.create();
-        builder.show();
-
+        }, title );
     }
 
     private void showWhatToDoDialog()
     {
         // TODO: This dialog can be shown if there are a words for checking
-
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
-        builder.setMessage( R.string.no_more_words ).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User cancelled the dialog
-                finish();
-            }
-        }).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener()
+        MessageDialog.showQuestion( this, R.string.no_more_words, new MessageDialog.Handler()
         {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i)
+            public void doAction()
             {
                 Intent intent = new Intent(ActLearnWords.this, ActCheckWords.class);
                 intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
                 startActivity(intent);
+
             }
-        });
-        builder.setTitle( R.string.txt_words_learning );
-        builder.setCancelable(true);
-        builder.create();
-        builder.show();
+        },
+        new MessageDialog.Handler()
+        {
+            @Override
+            public void doAction()
+            {
+                finish();
+            }
+        }, getString ( R.string.txt_words_learning ));
     }
 
     void bringWordToScreen( IWord word )
