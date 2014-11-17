@@ -6,15 +6,18 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.SQLDataException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -67,6 +70,9 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     LinearLayout rootView;
     View currentView;
     ImageConstraints imageConstraints;
+    CheckDictStateTask checkStateTask;
+    DictStateHandler stateHandler;
+    private View statView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -103,6 +109,9 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         database = new WDdb(getApplicationContext());
         SQLiteDatabase db = database.getWritableDatabase();
         db.close();
+
+        stateHandler = new DictStateHandler();
+        checkStateTask = null;
 
         checkDefaultDictionary();
 
@@ -156,6 +165,13 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
     private void detectState(int activeDictID)
     {
+        // Firstly I kill the state task if it exists
+        if( checkStateTask != null )
+            if( !checkStateTask.isCancelled() )
+                checkStateTask.cancel( true );
+
+        checkStateTask = null;
+
         // Are there
         dictionaryFactory = DBDictionaryFactory.getInstance(database);
 
@@ -206,9 +222,9 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
      */
     View restoreState()
     {
+        //TODO: Do I need this function?
         // Set up the action bar.
         actionBar = getSupportActionBar();
-        //actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         return setupActiveDict();
     }
 
@@ -273,7 +289,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
     private void showError(String message)
     {
-        MessageDialog.showError( this, message, null, null );
+        MessageDialog.showError(this, message, null, null);
     }
 
     private void addWordQuick()
@@ -331,92 +347,15 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
         LayoutInflater inflater = getLayoutInflater();
 
-        View view = inflater.inflate(R.layout.active_dict_state_fragment, rootView, false);
-
-        DBDictionaryFactory.getInstance(database).getAdditionalInfo(activeDict);
+        statView = inflater.inflate(R.layout.active_dict_state_fragment, rootView, false);
 
         // Set the active dictionary name
-        TextView text = (TextView) view.findViewById(R.id.dict_name);
+        TextView text = (TextView) statView.findViewById(R.id.dict_name);
         text.setText(activeDict.getName());
 
         // Set the dictionary lang
-        text = (TextView) view.findViewById(R.id.tvDictLang);
+        text = (TextView) statView.findViewById(R.id.tvDictLang);
         text.setText(Langs.getInstance(this).get(activeDict.getLang()));
-
-        // Set last access time
-        text = ( TextView ) view.findViewById( R.id.tvLastAccess );
-
-        if( activeDict.getLastAccess() == null )
-            text.setText( getString( R.string.txt_last_access_date, getString( R.string.txt_never )));
-        else
-        {
-            String message = DateTimeUtils.timeIntervalToString( this, activeDict.getLastAccess() );
-            text.setText( getString(R.string.txt_last_access_date,message));
-        }
-
-        /**************************************
-         *
-         * Set the word count
-         *
-         * ************************************/
-
-        text = (TextView) view.findViewById(R.id.word_count);
-        text.setText(Integer.valueOf(activeDict.getWordCount()).toString());
-
-        if (activeDict.getWordCount() != 0)
-        {
-            OnTotalWordsClick handler = new OnTotalWordsClick();
-            text.setOnClickListener(handler);
-            text = (TextView) view.findViewById(R.id.total_words_label);
-            text.setOnClickListener(handler);
-        }
-
-        /**************************************
-         *
-         * Set the words-to-learn count
-         *
-         * ************************************/
-
-        TextView label = (TextView) view.findViewById(R.id.words_to_learn_label);
-        TextView counter = (TextView) view.findViewById(R.id.words_for_learn);
-
-        if (activeDict.getWordsToLearn() != 0)
-        {
-            label.setText(R.string.txt_words_for_learn);
-            counter.setText(Integer.valueOf(activeDict.getWordsToLearn()).toString());
-
-            label.setOnClickListener(new OnLearnWordsClick());
-            counter.setOnClickListener(new OnLearnWordsClick());
-        }
-        else
-        {
-            label.setText(R.string.txt_no_words_to_learn);
-            counter.setText("");
-        }
-        //text.setPaintFlags(text.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-
-        /**************************************
-         *
-         * Set the words-to-check count
-         *
-         * ************************************/
-
-        counter = (TextView) view.findViewById(R.id.words_for_check);
-        label = (TextView) view.findViewById(R.id.words_to_check_label);
-
-        if (activeDict.getWordsToCheck() != 0)
-        {
-            label.setText(R.string.txt_words_for_check);
-            counter.setText(Integer.valueOf(activeDict.getWordsToCheck()).toString());
-            label.setOnClickListener(new OnCheckClick());
-            counter.setOnClickListener(new OnCheckClick());
-
-        }
-        else
-        {
-            label.setText(R.string.txt_no_words_for_check);
-            counter.setText("");
-        }
 
         /**************************************
          *
@@ -424,7 +363,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
          *
          * ************************************/
 
-        text = (TextView) view.findViewById(R.id.add_words);
+        text = (TextView) statView.findViewById(R.id.add_words);
         text.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -437,7 +376,99 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
             }
         });
 
-        return view;
+        CheckDictStateTaskParams params = new CheckDictStateTaskParams();
+        params.context = this;
+        params.dictId = activeDict.getId();
+
+        checkStateTask = new CheckDictStateTask();
+        checkStateTask.execute( new CheckDictStateTaskParams[] { params } );
+
+        // Yes, it's clumsy, but I prefer a single approach
+        /*DBDictionaryFactory.getInstance(database).getAdditionalInfo(activeDict);
+
+        DictStats stats = new DictStats();
+
+        setupStats(stats); */
+
+        return statView;
+
+    }
+
+    void setupStats(DictStats stats)
+    {
+        // Set last access time
+        TextView text = ( TextView ) statView.findViewById( R.id.tvLastAccess );
+
+        if( stats == null )
+            text.setText( getString( R.string.txt_last_access_date, getString( R.string.txt_never )));
+        else
+        {
+            String message = DateTimeUtils.timeIntervalToString( this, stats.lastAccess );
+            text.setText( getString(R.string.txt_last_access_date,message));
+        }
+
+        /**************************************
+         *
+         * Set the word count
+         *
+         * ************************************/
+
+        text = (TextView) statView.findViewById(R.id.word_count);
+        text.setText(Integer.valueOf(stats.wordsTotal).toString());
+
+        if (stats.wordsTotal != 0)
+        {
+            OnTotalWordsClick handler = new OnTotalWordsClick();
+            text.setOnClickListener(handler);
+            text = (TextView) statView.findViewById(R.id.total_words_label);
+            text.setOnClickListener(handler);
+        }
+
+        /**************************************
+         *
+         * Set the words-to-learn count
+         *
+         * ************************************/
+
+        TextView label = (TextView) statView.findViewById(R.id.words_to_learn_label);
+        TextView counter = (TextView) statView.findViewById(R.id.words_for_learn);
+
+        if (stats.wordsForLearn != 0)
+        {
+            label.setText(R.string.txt_words_for_learn);
+            counter.setText(Integer.valueOf(stats.wordsForLearn).toString());
+
+            label.setOnClickListener(new OnLearnWordsClick());
+            counter.setOnClickListener(new OnLearnWordsClick());
+        }
+        else
+        {
+            label.setText(R.string.txt_no_words_to_learn);
+            counter.setText("");
+        }
+
+        /**************************************
+         *
+         * Set the words-to-check count
+         *
+         * ************************************/
+
+        counter = (TextView) statView.findViewById(R.id.words_for_check);
+        label = (TextView) statView.findViewById(R.id.words_to_check_label);
+
+        if ( stats.wordsForCheck != 0)
+        {
+            label.setText(R.string.txt_words_for_check);
+            counter.setText(Integer.valueOf(stats.wordsForCheck).toString());
+            label.setOnClickListener(new OnCheckClick());
+            counter.setOnClickListener(new OnCheckClick());
+
+        }
+        else
+        {
+            label.setText(R.string.txt_no_words_for_check);
+            counter.setText("");
+        }
 
     }
 
@@ -458,22 +489,6 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         startActivity(intent);
     }
 
-    /*protected void showAlert(String message)
-    {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(message).setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-        {
-            public void onClick(DialogInterface dialog, int id)
-            {
-                // User cancelled the dialog
-            }
-        });
-
-        builder.setCancelable(true);
-        builder.create();
-        builder.show();
-    } */
-
     public static final String ST_ACTIVE_DICTIONARY_ID = "ST_ACTIVE_DICTIONARY_ID";
 
     @Override
@@ -488,6 +503,10 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         else
             ed.putInt(ST_ACTIVE_DICTIONARY_ID, -1);
         ed.commit();
+
+        if( checkStateTask != null )
+            if( !checkStateTask.isCancelled() )
+                checkStateTask.cancel( true );
     }
 
     /**
@@ -595,6 +614,87 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
             intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WHOLE_LIST_ENTRY);
 
             startActivityForResult(intent, CODE_ActDictionaryEntry);
+        }
+    }
+
+    class DictStateHandler extends android.os.Handler
+    {
+        @Override
+        public void handleMessage(android.os.Message msg)
+        {
+            if( msg.obj != null && msg.obj instanceof DictStats )
+            {
+                DictStats stats = ( DictStats ) msg.obj;
+                setupStats(stats);
+            }
+        }
+    }
+
+    class CheckDictStateTaskParams
+    {
+        Context context;
+        int dictId;
+    }
+
+    class DictStats
+    {
+        int wordsForLearn;
+        int wordsForCheck;
+        int wordsTotal;
+        Date lastAccess;
+    }
+
+    class CheckDictStateTask extends AsyncTask<CheckDictStateTaskParams, Void, Void >
+    {
+        CheckDictStateTaskParams param;
+
+        @Override
+        protected Void doInBackground(CheckDictStateTaskParams... params)
+        {
+
+
+            boolean killed = false;
+            WDdb database;
+
+            param = params[0];
+            database = new WDdb( param.context );
+
+            DBDictionaryFactory instance = DBDictionaryFactory.getInstance( database );
+
+            Dictionary dict = instance.getDictionaryById(param.dictId);
+
+            while( !isCancelled() )
+            {
+
+                try {
+                    TimeUnit.SECONDS.sleep(60);
+                }
+                catch ( InterruptedException ex )
+                {
+                    killed = true;
+                }
+
+                if( killed )
+                    break;
+
+                instance.getAdditionalInfo( dict );
+
+                DictStats stats = new DictStats();
+
+                stats.wordsForLearn = dict.getWordsToLearn();
+                stats.wordsForCheck = dict.getWordsToCheck();
+                stats.lastAccess = dict.getLastAccess();
+                stats.wordsTotal = dict.getWordCount();
+
+                Message msg = new Message();
+
+                msg.obj = stats;
+
+                stateHandler.sendMessage( msg );
+            }
+            Log.d( "CheckDictStateTask::doInBackground", "Task is cancelled" );
+
+            return null;
         }
     }
 }

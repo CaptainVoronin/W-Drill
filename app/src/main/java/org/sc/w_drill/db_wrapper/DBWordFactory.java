@@ -31,6 +31,12 @@ public class DBWordFactory
     WDdb database;
     Dictionary dict;
 
+    public static final String wordsToCheckWhereClause = " stage = 1 and " +
+            "( julianday( 'now' ) - julianday( last_access ) >= " +  WDdb.checkTimeOut + " or last_access IS NULL ) and  dict_id = ? ";
+
+    public static final String wordsToLearnWhereClause = " stage = 0 and " +
+            "( julianday( 'now' ) - julianday( last_access ) >= " +  WDdb.learnTimeOut + " or last_access IS NULL ) and  dict_id = ? ";
+
     public static DBWordFactory getInstance( WDdb _db, Dictionary _dict )
     {
         if( instance == null )
@@ -285,10 +291,7 @@ public class DBWordFactory
         SQLiteDatabase db = database.getReadableDatabase();
         String statement = "select id, (julianday( 'now' ) - julianday( last_access )) as result " +
                 "from words where " +
-                "stage = 0 and " +
-                "( result >= " +  WDdb.learnTimeOut + " or last_access IS NULL ) and  " +
-                //"( result >= 0.08 or last_access IS NULL ) and  " +
-                "dict_id = ? " +
+                wordsToLearnWhereClause  +
                 "order by access_count asc, percent asc, result desc, avg_time desc " +
                 "limit ?; ";
 
@@ -320,10 +323,8 @@ public class DBWordFactory
         SQLiteDatabase db = database.getReadableDatabase();
         String statement = "select id, (julianday( 'now' ) - julianday( last_access )) as result " +
                 "from words where " +
-                "stage = 1 and " +
-               // "( result >= " +  WDdb.checkTimeOut + " or last_access IS NULL ) and  " +
-                "dict_id = ? " +
-                "order by result asc, percent asc, avg_time desc " +
+                wordsToCheckWhereClause +
+                "order by result asc, percent asc " +
                 "limit ?; ";
 
         Cursor crs = db.rawQuery( statement, new String[]{ Integer.valueOf( dict.getId() ).toString(), Integer.valueOf( limit ).toString()} );

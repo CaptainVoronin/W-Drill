@@ -217,7 +217,7 @@ public class ActLearnWords extends ActionBarActivity
             @Override
             public void doAction()
             {
-                finish();
+                onBackPressed();
             }
         }, getString ( R.string.txt_words_learning ));
     }

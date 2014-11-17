@@ -235,9 +235,7 @@ public class DBDictionaryFactory
         int count = 0;
         String statement = "select count( id ) " +
                 "from words " +
-                "where ( julianday( 'now' ) - julianday( last_access ) ) >= " + WDdb.checkTimeOut +
-                " and " +
-                "dict_id = ? and stage = 1";
+                "where " + DBWordFactory.wordsToCheckWhereClause;
 
         Cursor crs = db.rawQuery(statement, new String[] { Integer.toString( dict_id ) });
 
@@ -255,12 +253,9 @@ public class DBDictionaryFactory
         int count = 0;
         //TODO: There should be a parameter which contains a time interval
         // between learning sessions. Now it's hardcoded with value 0.08 - two hours.
-        String statement = "select count( id ), julianday( 'now' ) - julianday( last_access ) as result " +
+        String statement = "select count( id ) " +
                 "from words " +
-                "where dict_id = ? " +
-                " and stage = 0 " +
-                " and ( result >= " +  WDdb.learnTimeOut + " or last_access IS NULL ) ";
-                //" and ( result >= 0.08 or last_access IS NULL ) ";
+                "where " + DBWordFactory.wordsToLearnWhereClause;
 
         Cursor crs = db.rawQuery(statement, new String[] { Integer.toString( dict_id ) });
 
