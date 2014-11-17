@@ -383,13 +383,6 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         checkStateTask = new CheckDictStateTask();
         checkStateTask.execute( new CheckDictStateTaskParams[] { params } );
 
-        // Yes, it's clumsy, but I prefer a single approach
-        /*DBDictionaryFactory.getInstance(database).getAdditionalInfo(activeDict);
-
-        DictStats stats = new DictStats();
-
-        setupStats(stats); */
-
         return statView;
 
     }
@@ -490,6 +483,19 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     }
 
     public static final String ST_ACTIVE_DICTIONARY_ID = "ST_ACTIVE_DICTIONARY_ID";
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        int id;
+
+        if (activeDict == null)
+            id = -1;
+        else
+            id = activeDict.getId();
+        detectState(id);
+    }
 
     @Override
     protected void onPause()
@@ -651,8 +657,6 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         @Override
         protected Void doInBackground(CheckDictStateTaskParams... params)
         {
-
-
             boolean killed = false;
             WDdb database;
 
@@ -663,20 +667,8 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
             Dictionary dict = instance.getDictionaryById(param.dictId);
 
-            while( !isCancelled() )
+            do
             {
-
-                try {
-                    TimeUnit.SECONDS.sleep(60);
-                }
-                catch ( InterruptedException ex )
-                {
-                    killed = true;
-                }
-
-                if( killed )
-                    break;
-
                 instance.getAdditionalInfo( dict );
 
                 DictStats stats = new DictStats();
@@ -691,8 +683,19 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
                 msg.obj = stats;
 
                 stateHandler.sendMessage( msg );
-            }
-            Log.d( "CheckDictStateTask::doInBackground", "Task is cancelled" );
+
+                try {
+                    TimeUnit.SECONDS.sleep(60);
+                }
+                catch ( InterruptedException ex )
+                {
+                    killed = true;
+                }
+
+                if( killed )
+                    break;
+
+            } while( !isCancelled() );
 
             return null;
         }

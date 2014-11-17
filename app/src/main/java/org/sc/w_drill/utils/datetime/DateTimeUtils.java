@@ -50,7 +50,6 @@ public class DateTimeUtils
 
     public static String getDateTimeString( Date dt, boolean seconds )
     {
-
         String str;
 
         if( seconds )
@@ -115,19 +114,18 @@ public class DateTimeUtils
         // I don't want convert intervals which are longer than 20 lays
         if( ti.days > 20 )
             throw new IntervalToBigException();
-        else if( ti.days >= 2  )
+        else if( ti.days >= 2  ) // 20 > x >= 2
             message = String.format( "%d %s", ti.days, getDayWord( context, ti.days ) );
-        else if( ti.days == 1 )
+        else if( ti.days == 1 ) //
             if( ti.hours > 6 )
                 message = String.format( "%d %s %d %s", ti.days, getDayWord( context, ti.days ),
                                                         ti.hours, getHourWord(context, ti.hours));
             else
                 message = String.format( "%d %s", ti.days, getDayWord( context, ti.days ) );
-        else
-        if( ti.hours >= 1)
-            message = String.format( context.getString( R.string.about_one_hour ) );
-        else
+        else if( ti.hours >= 1)
             message = String.format( "%d %s", ti.hours, getHourWord( context, ti.hours ) );
+        else
+            message = String.format( context.getString( R.string.about_one_hour ) );
 
         return message;
     }
