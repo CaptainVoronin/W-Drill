@@ -6,7 +6,7 @@ android {
         defaul_config {
             keyAlias 'key for signing apks'
             keyPassword 'toledo'
-            storeFile file('C:/Users/maxsh/.android/android_key_store.jks')
+            storeFile file('C:/Users/Max/android_key_store.jks')
             storePassword 'toledo'
         }
     }

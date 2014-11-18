@@ -366,7 +366,7 @@ public class DBDictionaryFactory
         {
             String str = crs.getString(0);
             if( str != null )
-                dt = DateTimeUtils.strToDate(str);
+                dt = DateTimeUtils.strToLocalDate(str);
             crs.close();
         }
 

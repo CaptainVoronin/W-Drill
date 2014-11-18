@@ -26,23 +26,23 @@ public class DateTimeUtils
     public static String getDateTimeString()
     {
         String str = "%d-%02d-%02d %02d:%02d";
-        Calendar cl = Calendar.getInstance();
-        return String.format( str, cl.get( Calendar.DAY_OF_MONTH ),
-                cl.get( Calendar.MONTH ),
-                cl.get( Calendar.DAY_OF_MONTH ),
-                cl.get( Calendar.HOUR ),
-                cl.get( Calendar.MINUTE ));
+        LocalDateTime cl = new LocalDateTime();
+        return String.format( str, cl.getYear(),
+                cl.getMonthOfYear(),
+                cl.getDayOfMonth(),
+                cl.getHourOfDay(),
+                cl.getMinuteOfHour());
     }
 
     public static String mkFilenameForTime()
     {
         String str = "%d-%02d-%02d %02d.%02d";
-        Calendar cl = Calendar.getInstance();
-        return String.format( str, cl.get( Calendar.DAY_OF_MONTH ),
-                cl.get( Calendar.MONTH ),
-                cl.get( Calendar.DAY_OF_MONTH ),
-                cl.get( Calendar.HOUR ),
-                cl.get( Calendar.MINUTE ));
+        LocalDateTime cl = new LocalDateTime();
+        return String.format( str, cl.getYear(),
+                cl.getMonthOfYear(),
+                cl.getDayOfMonth(),
+                cl.getHourOfDay(),
+                cl.getMinuteOfHour());
     }
 
     public static String getSQLDateTimeString( DateTime dt )
@@ -59,8 +59,8 @@ public class DateTimeUtils
             str = getSQLDateTimeString(  dt );
         else
         {
-            SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm" );
-            str = sdf.format(dt);
+            DateTimeFormatter sdf = DateTimeFormat.forPattern( "yyyy-MM-dd HH:mm:ss" );
+            str = sdf.print( dt );
         }
         return str;
     }
@@ -98,7 +98,6 @@ public class DateTimeUtils
         {
             dt = sdf.parseDateTime(str);
             dt = new DateTime( dtz.convertUTCToLocal( dt.getMillis() ) );
-
         }
         catch (Exception e)
         {
@@ -115,11 +114,12 @@ public class DateTimeUtils
      */
     public static String timeIntervalToString( Context context, DateTime dt )
     {
+
         LocalDateTime now = new LocalDateTime();
 
-        LocalDateTime diff = now.minusMillis( ( int ) dt.getMillis() );
+        long diff = now.toDateTime().getMillis() - dt.getMillis();
 
-        TimeInterval ti = calculateTimeInterval( diff.toDateTime().getMillis() );
+        TimeInterval ti = calculateTimeInterval( diff );
 
         try
         {
@@ -153,8 +153,10 @@ public class DateTimeUtils
                 message = String.format( "%d %s", ti.days, getDayWord( context, ti.days ) );
         else if( ti.hours >= 1)
             message = String.format( "%d %s", ti.hours, getHourWord( context, ti.hours ) );
-        else
+        else if( ti.minutes >= 40 )
             message = String.format( context.getString( R.string.about_one_hour ) );
+        else
+            message = String.format( context.getString( R.string.less_than_one_hour ) );
 
         return message;
     }
