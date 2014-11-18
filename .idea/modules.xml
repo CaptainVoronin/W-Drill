@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/W-Drill.iml" filepath="$PROJECT_DIR$/W-Drill.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/joda-time-2.5/joda-time-2.5.iml" filepath="$PROJECT_DIR$/joda-time-2.5/joda-time-2.5.iml" />
     </modules>
   </component>
 </project>
