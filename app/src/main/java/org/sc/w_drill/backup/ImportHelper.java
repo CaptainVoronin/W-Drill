@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import org.joda.time.DateTime;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
@@ -207,7 +208,7 @@ public class ImportHelper
         String transcr = null;
         int percent = 0;
         int state = 0;
-        Date updated = null, accessed = null;
+        DateTime updated = null, accessed = null;
 
         // TODO: dangerous code - starts here
         Node att = word_node.getAttributes().getNamedItem( "uuid" );

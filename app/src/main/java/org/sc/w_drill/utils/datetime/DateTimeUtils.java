@@ -2,9 +2,12 @@ package org.sc.w_drill.utils.datetime;
 
 import android.content.Context;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.sc.w_drill.R;
-
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,13 +45,13 @@ public class DateTimeUtils
                 cl.get( Calendar.MINUTE ));
     }
 
-    public static String getSQLDateTimeString( Date dt )
+    public static String getSQLDateTimeString( DateTime dt )
     {
         SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
         return sdf.format( dt ).toString();
     }
 
-    public static String getDateTimeString( Date dt, boolean seconds )
+    public static String getDateTimeString( DateTime dt, boolean seconds )
     {
         String str;
 
@@ -57,7 +60,7 @@ public class DateTimeUtils
         else
         {
             SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm" );
-            str = sdf.format( dt );
+            str = sdf.format(dt);
         }
         return str;
     }
@@ -67,15 +70,16 @@ public class DateTimeUtils
      * @param str date in format yyyy-mm-dd hh:mm:ss
      * @return
      */
-    public static Date strToDate(String str)
+    public static DateTime strToDate(String str)
     {
-        Date dt = null;
-        SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+        DateTime dt = null;
+
+        DateTimeFormatter sdf = DateTimeFormat.forPattern( "yyyy-MM-dd HH:mm:ss" );
+
         TimeZone tz = TimeZone.getDefault();
-        sdf.setTimeZone( tz );
         try
         {
-            dt = sdf.parse( str );
+            dt = sdf.parseDateTime(str);
         }
         catch (Exception e)
         {
@@ -84,13 +88,38 @@ public class DateTimeUtils
         return dt;
     }
 
-    public static String timeIntervalToString( Context context, Date dt )
+    public static DateTime strToLocalDate(String str)
     {
-        Date now = new Date();
+        DateTime dt = null;
+        DateTimeFormatter sdf = DateTimeFormat.forPattern( "yyyy-MM-dd HH:mm:ss" );
+        DateTimeZone dtz = DateTimeZone.getDefault();
 
-        long diff = now.getTime() - dt.getTime();
+        try
+        {
+            dt = sdf.parseDateTime(str);
+            dt = new DateTime( dtz.convertUTCToLocal( dt.getMillis() ) );
 
-        TimeInterval ti = calculateTimeInterval( diff );
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return dt;
+    }
+
+    /**
+     *
+     * @param context
+     * @param dt must be in local time zone
+     * @return
+     */
+    public static String timeIntervalToString( Context context, DateTime dt )
+    {
+        LocalDateTime now = new LocalDateTime();
+
+        LocalDateTime diff = now.minusMillis( ( int ) dt.getMillis() );
+
+        TimeInterval ti = calculateTimeInterval( diff.toDateTime().getMillis() );
 
         try
         {

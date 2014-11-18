@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import org.joda.time.DateTime;
 import org.sc.w_drill.db.Utils;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.dict.Dictionary;
@@ -350,9 +351,9 @@ public class DBDictionaryFactory
      * @param dict
      * @return
      */
-    public Date getLastAccess( SQLiteDatabase db, Dictionary dict )
+    public DateTime getLastAccess( SQLiteDatabase db, Dictionary dict )
     {
-        Date dt = null;
+        DateTime dt = null;
 
         Utils.dumpQuery(db,  "select id, word, updated, last_access, (julianday( 'now' ) - julianday( last_access )) as result" +
                 " from words where dict_id = " + dict.getId() + " order by result asc, percent asc, avg_time desc " );

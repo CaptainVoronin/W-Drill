@@ -1,5 +1,7 @@
 package org.sc.w_drill.dict;
 
+import org.joda.time.DateTime;
+
 import java.util.Date;
 
 /**
@@ -14,7 +16,7 @@ public class Dictionary {
     int words_to_check;
     private String lang;
     String uuid;
-    private Date lastAccess;
+    private DateTime lastAccess;
     private int imagesCount;
     private long imagesSize;
 
@@ -110,12 +112,12 @@ public class Dictionary {
     }
 
 
-    public Date getLastAccess()
+    public DateTime getLastAccess()
     {
         return lastAccess;
     }
 
-    public void setLastAccess(Date lastAccess)
+    public void setLastAccess(DateTime lastAccess)
     {
         this.lastAccess = lastAccess;
     }

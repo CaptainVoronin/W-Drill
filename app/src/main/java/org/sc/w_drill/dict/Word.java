@@ -1,5 +1,7 @@
 package org.sc.w_drill.dict;
 
+import org.joda.time.DateTime;
+
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -10,8 +12,8 @@ public class Word extends BaseWord implements IWord
 {
     ArrayList<IMeaning> meanings;
     String transcription;
-    private Date lastUpdate;
-    private Date lastAccess;
+    private DateTime lastUpdate;
+    private DateTime lastAccess;
 
     public Word ( int _id, String _word, int _learnPercent, LearnState _state, int _avgTime, int _accessCount, String uuid  )
     {
@@ -67,21 +69,21 @@ public class Word extends BaseWord implements IWord
         return meanings;
     }
 
-    public Date getLastUpdate() {
+    public DateTime getLastUpdate() {
         return lastUpdate;
     }
 
-    public void setLastUpdate(Date lastUpdate) {
+    public void setLastUpdate(DateTime lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
 
     @Override
-    public Date getLastAccess() {
+    public DateTime getLastAccess() {
         return lastAccess;
     }
 
     @Override
-    public void setLastAccess(Date lastAccess) {
+    public void setLastAccess(DateTime lastAccess) {
         this.lastAccess = lastAccess;
     }
 }

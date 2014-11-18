@@ -28,6 +28,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.joda.time.DateTime;
 import org.sc.w_drill.db_wrapper.DefaultDictionary;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
@@ -389,6 +390,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
     void setupStats(DictStats stats)
     {
+
         // Set last access time
         TextView text = ( TextView ) statView.findViewById( R.id.tvLastAccess );
 
@@ -647,7 +649,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         int wordsForLearn;
         int wordsForCheck;
         int wordsTotal;
-        Date lastAccess;
+        DateTime lastAccess;
     }
 
     class CheckDictStateTask extends AsyncTask<CheckDictStateTaskParams, Void, Void >
