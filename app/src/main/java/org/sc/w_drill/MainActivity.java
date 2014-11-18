@@ -687,7 +687,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
                 stateHandler.sendMessage( msg );
 
                 try {
-                    TimeUnit.SECONDS.sleep(60);
+                    TimeUnit.SECONDS.sleep(900);
                 }
                 catch ( InterruptedException ex )
                 {

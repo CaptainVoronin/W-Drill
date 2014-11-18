@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.sc.w_drill"
-    android:versionCode="335"
+    android:versionCode="339"
     android:versionName="FirstDraft" >
     >
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
