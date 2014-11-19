@@ -91,6 +91,7 @@ public class DefaultDictionary
 
     public void addWord( String word ) throws Exception {
         Word w = new Word( word );
+        w.meanings().clear();
         w.addMeaning( new Meaning( "..." ) );
         DBWordFactory.getInstance( database, getDictionary() ).insertWord( w );
     }
