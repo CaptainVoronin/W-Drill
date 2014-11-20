@@ -88,11 +88,6 @@ public class FragmentEditWord extends Fragment
 
     }
 
-/*    private void prepareForNewWord()
-    {
-        edWord.setText("");
-    } */
-
     public void bringWordToScreen() {
         edWord.setText(activeWord.getWord());
         edTranscription.setText(activeWord.getTranscription());
@@ -159,7 +154,7 @@ public class FragmentEditWord extends Fragment
         return rootView;
     }
 
-    public void startSaveWord() {
+    public IWord startSaveWord() {
         /**
          * Gathering information
          */
@@ -195,10 +190,10 @@ public class FragmentEditWord extends Fragment
             m.addExample(example.trim());
             activeWord.meanings().add(m);
         }
-        saveWord();
+        return saveWord();
     }
 
-    private void saveWord() {
+    private IWord saveWord() {
         int id;
 
         try
@@ -208,18 +203,18 @@ public class FragmentEditWord extends Fragment
         catch (MalformedWord malformedWord)
         {
             showError(getString(R.string.txt_malformed_word));
-            return;
+            return null;
         }
         catch (UniqueException e)
         {
             showError(getString(R.string.txt_word_already_exists));
-            return;
+            return null;
         }
         catch (MeaningException e)
         {
             e.printStackTrace();
             showError(getString(R.string.txt_word_must_has_menings));
-            return;
+            return null;
         };
 
         if ((id = activeWord.getId()) != -1) {
@@ -229,7 +224,7 @@ public class FragmentEditWord extends Fragment
             } catch (Exception e) {
                 e.printStackTrace();
                 showError( getString( R.string.error_on_word_update) + "\n" + e.getMessage() );
-                return;
+                return null;
             }
         } else {
             try {
@@ -239,7 +234,7 @@ public class FragmentEditWord extends Fragment
             {
                 e.printStackTrace();
                 showError( getString( R.string.error_on_word_insert) + "\n" + e.getMessage() );
-                return;
+                return null;
             }
 
             try {
@@ -254,7 +249,7 @@ public class FragmentEditWord extends Fragment
                 DBWordFactory.getInstance( database, activeDict ).delete( activeWord );
                 e.printStackTrace();
                 showError( getString( R.string.error_on_image_saving) + "\n" + e.getMessage() );
-                return;
+                return null;
             }
         }
 
@@ -264,8 +259,9 @@ public class FragmentEditWord extends Fragment
          * or an old word has been changed.
          */
         mListener.onWordAdded(id);
-
+        IWord word = activeWord;
         clear();
+        return word;
     }
 
     @Override
@@ -296,6 +292,11 @@ public class FragmentEditWord extends Fragment
         meaningViewList.remove(meaningView);
         viewContainer.removeView(view);
         setRemovable();
+    }
+
+    public IWord getActiveWord()
+    {
+        return activeWord;
     }
 
     /**

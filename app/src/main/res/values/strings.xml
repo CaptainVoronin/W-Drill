@@ -132,5 +132,9 @@
     <string name="txt_info">Информация</string>
     <string name="txt_question">Вопрос</string>
     <string name="less_than_one_hour">меньше часа назад</string>
+    <string name="txt_put_word_in_dictionary">Сохранить в словаре</string>
+    <string name="txt_leave_in_default_dict">Оставить в блокноте</string>
+    <string name="txt_dlg_what_to_do_with_word">Куда сохранить слово?</string>
+    <string name="txt_notepad_title">Блокнот</string>
 
 </resources>

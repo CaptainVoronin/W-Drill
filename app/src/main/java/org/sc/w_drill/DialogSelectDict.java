@@ -5,12 +5,10 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
-
 import java.sql.SQLDataException;
 import java.util.ArrayList;
 
@@ -22,12 +20,11 @@ public class DialogSelectDict extends Dialog
     Dictionary excludeDict;
     WDdb database;
     Context context;
-    int result;
     DictionaryDialogListener listener;
     Dictionary selectedDict = null;
     protected ArrayList<Dictionary> dicts;
 
-    public DialogSelectDict(Context _context, Dictionary _excludeDict, DictionaryDialogListener _listener )
+    public DialogSelectDict(Context _context, Dictionary _excludeDict, DictionaryDialogListener _listener)
     {
         super(_context);
         excludeDict = _excludeDict;
@@ -35,27 +32,31 @@ public class DialogSelectDict extends Dialog
         listener = _listener;
     }
 
-    public void onCreate( Bundle savedInstance )
-{
-    super.onCreate(savedInstance);
-    setTitle(R.string.txt_dlg_select_dict);
-    setContentView(R.layout.dlg_select_dict);
-    setCancelable( true );
-    try {
-        fillList();
-    } catch (SQLDataException e) {
-        e.printStackTrace();
+    public void onCreate(Bundle savedInstance)
+    {
+        super.onCreate(savedInstance);
+        setTitle(R.string.txt_dlg_select_dict);
+        setContentView(R.layout.dlg_select_dict);
+        setCancelable(true);
+        try
+        {
+            fillList();
+        }
+        catch (SQLDataException e)
+        {
+            e.printStackTrace();
+        }
     }
-}
 
-    private void fillList() throws SQLDataException {
-        database = new WDdb( context );
-        dicts = DBDictionaryFactory.getInstance( database ).getList();
-        dicts.remove( excludeDict );
-        DictListAdapter adapter = new DictListAdapter( context, dicts, DictListAdapter.ListForm.SHORT );
-        ListView list = ( ListView ) findViewById( R.id.listDicts );
-        list.setAdapter( adapter );
-        list.setOnItemClickListener( new OnDictItemClickListener() );
+    private void fillList() throws SQLDataException
+    {
+        database = new WDdb(context);
+        dicts = DBDictionaryFactory.getInstance(database).getList();
+        dicts.remove(excludeDict);
+        DictListAdapter adapter = new DictListAdapter(context, dicts, DictListAdapter.ListForm.SHORT);
+        ListView list = (ListView) findViewById(R.id.listDicts);
+        list.setAdapter(adapter);
+        list.setOnItemClickListener(new OnDictItemClickListener());
     }
 
     public Dictionary getSelectedDictionary()
@@ -70,21 +71,22 @@ public class DialogSelectDict extends Dialog
         {
             selectedDict = dicts.get(i);
             dismiss();
-            if( listener != null )
-                listener.onDictSelected( selectedDict );
+            if (listener != null)
+                listener.onDictSelected(selectedDict);
         }
     }
 
     public void onBackPressed()
     {
         super.onBackPressed();
-        if( listener != null )
-            listener.onCanceled( );
+        if (listener != null)
+            listener.onCanceled();
     }
 
     public interface DictionaryDialogListener
     {
-        public void onDictSelected ( Dictionary dict );
-        public void onCanceled ( );
+        public void onDictSelected(Dictionary dict);
+
+        public void onCanceled();
     }
 }

@@ -7,7 +7,8 @@ import java.util.Date;
 /**
  * Created by maxsh on 29.09.2014.
  */
-public class Dictionary {
+public class Dictionary
+{
 
     private int id;
     private String name;

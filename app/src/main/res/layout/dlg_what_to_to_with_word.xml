@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="6pt">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/txt_put_word_in_dictionary"
+        android:id="@+id/textView3" />
+
+    <ListView
+        android:layout_marginTop="3pt"
+        android:layout_marginLeft="6pt"
+        android:layout_marginBottom="3pt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/listDictionaries" />
+
+    <Button
+        android:background="@null"
+        android:gravity="left|center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/txt_leave_in_default_dict"
+        android:id="@+id/btnSaveAsIs"/>
+</LinearLayout>

@@ -44,8 +44,8 @@ public class DBDictionaryFactory
     }
 
     /**
-     * Возвращает список словарей
-     * @return список словарей
+     * It returns the list of dictionaries without default dict
+     * @return the list of dictionaries without default dict
      */
     public ArrayList<Dictionary> getList() throws android.database.sqlite.SQLiteException, SQLDataException
     {

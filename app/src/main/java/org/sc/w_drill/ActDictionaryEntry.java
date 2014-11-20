@@ -1,11 +1,9 @@
 package org.sc.w_drill;
 
-import java.sql.SQLDataException;
+import java.util.ArrayList;
 import java.util.Locale;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
@@ -16,7 +14,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,13 +24,16 @@ import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.db_wrapper.DefaultDictionary;
 import org.sc.w_drill.dict.Dictionary;
+import org.sc.w_drill.dict.IBaseWord;
+import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.utils.MessageDialog;
 
 public class ActDictionaryEntry
         extends ActionBarActivity
         implements ActionBar.TabListener,
         FragmentEditWord.OnFragmentInteractionListener,
-        FragmentDictWordList.DictWholeListListener
+        FragmentDictWordList.DictWholeListListener,
+        DlgWhatToDoWithWord.WhatToDoWithWordListener
 {
 
     public static final int CODE_SelectImageIntent = Activity.RESULT_FIRST_USER + 101;
@@ -41,7 +41,7 @@ public class ActDictionaryEntry
     public static final int RESULT_WORD_UPDATED = Activity.RESULT_FIRST_USER + 1;
     public static final int DICTIONARY_CHANGED = Activity.RESULT_FIRST_USER + 2;
     private static final int ADD_WORDS_FRAGMENT_INDEX = 0 ;
-    private static final int WHILE_LIST_FRAGMENT_INDEX = 1;
+    private static final int WHOLE_LIST_FRAGMENT_INDEX = 1;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -104,14 +104,7 @@ public class ActDictionaryEntry
             dictId = data.getIntExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
             if (dictId != -1) {
                 activeDict = DBDictionaryFactory.getInstance(database).getDictionaryById(dictId);
-
-                try {
-                    if( dictId == DefaultDictionary.getInstance( database ).getId() )
-                        defaultDictionary = true;
-                } catch (SQLDataException e) {
-                    e.printStackTrace();
-                    fatalError();
-                }
+                defaultDictionary = DefaultDictionary.isDefault( activeDict );
             }
             else
                 fatalError();
@@ -126,7 +119,6 @@ public class ActDictionaryEntry
             fatalError();
 
         // Set up the action bar.
-
         final ActionBar actionBar = getSupportActionBar();
 
         // TODO: Change the title
@@ -158,7 +150,6 @@ public class ActDictionaryEntry
             }
         });
 
-        // For each of the sections in the app, add a tab to the action bar.
         for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++)
         {
             // Create a tab with text corresponding to the page title defined by
@@ -177,13 +168,14 @@ public class ActDictionaryEntry
                 getSupportActionBar().setSelectedNavigationItem( ADD_WORDS_FRAGMENT_INDEX );
                 break;
             case ActDictionaryEntry.WHOLE_LIST_ENTRY:
-                getSupportActionBar().setSelectedNavigationItem( WHILE_LIST_FRAGMENT_INDEX);
+                getSupportActionBar().setSelectedNavigationItem(WHOLE_LIST_FRAGMENT_INDEX);
                 break;
         }
     }
 
     private void fatalError()
     {
+        //TODO: THere must be an error message
         setResult( Activity.RESULT_CANCELED );
         finish();
     }
@@ -200,7 +192,10 @@ public class ActDictionaryEntry
             @Override
             public boolean onMenuItemClick(MenuItem menuItem)
             {
-                fragmentEditWord.startSaveWord();
+                if( !defaultDictionary )
+                    fragmentEditWord.startSaveWord();
+                else
+                    selectAction();
                 return true;
             }
         });
@@ -256,6 +251,12 @@ public class ActDictionaryEntry
         return true;
     }
 
+    private void selectAction()
+    {
+        DlgWhatToDoWithWord dlg = new DlgWhatToDoWithWord( this, this );
+        dlg.show();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -283,7 +284,6 @@ public class ActDictionaryEntry
         else
         {
             showButtons = pos == 0;
-            Log.d("[ActDictionaryEntry:onTabSelected]", "Buttons don't created yet");
         }
 
         mViewPager.setCurrentItem( pos );
@@ -353,6 +353,21 @@ public class ActDictionaryEntry
             actionMode.finish();
     }
 
+    @Override
+    public void onSaveAsIs()
+    {
+        fragmentEditWord.startSaveWord();
+    }
+
+    @Override
+    public void saveInDictionary(Dictionary dict)
+    {
+        IWord word = fragmentEditWord.startSaveWord();
+        ArrayList<IBaseWord> words = new ArrayList<IBaseWord>();
+        words.add( word );
+        DBWordFactory.getInstance( database, activeDict ).moveWords( dict, words );
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -367,6 +382,20 @@ public class ActDictionaryEntry
 
         @Override
         public Fragment getItem(int position)
+        {
+            return makeTwoTabsInterface(position);
+        }
+
+        private Fragment makeSingleTab()
+        {
+            if (fragmentDictWordList == null)
+                fragmentDictWordList = FragmentDictWordList.newInstance();
+
+            fragmentDictWordList.setDict(activeDict);
+            return (Fragment) fragmentDictWordList;
+        }
+
+        private Fragment makeTwoTabsInterface(int position)
         {
             if (position == ADD_WORDS_FRAGMENT_INDEX)
             {
@@ -403,14 +432,16 @@ public class ActDictionaryEntry
         public CharSequence getPageTitle(int position)
         {
             Locale l = Locale.getDefault();
+
             switch (position)
             {
                 case ADD_WORDS_FRAGMENT_INDEX:
                     return getString(R.string.add_words).toUpperCase(l);
-                case WHILE_LIST_FRAGMENT_INDEX:
+                case WHOLE_LIST_FRAGMENT_INDEX:
                     return getString(R.string.whole_word_list).toUpperCase(l);
+                default:
+                    return null;
             }
-            return null;
         }
     }
 

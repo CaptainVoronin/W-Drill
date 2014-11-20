@@ -17,7 +17,7 @@ import java.util.ArrayList;
 /**
  * Created by MaxSh on 13.11.2014.
  */
-public class DefaultDictionary
+public final class DefaultDictionary
 {
     WDdb database;
     static int id;
@@ -96,4 +96,11 @@ public class DefaultDictionary
         DBWordFactory.getInstance( database, getDictionary() ).insertWord( w );
     }
 
+    public static boolean isDefault( Dictionary dict )
+    {
+        if( dict == null )
+            return false;
+
+        return DICT_UUID.equalsIgnoreCase( dict.getUUID() );
+    }
 }
