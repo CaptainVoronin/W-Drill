@@ -21,6 +21,7 @@ import android.widget.TextView;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
+import org.sc.w_drill.db_wrapper.DefaultDictionary;
 import org.sc.w_drill.dict.BaseWord;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IBaseWord;
@@ -52,6 +53,8 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
     FilterDialog dlgFilter = null;
     WordListFilter wordFilter = null;
     private OrderDialog orderDialog;
+    boolean defaultDictionary;
+
 
     enum FilterType { ALL, FOR_LEARN, FOR_CHECK };
     enum OrderProperty{ ALPHABET, PERCENT, ACCESS_TIME };
@@ -76,7 +79,6 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
     public FragmentDictWordList()
     {
-        // Required empty public constructor
     }
 
     public void onFilterClick(View view)
@@ -104,7 +106,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         if( ( activeDict == null ) || ( ( activeDict != null ) && !activeDict.equals( dict ) ) )
         {
             activeDict = dict;
-
+            defaultDictionary = DefaultDictionary.isDefault( activeDict );
             setNeedRefresh();
         }
     }
@@ -126,37 +128,42 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         needRefresh = true;
     }
 
-    private void fatalError()
-    {
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dict_whole_word_list, container, false);
 
         listWords = (ListView) view.findViewById(R.id.word_list);
-
         edSearchPattern = (EditText) view.findViewById(R.id.search_pattern);
         isViewCreated = true;
-        Button btn = ( Button ) view.findViewById( R.id.btnFilter );
-        btn.setOnClickListener( new View.OnClickListener()
+        final Button btnFilter = ( Button ) view.findViewById( R.id.btnFilter );
+        final Button btnOrder = ( Button ) view.findViewById( R.id.btnSortOrder );
+        if( !defaultDictionary )
         {
-            @Override
-            public void onClick(View view)
+
+            btnFilter.setOnClickListener(new View.OnClickListener()
             {
-                onFilterClick(view);
-            }
-        });
-        btn = ( Button ) view.findViewById( R.id.btnSortOrder );
-        btn.setOnClickListener( new View.OnClickListener()
+                @Override
+                public void onClick(View view)
+                {
+                    onFilterClick(view);
+                }
+            });
+
+            btnOrder.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view)
+                {
+                    onOrderClick();
+                }
+            });
+        }
+        else
         {
-            @Override
-            public void onClick(View view)
-            {
-                onOrderClick();
-            }
-        });
+            btnFilter.setEnabled( false );
+            btnOrder.setEnabled( false );
+        }
 
         if (needRefresh)
             refreshList();
@@ -189,13 +196,10 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
     private void refreshList()
     {
-        ArrayList<BaseWord> list;
-        FilterableList<BaseWord> wordList;
-
-        list = DBWordFactory.getInstance(database, activeDict)
+        final ArrayList<BaseWord> list = DBWordFactory.getInstance(database, activeDict)
                 .getBriefList(getDBFilterClause(filterType), getOrderClause(orderAscending, orderProperty));
 
-        wordList = new FilterableList<BaseWord>();
+        final FilterableList<BaseWord> wordList = new FilterableList<BaseWord>();
         wordList.addAll( list );
 
         if( searchTextWatcher != null )
@@ -213,6 +217,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         WordListAdapter adapter = new WordListAdapter(getActivity(), wordList);
         wordList.addListener( adapter );
         listWords.setAdapter( adapter );
+
         needRefresh = false;
     }
 
@@ -262,41 +267,53 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         @Override
         public View getView(int position, View convertView, ViewGroup parent)
         {
+            View rowView;
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View rowView = inflater.inflate(R.layout.row_word_list, parent, false);
+
+            if( !defaultDictionary )
+                rowView = inflater.inflate(R.layout.row_word_list, parent, false);
+            else
+                rowView = inflater.inflate(R.layout.row_notebook_word_list, parent, false);
+
 
             BaseWord word = words.get(position);
-            int color = LearnColors.getInstance( getActivity() ).getColor( word.getLearnState(), word.getLearnPercent() );
-            rowView.setBackgroundColor( color );
 
             //TODO: What for?
-            rowView.setTag( Integer.valueOf( word.getId() ) );
-
-            rowView.setOnClickListener( onClick );
+            rowView.setTag(Integer.valueOf(word.getId()));
+            rowView.setOnClickListener(onClick);
 
             CheckBox chb = (CheckBox) rowView.findViewById(R.id.cbSelectWord);
-            chb.setText( word.getWord());
-            chb.setTag( word );
-            chb.setOnCheckedChangeListener( checkBoxClickListener );
+            chb.setTag(word);
+            chb.setOnCheckedChangeListener(checkBoxClickListener);
 
-            TextView text = ( TextView ) rowView.findViewById( R.id.word_percent );
+            TextView text = (TextView) rowView.findViewById(R.id.tvWord);
+            text.setText(word.getWord());
 
-            Triangle tri =  ( Triangle ) rowView.findViewById( R.id.maxIndicator );
+            if( !defaultDictionary )
+            {
+                int color = LearnColors.getInstance(getActivity()).getColor(word.getLearnState(), word.getLearnPercent());
+                rowView.setBackgroundColor(color);
 
-            if( word.getLearnState() == IBaseWord.LearnState.learn )
-                tri.setColor( LearnColors.getInstance( getActivity() ).getColor( 0, 100 ) );
-            else
-                tri.setColor( LearnColors.getInstance( getActivity() ).getColor( 1, 200 ) );
 
-            String txt;
+                text = (TextView) rowView.findViewById(R.id.word_percent);
 
-            if( word.getLearnState() == IBaseWord.LearnState.learn )
-                txt = getActivity().getApplicationContext().getString( R.string.word_learn_percent, word.getLearnPercent() );
-            else
-                txt = getActivity().getApplicationContext().getString( R.string.word_is_learned, word.getLearnPercent() );
+                Triangle tri = (Triangle) rowView.findViewById(R.id.maxIndicator);
 
-            text.setText( txt );
+                if (word.getLearnState() == IBaseWord.LearnState.learn)
+                    tri.setColor(LearnColors.getInstance(getActivity()).getColor(0, 100));
+                else
+                    tri.setColor(LearnColors.getInstance(getActivity()).getColor(1, 200));
+
+                String txt;
+
+                if (word.getLearnState() == IBaseWord.LearnState.learn)
+                    txt = getActivity().getApplicationContext().getString(R.string.word_learn_percent, word.getLearnPercent());
+                else
+                    txt = getActivity().getApplicationContext().getString(R.string.word_is_learned, word.getLearnPercent());
+
+                text.setText(txt);
+            }
             return rowView;
         }
 

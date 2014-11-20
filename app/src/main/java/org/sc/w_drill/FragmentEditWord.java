@@ -227,7 +227,8 @@ public class FragmentEditWord extends Fragment
                 return null;
             }
         } else {
-            try {
+            try
+            {
                 activeWord = DBWordFactory.getInstance(database, activeDict).insertWord(activeWord);
             }
             catch( Exception e)
@@ -237,7 +238,8 @@ public class FragmentEditWord extends Fragment
                 return null;
             }
 
-            try {
+            try
+            {
                 if( cachedImageFilename != null  )
                 {
                     // if an image was saved in cache it should be moved in an appropriate directory

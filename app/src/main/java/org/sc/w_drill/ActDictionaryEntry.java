@@ -357,6 +357,8 @@ public class ActDictionaryEntry
     public void onSaveAsIs()
     {
         fragmentEditWord.startSaveWord();
+        if( defaultDictionary )
+            getSupportActionBar().setSelectedNavigationItem( WHOLE_LIST_FRAGMENT_INDEX );
     }
 
     @Override
@@ -366,6 +368,8 @@ public class ActDictionaryEntry
         ArrayList<IBaseWord> words = new ArrayList<IBaseWord>();
         words.add( word );
         DBWordFactory.getInstance( database, activeDict ).moveWords( dict, words );
+        if( defaultDictionary )
+            getSupportActionBar().setSelectedNavigationItem( WHOLE_LIST_FRAGMENT_INDEX );
     }
 
     /**

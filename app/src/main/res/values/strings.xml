@@ -123,7 +123,7 @@
     <string name="action_add_word_quick">Быстро добавить слово</string>
     <string name="txt_error_open_default_dictionary">Внутренняя ошибка: невозможно открыть список непошитых слов.\\n%s</string>
     <string name="txt_error">Ошибка</string>
-    <string name="txt_default_dictionary_title">Список неподшитых слов</string>
+    <string name="txt_default_dictionary_title">Слова в блокноте</string>
     <string name="appwidget_text">Quick add word</string>
     <string name="add_widget">Add widget</string>
     <string name="txt_word_already_exists">Такое слово уже есть</string>
