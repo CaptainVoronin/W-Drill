@@ -194,7 +194,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
 
         try
         {
-            dicts = DBDictionaryFactory.getInstance(this).getList();
+            dicts = DBDictionaryFactory.getInstance(this).getList( -1 );
         }
         catch (SQLDataException e)
         {

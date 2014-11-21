@@ -176,7 +176,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         ArrayList<Dictionary> dictList = null;
         try
         {
-            dictList = dictionaryFactory.getList();
+            dictList = dictionaryFactory.getList(-1);
         }
         catch (SQLDataException e)
         {
@@ -589,7 +589,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     {
         try
         {
-            ArrayList<Dictionary> dicts = DBDictionaryFactory.getInstance(this).getList();
+            ArrayList<Dictionary> dicts = DBDictionaryFactory.getInstance(this).getList( activeDict.getId() );
             GridView view = new GridView(this);
             view.setAdapter(new DictionaryGridAdapter(this, dicts));
             gridNest.removeAllViews();
@@ -619,10 +619,24 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
             LinearLayout ll = (LinearLayout) inflater.inflate(R.layout.view_small_dictionary,
                     parent, false);
-            TextView tv = (TextView) ll.findViewById(R.id.tvDictName);
 
-            tv.setText(dicts.get(i).getName());
-            return null;
+            TextView tv = (TextView) ll.findViewById(R.id.tvDictName);
+            Dictionary d = dicts.get(i);
+            tv.setTag( d );
+            tv.setText(d.getName());
+            tv.setOnClickListener( new SmallDictClickListener()  );
+            return ll;
+        }
+    }
+
+    class SmallDictClickListener implements View.OnClickListener
+    {
+
+        @Override
+        public void onClick(View view)
+        {
+            activeDict = ( Dictionary ) view.getTag();
+            detectState( activeDict.getId() );
         }
     }
 
@@ -723,11 +737,11 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
             DBDictionaryFactory instance = DBDictionaryFactory.getInstance(param.context);
 
-            Dictionary dict = instance.getDictionaryById(param.dictId);
+            Dictionary dict = DBDictionaryFactory.getInstance(param.context).getDictionaryById(param.dictId);
 
             do
             {
-                instance.getAdditionalInfo(dict);
+                DBDictionaryFactory.getInstance(param.context).getAdditionalInfo(dict);
 
                 DictStats stats = new DictStats();
 

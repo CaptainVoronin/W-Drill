@@ -48,14 +48,13 @@ public class DBDictionaryFactory
      *
      * @return the list of dictionaries without default dict
      */
-    public ArrayList<Dictionary> getList() throws android.database.sqlite.SQLiteException, SQLDataException
+    public ArrayList<Dictionary> getList( int exlude_id ) throws android.database.sqlite.SQLiteException, SQLDataException
     {
         ArrayList<Dictionary> list = new ArrayList<Dictionary>();
 
         String statement = "select d.id, d.name, d.language, count( w.dict_id ), d.uuid " +
                 "from dictionary d left outer join words w on d.id = w.dict_id " +
-                "group by d.id " +
-                "order by name";
+                " group by d.id order by name";
 
         SQLiteDatabase db = WDdb.getInstance(context).getReadableDatabase();
         Cursor crs = db.rawQuery(statement, null);
@@ -67,7 +66,7 @@ public class DBDictionaryFactory
             int id = crs.getInt(0);
 
             // Skip the default dictionary
-            if (id == dd_id)
+            if (id == dd_id || id == exlude_id )
                 continue;
             String name = crs.getString(1);
             String lang = crs.getString(2);
@@ -161,7 +160,7 @@ public class DBDictionaryFactory
         crs.moveToFirst();
         int cnt = crs.getInt(0);
         crs.close();
-        db.close();
+
         return cnt == 0;
     }
 
@@ -185,7 +184,6 @@ public class DBDictionaryFactory
         else
         {
             crs.close();
-            db.close();
             String message = "Dictionary with ID " + id + " not found in a database";
             Log.e("[DBDictionaryFactory::getDictionaryById]", message);
             throw new IllegalArgumentException(message);
@@ -227,7 +225,7 @@ public class DBDictionaryFactory
         else
             count = internalGetWordsToCheck(db, dict_id);
 
-        db.close();
+
         return count;
     }
 
@@ -356,8 +354,8 @@ public class DBDictionaryFactory
     {
         DateTime dt = null;
 
-        Utils.dumpQuery(db, "select id, word, updated, last_access, (julianday( 'now' ) - julianday( last_access )) as result" +
-                " from words where dict_id = " + dict.getId() + " order by result asc, percent asc, avg_time desc ");
+        /*Utils.dumpQuery(db, "select id, word, updated, last_access, (julianday( 'now' ) - julianday( last_access )) as result" +
+                " from words where dict_id = " + dict.getId() + " order by result asc, percent asc, avg_time desc "); */
 
         String statement = "select max( last_access ) from words where dict_id = ?";
 

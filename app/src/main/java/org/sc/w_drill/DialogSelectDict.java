@@ -50,7 +50,7 @@ public class DialogSelectDict extends Dialog
 
     private void fillList() throws SQLDataException
     {
-        dicts = DBDictionaryFactory.getInstance(getContext()).getList();
+        dicts = DBDictionaryFactory.getInstance(getContext()).getList( -1 );
         dicts.remove(excludeDict);
         DictListAdapter adapter = new DictListAdapter(context, dicts, DictListAdapter.ListForm.SHORT);
         ListView list = (ListView) findViewById(R.id.listDicts);

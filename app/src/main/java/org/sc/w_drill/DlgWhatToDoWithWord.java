@@ -52,7 +52,7 @@ public class DlgWhatToDoWithWord extends Dialog implements View.OnClickListener,
 
     private void fillList() throws SQLDataException
     {
-        dicts = DBDictionaryFactory.getInstance(getContext()).getList();
+        dicts = DBDictionaryFactory.getInstance(getContext()).getList( -1 );
         DictListAdapter adapter = new DictListAdapter(getContext(), dicts, DictListAdapter.ListForm.SHORT);
         ListView list = (ListView) findViewById(R.id.listDictionaries);
         list.setAdapter(adapter);
