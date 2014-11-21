@@ -9,9 +9,9 @@ public enum EPartOfSpeech
 
     public static boolean check(String sample)
     {
-        for( Object s : EPartOfSpeech.values() )
+        for (Object s : EPartOfSpeech.values())
         {
-            if( s.toString().equals( sample ) )
+            if (s.toString().equals(sample))
                 return true;
         }
 

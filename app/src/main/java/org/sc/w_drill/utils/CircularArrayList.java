@@ -11,24 +11,24 @@ public class CircularArrayList<T>
     int pos;
 
 
-    public CircularArrayList( ArrayList<T> _elements )
+    public CircularArrayList(ArrayList<T> _elements)
     {
         elements = _elements;
         pos = 0;
     }
 
-    public boolean remove( T obj )
+    public boolean remove(T obj)
     {
-        int index = elements.indexOf( obj );
-        if( index == -1 )
+        int index = elements.indexOf(obj);
+        if (index == -1)
             return false;
 
-        if ( index < pos )
+        if (index < pos)
             pos--;
 
-        elements.remove( obj );
+        elements.remove(obj);
 
-        if( elements.size() >= pos )
+        if (elements.size() >= pos)
             pos = 0;
 
         return true;
@@ -36,11 +36,11 @@ public class CircularArrayList<T>
 
     public T next()
     {
-        if( elements.size() == 0 )
+        if (elements.size() == 0)
             return null;
 
-        T obj = elements.get( pos );
-        if( pos + 1 >= elements.size())
+        T obj = elements.get(pos);
+        if (pos + 1 >= elements.size())
             pos = 0;
         else
             pos++;
@@ -53,13 +53,13 @@ public class CircularArrayList<T>
         return elements.size();
     }
 
-    public int indexOf( T obj )
+    public int indexOf(T obj)
     {
-        return elements.indexOf( obj );
+        return elements.indexOf(obj);
     }
 
-    public void set( int index, T obj )
+    public void set(int index, T obj)
     {
-        elements.set( index, obj );
+        elements.set(index, obj);
     }
 }

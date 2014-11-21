@@ -23,7 +23,7 @@ public class WordChecker
         if (word.getWord().length() == 0)
             throw new MalformedWord();
 
-        if( !checkChars( word.getWord() ) )
+        if (!checkChars(word.getWord()))
             throw new MalformedWord();
 
         //TODO: I'm not certain
@@ -55,7 +55,7 @@ public class WordChecker
         if (word.length() == 0)
             throw new MalformedWord();
 
-        if( !checkChars( word ) )
+        if (!checkChars(word))
             throw new MalformedWord();
 
         if (factory.findWord(word))
@@ -65,14 +65,15 @@ public class WordChecker
     /**
      * It return true if string doesn't contain incorrect characters
      * and false otherwise
+     *
      * @param word
      * @return
      */
-    private static boolean checkChars( String word )
+    private static boolean checkChars(String word)
     {
-        for( int i = 0; i < word.length(); i++ )
-            for( int j = 0; j < incorrectCharacters.length; j++ )
-                if( word.charAt( i ) == incorrectCharacters[j] )
+        for (int i = 0; i < word.length(); i++)
+            for (int j = 0; j < incorrectCharacters.length; j++)
+                if (word.charAt(i) == incorrectCharacters[j])
                     return false;
 
         return true;

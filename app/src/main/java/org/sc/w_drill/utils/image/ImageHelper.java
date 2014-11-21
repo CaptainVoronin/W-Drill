@@ -27,34 +27,34 @@ public class ImageHelper
 
     public static final Bitmap resizeBitmapForShow(ImageConstraints constraints, Bitmap bitmap)
     {
-        return resizeBitmap( constraints.maxDisplaySize(), bitmap );
+        return resizeBitmap(constraints.maxDisplaySize(), bitmap);
     }
 
     public static final Bitmap resizeBitmapForStorage(ImageConstraints constraints, Bitmap bitmap)
     {
-        return resizeBitmap( constraints.storageSize(), bitmap );
+        return resizeBitmap(constraints.storageSize(), bitmap);
     }
 
-    protected static final Bitmap resizeBitmap( int limit, Bitmap bitmap)
+    protected static final Bitmap resizeBitmap(int limit, Bitmap bitmap)
     {
         Bitmap bmp = null;
         int width, height;
 
-        if( bitmap.getWidth() <= limit && bitmap.getHeight() <= limit )
+        if (bitmap.getWidth() <= limit && bitmap.getHeight() <= limit)
             return bitmap;
 
         boolean isHorizontalImage = bitmap.getWidth() >= bitmap.getHeight();
         float scale = 1;
 
-        if( isHorizontalImage && ( bitmap.getWidth() > limit ) )
-            scale = ( ( float ) bitmap.getWidth() ) / limit;
+        if (isHorizontalImage && (bitmap.getWidth() > limit))
+            scale = ((float) bitmap.getWidth()) / limit;
         else
-            scale  = ( ( float ) bitmap.getHeight() ) / limit;
+            scale = ((float) bitmap.getHeight()) / limit;
 
-        width  = Math.round( bitmap.getWidth()  / scale );
-        height = Math.round( bitmap.getHeight() / scale );
+        width = Math.round(bitmap.getWidth() / scale);
+        height = Math.round(bitmap.getHeight() / scale);
 
-        bmp = Bitmap.createScaledBitmap( bitmap, width, height, false );
+        bmp = Bitmap.createScaledBitmap(bitmap, width, height, false);
         return bmp;
     }
 }

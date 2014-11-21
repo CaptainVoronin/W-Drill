@@ -5,6 +5,7 @@ package org.sc.w_drill.backup;
  */
 public interface ExportProgressListener
 {
-    void setMaxValue( Integer max );
-    void setCurrentProgress( Integer current );
+    void setMaxValue(Integer max);
+
+    void setCurrentProgress(Integer current);
 }

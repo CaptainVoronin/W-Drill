@@ -1,7 +1,6 @@
 package org.sc.w_drill.backup;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
@@ -19,7 +18,6 @@ import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.Meaning;
 import org.sc.w_drill.dict.Word;
 import org.sc.w_drill.utils.DBPair;
-import org.sc.w_drill.utils.PartsOfSpeech;
 import org.sc.w_drill.utils.datetime.DateTimeUtils;
 import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 import org.sc.w_drill.utils.image.ImageFileHelper;
@@ -42,8 +40,6 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Properties;
 import java.util.zip.DataFormatException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -59,7 +55,7 @@ public class ImportHelper
 {
     public final static int MSG_WORD_DUPLICATED = 10;
     public final static int MSG_IMPORT_COMPLETE = 11;
-    public final static int MSG_IMPORT_ERROR    = 12;
+    public final static int MSG_IMPORT_ERROR = 12;
 
     WDdb database;
     DictionaryImageFileManager dictManager;
@@ -83,32 +79,32 @@ public class ImportHelper
         handler = _handler;
     }
 
-    public int load(  ) throws Exception
+    public int load() throws Exception
     {
-        if( handler != null )
-            handler.sendEmptyMessage( ImportProgressListener.STATE_BEFORE_UNZIP );
+        if (handler != null)
+            handler.sendEmptyMessage(ImportProgressListener.STATE_BEFORE_UNZIP);
 
-        String dictFile = unzipEntry( file, context.getCacheDir() );
+        String dictFile = unzipEntry(file, context.getCacheDir());
 
-        if( dictFile == null )
+        if (dictFile == null)
             throw new DataFormatException();
 
-        if( handler != null )
-            handler.sendEmptyMessage( ImportProgressListener.STATE_LOAD_TEXT );
+        if (handler != null)
+            handler.sendEmptyMessage(ImportProgressListener.STATE_LOAD_TEXT);
 
-        StringBuilder buff = internalLoad( dictFile );
-        Document doc = buffToDOM( buff );
+        StringBuilder buff = internalLoad(dictFile);
+        Document doc = buffToDOM(buff);
 
         //TODO: I'm not certain about necessity of this code
-        int count = DBDictionaryFactory.toughRestoreIntegrity( database );
-        if( count != 0 )
-            Log.d( "RestoreHelper::load", "Lost words have been deleted. Total " + count );
+        int count = DBDictionaryFactory.toughRestoreIntegrity(database);
+        if (count != 0)
+            Log.d("RestoreHelper::load", "Lost words have been deleted. Total " + count);
         //--------------------------------------------
 
-        return putInDB( doc );
+        return putInDB(doc);
     }
 
-    private Document buffToDOM( StringBuilder buff ) throws IOException, SAXException, ParserConfigurationException
+    private Document buffToDOM(StringBuilder buff) throws IOException, SAXException, ParserConfigurationException
     {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder docb = dbf.newDocumentBuilder();
@@ -119,7 +115,7 @@ public class ImportHelper
         return docb.parse(is);
     }
 
-    private int putInDB( Document doc ) throws Exception
+    private int putInDB(Document doc) throws Exception
     {
         int count = 0;
         // Take the root node, it must be "dictionary"
@@ -129,71 +125,76 @@ public class ImportHelper
             throw new DataFormatException();
 
         String lang = getAttribute(root, "lang", true);
-        String uuid = getAttribute( root, "uuid", true );
+        String uuid = getAttribute(root, "uuid", true);
 
-        if( DBDictionaryFactory.getInstance( database ).dictionaryExists( uuid ))
-            throw new SQLiteConstraintException( "Dictionary with UUID {" + uuid + "} already exists." );
+        if (DBDictionaryFactory.getInstance(context).dictionaryExists(uuid))
+            throw new SQLiteConstraintException("Dictionary with UUID {" + uuid + "} already exists.");
 
         NodeList children = root.getChildNodes();
 
         String dictname = null;
         Node content = null;
 
-        for( int i = 0; i < children.getLength(); i++ )
-            if( children.item( i ).getNodeName().equals( "name" ) )
-               dictname = children.item( i ).getTextContent();
-            else if( children.item( i ).getNodeName().equals( "content" ) )
-                content = children.item( i );
+        for (int i = 0; i < children.getLength(); i++)
+            if (children.item(i).getNodeName().equals("name"))
+                dictname = children.item(i).getTextContent();
+            else if (children.item(i).getNodeName().equals("content"))
+                content = children.item(i);
 
-         if( dictname == null  )
-             throw new DataFormatException( "Name of dictionary hasn't been found" );
+        if (dictname == null)
+            throw new DataFormatException("Name of dictionary hasn't been found");
 
-        if( content == null  )
-            throw new DataFormatException( "Structure is incorrect" );
+        if (content == null)
+            throw new DataFormatException("Structure is incorrect");
 
         SQLiteDatabase db = database.getWritableDatabase();
 
         db.beginTransaction();
 
-        Dictionary dict = DBDictionaryFactory.getInstance(database).createNewSpec(dictname, lang, db, uuid);
+        Dictionary dict = DBDictionaryFactory.getInstance(context).createNewSpec(dictname, lang, db, uuid);
 
         Exception ex = null;
 
-        if( handler != null )
-            handler.sendEmptyMessage( ImportProgressListener.STATE_LOAD_DB );
+        if (handler != null)
+            handler.sendEmptyMessage(ImportProgressListener.STATE_LOAD_DB);
 
-        try {
+        try
+        {
 
-            dictManager = new DictionaryImageFileManager( context,dict );
+            dictManager = new DictionaryImageFileManager(context, dict);
             dictManager.checkDir();
 
             NodeList nList = doc.getElementsByTagName("word");
-            DBWordFactory instance = DBWordFactory.getInstance( database, dict );
+            DBWordFactory instance = DBWordFactory.getInstance(context, dict);
 
-            if( listener != null )
-                listener.setMaxValue( nList.getLength() );
+            if (listener != null)
+                listener.setMaxValue(nList.getLength());
 
             for (int j = 0; j < nList.getLength(); j++)
             {
-                processWordNode( instance, db, dict.getId(), nList.item(j) );
+                processWordNode(instance, db, dict.getId(), nList.item(j));
                 count++;
-                if( listener != null )
-                    listener.setProgress( count );
+                if (listener != null)
+                    listener.setProgress(count);
             }
 
             db.setTransactionSuccessful();
-        } catch (Exception e){
+        }
+        catch (Exception e)
+        {
             ex = e;
             Log.e("[DictionaryLoader::putInDB]", "Exception: " + e.getMessage());
             dictManager.deleteDictDir();
             StringWriter sw = new StringWriter();
-            e.printStackTrace( new PrintWriter( sw ) );
-            Message msg = new Message ();
+            e.printStackTrace(new PrintWriter(sw));
+            Message msg = new Message();
             msg.arg1 = MSG_IMPORT_ERROR;
             msg.obj = sw.toString();
-            if( handler != null )
-                handler.sendMessage( msg );
-        } finally {
+            if (handler != null)
+                handler.sendMessage(msg);
+        }
+        finally
+        {
             db.endTransaction();
             db.close();
             if (ex != null)
@@ -202,7 +203,7 @@ public class ImportHelper
         return count;
     }
 
-    private void processWordNode( DBWordFactory instance, SQLiteDatabase db, int dictId, Node word_node ) throws IOException, DataFormatException
+    private void processWordNode(DBWordFactory instance, SQLiteDatabase db, int dictId, Node word_node) throws IOException, DataFormatException
     {
         Word word = null;
         String transcr = null;
@@ -211,14 +212,14 @@ public class ImportHelper
         DateTime updated = null, accessed = null;
 
         // TODO: dangerous code - starts here
-        Node att = word_node.getAttributes().getNamedItem( "uuid" );
+        Node att = word_node.getAttributes().getNamedItem("uuid");
 
-        if( att == null )
-            throw new DataFormatException( "A node word must has an attribute uuid" );
+        if (att == null)
+            throw new DataFormatException("A node word must has an attribute uuid");
 
         String w_uuid = att.getNodeValue();
 
-        if( bLoadStats )
+        if (bLoadStats)
         {
             att = word_node.getAttributes().getNamedItem("percent");
             if (att != null)
@@ -228,75 +229,79 @@ public class ImportHelper
             if (att != null)
                 state = Integer.parseInt(att.getNodeValue());
 
-            att = word_node.getAttributes().getNamedItem( "updated" );
+            att = word_node.getAttributes().getNamedItem("updated");
 
-            if( att != null ) {
+            if (att != null)
+            {
                 String strUpdated = att.getNodeValue();
-                updated = DateTimeUtils.strToDate( strUpdated );
+                updated = DateTimeUtils.strToDate(strUpdated);
             }
 
-            att = word_node.getAttributes().getNamedItem( "accessed" );
+            att = word_node.getAttributes().getNamedItem("accessed");
 
-            if( att != null ) {
+            if (att != null)
+            {
                 String str = att.getNodeValue();
-                accessed = DateTimeUtils.strToDate( str );
+                accessed = DateTimeUtils.strToDate(str);
             }
         }
 
         NodeList nodes = word_node.getChildNodes();
         Node imageNode = null;
-        for( int i = 0; i < nodes.getLength(); i++  ) {
+        for (int i = 0; i < nodes.getLength(); i++)
+        {
             Node node = nodes.item(i);
             if (node.getNodeName().equals("value"))
                 word = new Word(getTextContent(node));
             else if (node.getNodeName().equals("transcription"))
                 transcr = getTextContent(node);
-            else if( node.getNodeName().equals("image") && bLoadImages )
+            else if (node.getNodeName().equals("image") && bLoadImages)
                 imageNode = node;
         }
 
-        if( word == null )
-            throw new DataFormatException( "Dictionary file is corrupted" );
+        if (word == null)
+            throw new DataFormatException("Dictionary file is corrupted");
 
-        if( imageNode != null )
-            writeImage( imageNode, word );
+        if (imageNode != null)
+            writeImage(imageNode, word);
 
-        word.setUUID( w_uuid );
-        word.setTranscription( transcr == null ? "" : transcr );
+        word.setUUID(w_uuid);
+        word.setTranscription(transcr == null ? "" : transcr);
 
-        if( bLoadStats )
+        if (bLoadStats)
         {
             word.setLearnState(state == 0 ?
                     IBaseWord.LearnState.learn : IBaseWord.LearnState.check);
             word.setLearnPercent(percent);
-            word.setLastUpdate( updated );
-            word.setLastAccess( accessed  );
+            word.setLastUpdate(updated);
+            word.setLastAccess(accessed);
         }
 
         // An instance of the Word class creates with
         // the one empty meaning so it should be removed
         word.meanings().clear();
 
-        for( int i = 0; i < nodes.getLength(); i++  )
+        for (int i = 0; i < nodes.getLength(); i++)
         {
-            Node node = nodes.item( i );
-            if( node.getNodeType() != Node.ELEMENT_NODE )
+            Node node = nodes.item(i);
+            if (node.getNodeType() != Node.ELEMENT_NODE)
                 continue;
 
-            if( node.getNodeName().equals( "meaning" ) )
+            if (node.getNodeName().equals("meaning"))
             {
-                IMeaning mean = extractMeaning( node );
-                word.meanings().add( mean );
+                IMeaning mean = extractMeaning(node);
+                word.meanings().add(mean);
             }
         }
 
-        if( word != null && word.getWord().length() != 0 )
+        if (word != null && word.getWord().length() != 0)
         {
-            if( instance.checkUUID( db, word.getUUID() ) == -1 )
+            if (instance.checkUUID(db, word.getUUID()) == -1)
                 instance.technicalInsert(db, dictId, word);
             else
             {
-                if( handler != null ) {
+                if (handler != null)
+                {
                     Message msg = new Message();
                     msg.arg1 = MSG_WORD_DUPLICATED;
                     msg.obj = word.getWord();
@@ -307,23 +312,23 @@ public class ImportHelper
             }
         }
         else
-            Log.w( "[DictionaryLoader::putInDB]", "Word is empty, skipped" );
+            Log.w("[DictionaryLoader::putInDB]", "Word is empty, skipped");
     }
 
-    private void writeImage(Node node, IBaseWord word ) throws IOException
+    private void writeImage(Node node, IBaseWord word) throws IOException
     {
         NodeList list = node.getChildNodes();
         CDATASection cdata;
 
-        for( int i = 0; i < list.getLength(); i++ )
+        for (int i = 0; i < list.getLength(); i++)
         {
-            Node child = list.item( i );
-            if( child.getNodeType() == Node.CDATA_SECTION_NODE )
+            Node child = list.item(i);
+            if (child.getNodeType() == Node.CDATA_SECTION_NODE)
             {
-                cdata = ( CDATASection ) child;
+                cdata = (CDATASection) child;
                 String value = cdata.getData();
                 String path = dictManager.mkPath(word);
-                ImageFileHelper.imageFileFromBASE64( path, value );
+                ImageFileHelper.imageFileFromBASE64(path, value);
                 break;
             }
         }
@@ -334,81 +339,81 @@ public class ImportHelper
         String value = null, example = null;
         ArrayList<DBPair> examples = new ArrayList<DBPair>();
 
-        boolean isDisapp = Boolean.parseBoolean( node.getAttributes()
-                                                .getNamedItem( "disapproving" ).getNodeValue() );
+        boolean isDisapp = Boolean.parseBoolean(node.getAttributes()
+                .getNamedItem("disapproving").getNodeValue());
 
-        boolean isFormal = Boolean.parseBoolean( node.getAttributes()
-                .getNamedItem( "formal" ).getNodeValue() );
+        boolean isFormal = Boolean.parseBoolean(node.getAttributes()
+                .getNamedItem("formal").getNodeValue());
 
-        boolean isRude = Boolean.parseBoolean( node.getAttributes()
-                .getNamedItem( "rude" ).getNodeValue() );
+        boolean isRude = Boolean.parseBoolean(node.getAttributes()
+                .getNamedItem("rude").getNodeValue());
 
         String pos = node.getAttributes().getNamedItem("pos").getNodeValue();
 
-        if(EPartOfSpeech.check( pos ) )
+        if (EPartOfSpeech.check(pos))
             pos = EPartOfSpeech.noun.toString();
 
         NodeList nodes = node.getChildNodes();
 
-        for( int i = 0; i < nodes.getLength(); i++ )
+        for (int i = 0; i < nodes.getLength(); i++)
         {
-            Node n = nodes.item( i );
-            if( n.getNodeName().equals( "value" ) )
-                value = n.getTextContent() ;
+            Node n = nodes.item(i);
+            if (n.getNodeName().equals("value"))
+                value = n.getTextContent();
             else
             {
                 String ex = n.getTextContent().trim();
-                if( ex.length() != 0 )
-                    examples.add(new DBPair(-1, ex ));
+                if (ex.length() != 0)
+                    examples.add(new DBPair(-1, ex));
             }
         }
 
-        if( value == null )
-            throw new DataFormatException( "Meaning can't be empty" );
+        if (value == null)
+            throw new DataFormatException("Meaning can't be empty");
 
-        Meaning m = new Meaning( value );
-        m.setFormal( isFormal );
-        m.setDisapproving( isDisapp );
-        m.setRude( isRude );
+        Meaning m = new Meaning(value);
+        m.setFormal(isFormal);
+        m.setDisapproving(isDisapp);
+        m.setRude(isRude);
         m.setPartOfSpeech(pos);
-        m.examples().addAll( examples );
+        m.examples().addAll(examples);
 
         return m;
     }
 
-    String getTextContent( Node node )
+    String getTextContent(Node node)
     {
         NodeList nodes;
 
-        if( ( ( nodes = node.getChildNodes() ) == null ) || nodes.getLength() == 0 )
+        if (((nodes = node.getChildNodes()) == null) || nodes.getLength() == 0)
             return "";
 
         return node.getFirstChild().getTextContent();
     }
 
-    String getAttribute( Node node, String attName, boolean must_be ) throws DataFormatException
+    String getAttribute(Node node, String attName, boolean must_be) throws DataFormatException
     {
 
         NamedNodeMap atts = null;
 
-        if( (atts = node.getAttributes() ) == null )
-            if( must_be )
-                throw new DataFormatException( );
+        if ((atts = node.getAttributes()) == null)
+            if (must_be)
+                throw new DataFormatException();
             else
                 return "";
 
-        Node att = atts.getNamedItem( attName );
+        Node att = atts.getNamedItem(attName);
 
-        if( att == null  )
-            if( must_be )
+        if (att == null)
+            if (must_be)
                 throw new DataFormatException();
             else
                 return "";
 
         String value = att.getNodeValue();
 
-        if( value == null && value.length() == 0 )
-            if( must_be )
+        if (value == null && value.length() == 0)
+            if (must_be)
                 throw new DataFormatException();
             else
                 return "";
@@ -420,18 +425,18 @@ public class ImportHelper
         StringBuilder buff = new StringBuilder();
         String line = null;
 
-        BufferedReader reader = new BufferedReader( new FileReader( dictFile ) );
+        BufferedReader reader = new BufferedReader(new FileReader(dictFile));
 
-        while( ( line = reader.readLine() ) != null )
+        while ((line = reader.readLine()) != null)
         {
-            buff.append( line );
+            buff.append(line);
         }
 
         reader.close();
         return buff;
     }
 
-    private String unzipEntry( File file, File internalStorage ) throws IOException
+    private String unzipEntry(File file, File internalStorage) throws IOException
     {
         byte[] buffer = new byte[1024];
 
@@ -445,7 +450,8 @@ public class ImportHelper
         FileOutputStream fos = new FileOutputStream(tmpFile);
 
         int len;
-        while ((len = zip.read(buffer)) > 0) {
+        while ((len = zip.read(buffer)) > 0)
+        {
             fos.write(buffer, 0, len);
         }
 
@@ -453,7 +459,7 @@ public class ImportHelper
         zip.closeEntry();
         zip.close();
 
-        if( tmpFile != null )
+        if (tmpFile != null)
             return tmpFile.getPath();
         else
             return null;

@@ -6,10 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ExpandableListView;
 import android.widget.ListView;
 
-import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.MessageDialog;
@@ -24,7 +22,6 @@ public class DlgWhatToDoWithWord extends Dialog implements View.OnClickListener,
 {
 
     WhatToDoWithWordListener listener;
-    WDdb database;
     protected ArrayList<Dictionary> dicts;
 
     public DlgWhatToDoWithWord(Context context, WhatToDoWithWordListener _listener)
@@ -40,8 +37,8 @@ public class DlgWhatToDoWithWord extends Dialog implements View.OnClickListener,
         setTitle(R.string.txt_dlg_what_to_do_with_word);
         setContentView(R.layout.dlg_what_to_to_with_word);
         setCancelable(true);
-        Button btn = ( Button ) findViewById( R.id.btnSaveAsIs );
-        btn.setOnClickListener( this );
+        Button btn = (Button) findViewById(R.id.btnSaveAsIs);
+        btn.setOnClickListener(this);
         try
         {
             fillList();
@@ -49,15 +46,14 @@ public class DlgWhatToDoWithWord extends Dialog implements View.OnClickListener,
         catch (SQLDataException e)
         {
             e.printStackTrace();
-            MessageDialog.showError( getContext(), e.getMessage(), null, null );
+            MessageDialog.showError(getContext(), e.getMessage(), null, null);
         }
     }
 
     private void fillList() throws SQLDataException
     {
-        database = new WDdb(getContext());
-        dicts = DBDictionaryFactory.getInstance(database).getList();
-        DictListAdapter adapter = new DictListAdapter( getContext(), dicts, DictListAdapter.ListForm.SHORT);
+        dicts = DBDictionaryFactory.getInstance(getContext()).getList();
+        DictListAdapter adapter = new DictListAdapter(getContext(), dicts, DictListAdapter.ListForm.SHORT);
         ListView list = (ListView) findViewById(R.id.listDictionaries);
         list.setAdapter(adapter);
         list.setOnItemClickListener(this);
@@ -67,7 +63,7 @@ public class DlgWhatToDoWithWord extends Dialog implements View.OnClickListener,
     public void onClick(View view)
     {
         dismiss();
-        if( listener != null )
+        if (listener != null)
             listener.onSaveAsIs();
     }
 
@@ -83,6 +79,7 @@ public class DlgWhatToDoWithWord extends Dialog implements View.OnClickListener,
     public interface WhatToDoWithWordListener
     {
         public void onSaveAsIs();
-        public void saveInDictionary( Dictionary dict );
+
+        public void saveInDictionary(Dictionary dict);
     }
 }

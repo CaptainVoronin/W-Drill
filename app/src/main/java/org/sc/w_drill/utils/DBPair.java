@@ -8,7 +8,7 @@ public class DBPair
     int id;
     String value;
 
-    public DBPair ( int _id, String _value )
+    public DBPair(int _id, String _value)
     {
         id = _id;
         value = _value;

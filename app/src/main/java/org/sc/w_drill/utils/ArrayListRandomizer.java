@@ -17,15 +17,15 @@ public class ArrayListRandomizer<T>
         random = new Random();
     }
 
-    public ArrayList<T> stir( ArrayList<T> array )
+    public ArrayList<T> stir(ArrayList<T> array)
     {
-        Collections.shuffle( array, random );
+        Collections.shuffle(array, random);
         return array;
     }
 
-    public T getRandomItem( ArrayList<T> array )
+    public T getRandomItem(ArrayList<T> array)
     {
-        Collections.shuffle( array, random );
-        return array.get( random.nextInt( array.size() ) );
+        Collections.shuffle(array, random);
+        return array.get(random.nextInt(array.size()));
     }
 }

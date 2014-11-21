@@ -3,7 +3,6 @@ package org.sc.w_drill.backup;
 import android.content.Context;
 import android.os.Handler;
 
-import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.dict.IBaseWord;
@@ -58,49 +57,49 @@ public class ExportHelper
         handler = _handler;
     }
 
-    public final void backup( ) throws IOException
+    public final void backup() throws IOException
     {
-        File dir = new File( destdir );
+        File dir = new File(destdir);
 
-        if( !dir.exists())
+        if (!dir.exists())
             dir.mkdirs();
 
         File cacheDir = context.getCacheDir();
 
-        WDdb database = new WDdb( context );
         StringBuilder buff = new StringBuilder();
 
-        DictionaryImageFileManager dictManager = new DictionaryImageFileManager( context, dict );
+        DictionaryImageFileManager dictManager = new DictionaryImageFileManager(context, dict);
 
-        dictionaryToXML(dictManager, database, buff, dict);
+        dictionaryToXML(dictManager, buff, dict);
 
-        File tmpFile = new File ( cacheDir.getPath() + File.separator + innerFileName);
+        File tmpFile = new File(cacheDir.getPath() + File.separator + innerFileName);
 
-        writeToTmpFile( tmpFile, buff );
+        writeToTmpFile(tmpFile, buff);
 
         String destFilename = dict.getName() + ".zip";
 
-        zipTmpFileAndCopyToDest( tmpFile, new File( destdir + File.separator + destFilename ), innerFileName  );
+        zipTmpFileAndCopyToDest(tmpFile, new File(destdir + File.separator + destFilename), innerFileName);
 
         tmpFile.delete();
     }
 
-    private void zipTmpFileAndCopyToDest(File tmpFile,  File destFile, String zipEntryName ) throws IOException
+    private void zipTmpFileAndCopyToDest(File tmpFile, File destFile, String zipEntryName) throws IOException
     {
         byte[] buffer = new byte[1024];
 
-        FileOutputStream fos = new FileOutputStream( destFile );
+        FileOutputStream fos = new FileOutputStream(destFile);
 
         ZipOutputStream zos = new ZipOutputStream(fos);
 
-        ZipEntry ze= new ZipEntry( zipEntryName );
+        ZipEntry ze = new ZipEntry(zipEntryName);
 
         zos.putNextEntry(ze);
 
-        FileInputStream in = new FileInputStream( tmpFile );
+        FileInputStream in = new FileInputStream(tmpFile);
 
         int len;
-        while ((len = in.read(buffer)) > 0) {
+        while ((len = in.read(buffer)) > 0)
+        {
             zos.write(buffer, 0, len);
         }
 
@@ -111,67 +110,67 @@ public class ExportHelper
 
     private void writeToTmpFile(File tmpFile, StringBuilder buff) throws IOException
     {
-        FileWriter fw = new FileWriter( tmpFile );
-        fw.write( buff.toString() );
+        FileWriter fw = new FileWriter(tmpFile);
+        fw.write(buff.toString());
         fw.close();
         fw = null;
     }
 
-    public void dictionaryToXML(DictionaryImageFileManager dictManager, WDdb database, StringBuilder buff, Dictionary dict)
+    public void dictionaryToXML(DictionaryImageFileManager dictManager, StringBuilder buff, Dictionary dict)
     {
         buff.setLength(0);
 
-        buff.append( "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-        buff.append( "<dictionary uuid=\"")
-                .append( dict.getUUID() )
-                .append( "\" lang=\"")
-                .append( dict.getLang() )
+        buff.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+        buff.append("<dictionary uuid=\"")
+                .append(dict.getUUID())
+                .append("\" lang=\"")
+                .append(dict.getLang())
                 .append("\">\n");
         buff.append("\t<name>").append(dict.getName()).append("</name>\n");
-        ArrayList<DBPair> ids = DBWordFactory.getInstance(database, dict).technicalGetWordUnique();
+        ArrayList<DBPair> ids = DBWordFactory.getInstance(context, dict).technicalGetWordUnique();
 
-        if( listener != null )
-           listener.setMaxValue(ids.size());
+        if (listener != null)
+            listener.setMaxValue(ids.size());
 
-        buff.append( "\t<content count=\"" ).append( ids.size() ).append( "\">\n" );
+        buff.append("\t<content count=\"").append(ids.size()).append("\">\n");
 
         int count = 0;
-        for( DBPair pair : ids )
+        for (DBPair pair : ids)
         {
-            IWord word = DBWordFactory.getInstance( database, dict ).getWordEx( pair.getId() );
-            wordToXML( dictManager, buff, word, pair.getValue() );
-            if( listener != null )
+            IWord word = DBWordFactory.getInstance(context, dict).getWordEx(pair.getId());
+            wordToXML(dictManager, buff, word, pair.getValue());
+            if (listener != null)
             {
                 count++;
-                listener.setCurrentProgress( count );
+                listener.setCurrentProgress(count);
             }
         }
 
-        buff.append( "\t</content>\n" );
-        buff.append( "</dictionary>");
+        buff.append("\t</content>\n");
+        buff.append("</dictionary>");
     }
 
-    public final void wordToXML( DictionaryImageFileManager dictManager, StringBuilder buff, IWord word, String uuid )
+    public final void wordToXML(DictionaryImageFileManager dictManager, StringBuilder buff, IWord word, String uuid)
     {
-        buff.append( "\t\t\t<word uuid=\"").append( uuid ).append( "\" ");
+        buff.append("\t\t\t<word uuid=\"").append(uuid).append("\" ");
 
-        if( bExportStats )
+        if (bExportStats)
         {
             buff.append("state=\"").append(word.getLearnState() == IBaseWord.LearnState.learn ? 0 : 1).append("\" ");
             buff.append("percent=\"").append(word.getLearnPercent()).append("\"");
-            buff.append( " updated=\"").append(DateTimeUtils.getDateTimeString( word.getLastUpdate(), true ) ).append( "\"" );
-            if( word.getLastAccess() != null )
-                    buff.append( " accessed=\"").append(DateTimeUtils.getDateTimeString( word.getLastAccess(), true ) ).append( "\"" );
+            buff.append(" updated=\"").append(DateTimeUtils.getDateTimeString(word.getLastUpdate(), true)).append("\"");
+            if (word.getLastAccess() != null)
+                buff.append(" accessed=\"").append(DateTimeUtils.getDateTimeString(word.getLastAccess(), true)).append("\"");
         }
 
-        buff.append( ">\n");
+        buff.append(">\n");
 
-        buff.append( "\t\t\t\t<value>").append( word.getWord() ).append("</value>\n");
+        buff.append("\t\t\t\t<value>").append(word.getWord()).append("</value>\n");
 
-        if( word.getTranscription() != null && word.getTranscription().length() != 0 )
-            buff.append( "\t\t\t\t<transcription>").append( word.getTranscription() ).append( "</transcription>\n");
+        if (word.getTranscription() != null && word.getTranscription().length() != 0)
+            buff.append("\t\t\t\t<transcription>").append(word.getTranscription()).append("</transcription>\n");
 
-        if( bExportImages )
+        if (bExportImages)
         {
             File file = dictManager.getImageFile(word);
 
@@ -194,36 +193,36 @@ public class ExportHelper
             }
         }
 
-        for( IMeaning m : word.meanings())
+        for (IMeaning m : word.meanings())
         {
             meaningToXML(buff, m);
         }
-        buff.append( "\t\t\t</word>\n");
+        buff.append("\t\t\t</word>\n");
 
     }
 
-    final void meaningToXML( StringBuilder buff, IMeaning meaning )
+    final void meaningToXML(StringBuilder buff, IMeaning meaning)
     {
-        buff.append( "\t\t\t\t\t<meaning pos=\"").append( meaning.partOFSpeech()).append( "\" ");
-        buff.append( "formal=\"").append( meaning.isFormal() ).append( "\" ");
-        buff.append( "rude=\"").append( meaning.isRude() ).append( "\" ");
-        buff.append( "disapproving=\"").append( meaning.isDisapproving() ).append( "\">\n");
-        buff.append( "\t\t\t\t\t\t<value>");
-        buff.append( meaning.meaning() );
-        buff.append( "</value>\n");
-        if( meaning.examples()!= null && meaning.examples().size() != 0 )
+        buff.append("\t\t\t\t\t<meaning pos=\"").append(meaning.partOFSpeech()).append("\" ");
+        buff.append("formal=\"").append(meaning.isFormal()).append("\" ");
+        buff.append("rude=\"").append(meaning.isRude()).append("\" ");
+        buff.append("disapproving=\"").append(meaning.isDisapproving()).append("\">\n");
+        buff.append("\t\t\t\t\t\t<value>");
+        buff.append(meaning.meaning());
+        buff.append("</value>\n");
+        if (meaning.examples() != null && meaning.examples().size() != 0)
         {
-            for( DBPair ex : meaning.examples() )
+            for (DBPair ex : meaning.examples())
                 exampleToXML(buff, ex.getValue());
         }
-        buff.append( "\t\t\t\t\t</meaning>\n");
+        buff.append("\t\t\t\t\t</meaning>\n");
 
     }
 
-    final void exampleToXML( StringBuilder buff, String example )
+    final void exampleToXML(StringBuilder buff, String example)
     {
-        buff.append( "\t\t\t\t\t\t<example>");
-        buff.append( example );
-        buff.append( "</example>\n");
+        buff.append("\t\t\t\t\t\t<example>");
+        buff.append(example);
+        buff.append("</example>\n");
     }
 }

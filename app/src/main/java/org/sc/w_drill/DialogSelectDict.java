@@ -6,9 +6,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import org.sc.w_drill.db.WDdb;
+
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
+
 import java.sql.SQLDataException;
 import java.util.ArrayList;
 
@@ -18,7 +19,6 @@ import java.util.ArrayList;
 public class DialogSelectDict extends Dialog
 {
     Dictionary excludeDict;
-    WDdb database;
     Context context;
     DictionaryDialogListener listener;
     Dictionary selectedDict = null;
@@ -50,8 +50,7 @@ public class DialogSelectDict extends Dialog
 
     private void fillList() throws SQLDataException
     {
-        database = new WDdb(context);
-        dicts = DBDictionaryFactory.getInstance(database).getList();
+        dicts = DBDictionaryFactory.getInstance(getContext()).getList();
         dicts.remove(excludeDict);
         DictListAdapter adapter = new DictListAdapter(context, dicts, DictListAdapter.ListForm.SHORT);
         ListView list = (ListView) findViewById(R.id.listDicts);

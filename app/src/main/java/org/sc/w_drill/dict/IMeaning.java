@@ -10,11 +10,18 @@ import java.util.ArrayList;
 public interface IMeaning
 {
     public String partOFSpeech();
-    public void setPartOfSpeech( String part );
+
+    public void setPartOfSpeech(String part);
+
     public String meaning();
+
     public boolean isFormal();
+
     public boolean isDisapproving();
+
     public boolean isRude();
+
     public ArrayList<DBPair> examples();
+
     public int getId();
 }

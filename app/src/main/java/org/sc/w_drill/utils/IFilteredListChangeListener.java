@@ -5,5 +5,5 @@ package org.sc.w_drill.utils;
  */
 public interface IFilteredListChangeListener
 {
-    public void onSizeChanged( );
+    public void onSizeChanged();
 }

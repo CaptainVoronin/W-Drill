@@ -1,13 +1,10 @@
 package org.sc.w_drill;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.view.KeyEvent;
 import android.view.View;
@@ -18,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
@@ -33,17 +31,24 @@ import org.sc.w_drill.utils.TextHelper;
 import org.sc.w_drill.utils.image.DictionaryImageFileManager;
 import org.sc.w_drill.utils.image.ImageConstraints;
 import org.sc.w_drill.utils.image.ImageHelper;
+
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
 
-public class ActCheckWords extends ActionBarActivity {
+public class ActCheckWords extends ActionBarActivity
+{
 
     private boolean userGaveUp;
 
-    enum Mode { CHOISE, COMPARE };
+    enum Mode
+    {
+        CHOISE, COMPARE
+    }
+
+    ;
 
     Mode mode;
 
@@ -67,31 +72,32 @@ public class ActCheckWords extends ActionBarActivity {
     OptionChecker optionChecker;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_act_check_words);
-        rootView = ( LinearLayout ) findViewById( R.id.root_view );
+        rootView = (LinearLayout) findViewById(R.id.root_view);
 
         Intent args = getIntent();
         int dictId = args.getIntExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
-        if( dictId == -1 )
+        if (dictId == -1)
             fatalError();
-        database = new WDdb( getApplicationContext() );
 
-        activeDict = DBDictionaryFactory.getInstance( database ).getDictionaryById( dictId );
+        activeDict = DBDictionaryFactory.getInstance(this).getDictionaryById(dictId);
 
-        try {
+        try
+        {
             prepareWordList();
         }
-        catch( RandomizerEmptyException ex )
+        catch (RandomizerEmptyException ex)
         {
-            showErrorEndExit( getString( R.string.txt_no_words_to_check) );
+            showErrorEndExit(getString(R.string.txt_no_words_to_check));
             return;
         }
 
         arrayRandomizer = new ArrayListRandomizer<IWord>();
         meaningRandomizer = new ArrayListRandomizer<IMeaning>();
-        dManager = new DictionaryImageFileManager( this, activeDict );
+        dManager = new DictionaryImageFileManager(this, activeDict);
 
         inputChecker = null;
         optionChecker = null;
@@ -101,14 +107,14 @@ public class ActCheckWords extends ActionBarActivity {
 
     void prepareWordList() throws RandomizerEmptyException
     {
-        ArrayList<IWord> list = DBWordFactory.getInstance( database, activeDict ).getWordsToCheck( 110 );
+        ArrayList<IWord> list = DBWordFactory.getInstance(this, activeDict).getWordsToCheck(110);
 
-        if( list == null && list.size() == 0 )
+        if (list == null && list.size() == 0)
             throw new RandomizerEmptyException();
 
-        Collections.shuffle(list, new Random() );
+        Collections.shuffle(list, new Random());
 
-        words = new CircularArrayList<IWord>( list );
+        words = new CircularArrayList<IWord>(list);
     }
 
     private void fatalError()
@@ -118,20 +124,22 @@ public class ActCheckWords extends ActionBarActivity {
 
     void changeWord()
     {
-        try {
-            if( words.size() == 0 )
+        try
+        {
+            if (words.size() == 0)
                 prepareWordList();
             activeWord = words.next();
             if (activeView != null)
                 rootView.removeView(activeView);
             activeView = getView();
             rootView.addView(activeView);
-        } catch( RandomizerException ex )
+        }
+        catch (RandomizerException ex)
         {
             ex.printStackTrace();
             showErrorEndExit(getString(R.string.msg_not_enough_words_for_check));
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             ex.printStackTrace();
             showErrorEndExit(ex.getMessage());
@@ -140,18 +148,19 @@ public class ActCheckWords extends ActionBarActivity {
 
     private void showErrorEndExit(String message)
     {
-        MessageDialog.showError( this, message, new MessageDialog.Handler()
+        MessageDialog.showError(this, message, new MessageDialog.Handler()
         {
             @Override
             public void doAction()
             {
                 finish();
             }
-        }, null );
+        }, null);
     }
 
-    private View getView() throws RandomizerException, RandomizerEmptyException {
-        if( activeWord.getLearnPercent() >= 200 )
+    private View getView() throws RandomizerException, RandomizerEmptyException
+    {
+        if (activeWord.getLearnPercent() >= 200)
         {
             mode = Mode.COMPARE;
             return getWriteWordView();
@@ -168,128 +177,133 @@ public class ActCheckWords extends ActionBarActivity {
         chooseOptionView = (RelativeLayout) getLayoutInflater()
                 .inflate(R.layout.fragment_act_check_words_choose_option, null);
 
-        tv1 = ( TextView ) chooseOptionView.findViewById( R.id.version1 );
-        tv1.setOnClickListener( new View.OnClickListener()
+        tv1 = (TextView) chooseOptionView.findViewById(R.id.version1);
+        tv1.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
-                checkChoise( view );
+                checkChoise(view);
             }
         });
 
-        tv2 = ( TextView ) chooseOptionView.findViewById( R.id.version2 );
-        tv2.setOnClickListener( new View.OnClickListener()
+        tv2 = (TextView) chooseOptionView.findViewById(R.id.version2);
+        tv2.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
-                checkChoise( view );
+                checkChoise(view);
             }
         });
 
-        tv3 = ( TextView ) chooseOptionView.findViewById( R.id.version3 );
-        tv3.setOnClickListener( new View.OnClickListener()
+        tv3 = (TextView) chooseOptionView.findViewById(R.id.version3);
+        tv3.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
-                checkChoise( view );
+                checkChoise(view);
             }
         });
 
-        tv4 = ( TextView ) chooseOptionView.findViewById( R.id.version4 );
-        tv4.setOnClickListener( new View.OnClickListener()
+        tv4 = (TextView) chooseOptionView.findViewById(R.id.version4);
+        tv4.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
-                checkChoise( view );
+                checkChoise(view);
             }
         });
 
-        if( optionChecker == null )
+        if (optionChecker == null)
             optionChecker = new OptionChecker();
 
         checker = optionChecker;
 
-        ArrayList<IWord> subset = makeSubset( activeDict, activeWord, 4);
+        ArrayList<IWord> subset = makeSubset(activeDict, activeWord, 4);
 
-        TextView tv = ( TextView ) chooseOptionView.findViewById( R.id.word_for_check );
-        int color = getResources().getColor( R.color.TextPartSelection );
+        TextView tv = (TextView) chooseOptionView.findViewById(R.id.word_for_check);
+        int color = getResources().getColor(R.color.TextPartSelection);
 
-        tv.setText( Html.fromHtml(TextHelper.decorate( activeWord.getWord(), Integer.valueOf( color ).toString() ) ) );
+        tv.setText(Html.fromHtml(TextHelper.decorate(activeWord.getWord(), Integer.valueOf(color).toString())));
 
-        setText( subset.get(0), tv1 );
-        setText( subset.get(1), tv2 );
-        setText( subset.get(2), tv3 );
-        setText( subset.get(3), tv4 );
+        setText(subset.get(0), tv1);
+        setText(subset.get(1), tv2);
+        setText(subset.get(2), tv3);
+        setText(subset.get(3), tv4);
 
-        if( dManager.getImageFile( activeWord ) != null )
+        if (dManager.getImageFile(activeWord) != null)
         {
-            ImageView iv = ( ImageView ) chooseOptionView.findViewById( R.id.imgIllustration );
+            ImageView iv = (ImageView) chooseOptionView.findViewById(R.id.imgIllustration);
             Bitmap bmp;
-            try {
+            try
+            {
                 bmp = dManager.getImageBitmap(activeWord);
-                ImageConstraints constraints = ImageConstraints.getInstance( this );
-                iv.setImageBitmap(ImageHelper.resizeBitmapForShow(constraints, bmp) );
-            } catch (FileNotFoundException e) {
+                ImageConstraints constraints = ImageConstraints.getInstance(this);
+                iv.setImageBitmap(ImageHelper.resizeBitmapForShow(constraints, bmp));
+            }
+            catch (FileNotFoundException e)
+            {
                 e.printStackTrace();
-                Toast.makeText( this, "Error: can't load image", Toast.LENGTH_LONG );
+                Toast.makeText(this, "Error: can't load image", Toast.LENGTH_LONG);
             }
         }
 
         return chooseOptionView;
     }
 
-    void setText( IWord word, TextView tv )
+    void setText(IWord word, TextView tv)
     {
-        if( word.meanings().size() > 1 )
-            tv.setText( meaningRandomizer.getRandomItem( word.meanings()).meaning() );
+        if (word.meanings().size() > 1)
+            tv.setText(meaningRandomizer.getRandomItem(word.meanings()).meaning());
         else
-            tv.setText( word.meanings().get(0).meaning() );
-        tv.setTag( word );
+            tv.setText(word.meanings().get(0).meaning());
+        tv.setTag(word);
     }
 
     View getWriteWordView()
     {
         enterWordView = (LinearLayout) getLayoutInflater().inflate(R.layout.fragment_act_check_words_enter_word, null);
-        TextView tv = ( TextView ) enterWordView.findViewById( R.id.idMeaning );
-        tv.setText( activeWord.meanings().get(0).meaning());
-        tv = ( TextView ) enterWordView.findViewById( R.id.tvWord );
-        tv.setText( "" );
+        TextView tv = (TextView) enterWordView.findViewById(R.id.idMeaning);
+        tv.setText(activeWord.meanings().get(0).meaning());
+        tv = (TextView) enterWordView.findViewById(R.id.tvWord);
+        tv.setText("");
 
-        if( inputChecker == null )
+        if (inputChecker == null)
             inputChecker = new InputTextChecker();
 
         checker = inputChecker;
 
-        btnIDontKnow = ( Button ) enterWordView.findViewById( R.id.dont_know );
-        btnIDontKnow.setText( "?" );
-        btnIDontKnow.setOnClickListener( new View.OnClickListener() {
+        btnIDontKnow = (Button) enterWordView.findViewById(R.id.dont_know);
+        btnIDontKnow.setText("?");
+        btnIDontKnow.setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View view)
             {
-                compareWords( "", null );
+                compareWords("", null);
             }
         });
 
-        edWordAnswer = ( EditText ) enterWordView.findViewById( R.id.word_answer );
+        edWordAnswer = (EditText) enterWordView.findViewById(R.id.word_answer);
         edWordAnswer.requestFocus();
-        edWordAnswer.setTag( activeWord.getWord() );
-        edWordAnswer.setText( "" );
+        edWordAnswer.setTag(activeWord.getWord());
+        edWordAnswer.setText("");
 
-        edWordAnswer.setOnKeyListener( new View.OnKeyListener() {
+        edWordAnswer.setOnKeyListener(new View.OnKeyListener()
+        {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent)
             {
-                if( keyEvent.getAction() != KeyEvent.ACTION_DOWN )
+                if (keyEvent.getAction() != KeyEvent.ACTION_DOWN)
                     return true;
 
-                if( keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER )
+                if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)
                 {
                     String word = edWordAnswer.getText().toString();
-                    compareWords( word, null );
+                    compareWords(word, null);
                     return true;
                 }
                 return false;
@@ -298,24 +312,24 @@ public class ActCheckWords extends ActionBarActivity {
         return enterWordView;
     }
 
-    void checkChoise( View view )
+    void checkChoise(View view)
     {
         Object tag = view.getTag();
-        if( tag != null )
-            compareWords( ((IWord) tag).getWord(), view );
+        if (tag != null)
+            compareWords(((IWord) tag).getWord(), view);
     }
 
     private void increasePercent(IWord activeWord)
     {
         int percent = activeWord.getLearnPercent();
-        if( percent + 20 > 200 )
+        if (percent + 20 > 200)
             percent = 200;
         else
             percent += 20;
 
         // TODO: time is skipped
-        DBWordFactory.getInstance( database, activeDict )
-                .updatePercentAndTime( activeWord.getId(), percent, 0 );
+        DBWordFactory.getInstance(this, activeDict)
+                .updatePercentAndTime(activeWord.getId(), percent, 0);
 
     }
 
@@ -324,7 +338,7 @@ public class ActCheckWords extends ActionBarActivity {
         int percent = activeWord.getLearnPercent();
         boolean reinit = false;
 
-        if( percent - 20 < 0 )
+        if (percent - 20 < 0)
         {
             // In this case the state must be
             // changed and the word must be removed from current list
@@ -336,66 +350,68 @@ public class ActCheckWords extends ActionBarActivity {
             percent -= 20;
 
         // TODO: time is skipped
-        DBWordFactory.getInstance( database, activeDict )
-                .updatePercentAndTime( activeWord.getId(), percent, 0 );
+        DBWordFactory.getInstance(this, activeDict)
+                .updatePercentAndTime(activeWord.getId(), percent, 0);
 
-        try {
+        try
+        {
             if (reinit)
                 prepareWordList();
-        } catch( RandomizerEmptyException ex )
+        }
+        catch (RandomizerEmptyException ex)
         {
-            showErrorEndExit( getString( R.string.txt_no_words_to_check ) );
+            showErrorEndExit(getString(R.string.txt_no_words_to_check));
         }
     }
 
-    void compareWords( String word, View view )
+    void compareWords(String word, View view)
     {
-        if( checker.check(word) )
+        if (checker.check(word))
         {
             if (!missed)
-                increasePercent( activeWord );
+                increasePercent(activeWord);
             else
                 missed = false;
-            words.remove( activeWord );
+            words.remove(activeWord);
             changeWord();
         }
         else
         {
             missed = true;
-            decreasePercent( activeWord );
-            if( checker instanceof OptionChecker )
-                ( ( OptionChecker ) checker ).setIncorrectView( view );
+            decreasePercent(activeWord);
+            if (checker instanceof OptionChecker)
+                ((OptionChecker) checker).setIncorrectView(view);
 
             checker.onError();
         }
     }
 
     /**
-     *
-     * @param dict dictionary where are words
-     * @param word the word to check. One of it's meanings must be included
+     * @param dict       dictionary where are words
+     * @param word       the word to check. One of it's meanings must be included
      * @param upperLimit how many words must be in subset
      * @return a list which is populated by words
      * @throws RandomizerException if dictionary hasn't enough words this exception will be throw
      */
-    private ArrayList<IWord> makeSubset( Dictionary dict, IWord word, int upperLimit)
-            throws RandomizerException, RandomizerEmptyException {
+    private ArrayList<IWord> makeSubset(Dictionary dict, IWord word, int upperLimit)
+            throws RandomizerException, RandomizerEmptyException
+    {
 
         ArrayList<IWord> subset = new ArrayList<IWord>();
 
-        ArrayList<Integer> ids = DBWordFactory.getInstance( database, dict ).getIdsListWithExclusion( word.getId() );
+        ArrayList<Integer> ids = DBWordFactory.getInstance(this, dict).getIdsListWithExclusion(word.getId());
 
-        Collections.shuffle( ids, new Random());
+        Collections.shuffle(ids, new Random());
 
-        if( ids.size() < upperLimit - 1 )
+        if (ids.size() < upperLimit - 1)
             throw new RandomizerEmptyException();
 
-        subset.add( word );
+        subset.add(word);
 
-        for( int i = 0; i < upperLimit - 1; i++ )
-            subset.add ( DBWordFactory.getInstance( database, dict ).getWordEx( ids.get( i ).intValue() ) );
+        for (int i = 0; i < upperLimit - 1; i++)
+            subset.add(DBWordFactory.getInstance(this, dict).getWordEx(ids.get(i).intValue()));
 
-        Collections.shuffle( subset, new Random());
+        Collections.shuffle(subset, new Random());
 
         return subset;
     }
@@ -403,9 +419,9 @@ public class ActCheckWords extends ActionBarActivity {
 
     abstract class InputChecker
     {
-        public boolean check( String word )
+        public boolean check(String word)
         {
-            return TextHelper.compare( activeWord.getWord(), word  );
+            return TextHelper.compare(activeWord.getWord(), word);
         }
 
         public abstract void onError();
@@ -416,7 +432,7 @@ public class ActCheckWords extends ActionBarActivity {
 
         View incorrectView;
 
-        public void setIncorrectView( View view  )
+        public void setIncorrectView(View view)
         {
             incorrectView = view;
         }
@@ -424,16 +440,16 @@ public class ActCheckWords extends ActionBarActivity {
         @Override
         public void onError()
         {
-            incorrectView.setBackgroundColor( Color.RED );
+            incorrectView.setBackgroundColor(Color.RED);
 
-            if( ((IWord)tv1.getTag()).getId() == activeWord.getId())
-                tv1.setBackgroundColor( Color.LTGRAY );
-            else if( ((IWord)tv2.getTag()).getId() == activeWord.getId())
-                tv2.setBackgroundColor( Color.LTGRAY );
-            else if( ((IWord)tv3.getTag()).getId() == activeWord.getId())
-                tv3.setBackgroundColor( Color.LTGRAY );
-            else if( ((IWord)tv4.getTag()).getId() == activeWord.getId())
-                tv4.setBackgroundColor( Color.LTGRAY );
+            if (((IWord) tv1.getTag()).getId() == activeWord.getId())
+                tv1.setBackgroundColor(Color.LTGRAY);
+            else if (((IWord) tv2.getTag()).getId() == activeWord.getId())
+                tv2.setBackgroundColor(Color.LTGRAY);
+            else if (((IWord) tv3.getTag()).getId() == activeWord.getId())
+                tv3.setBackgroundColor(Color.LTGRAY);
+            else if (((IWord) tv4.getTag()).getId() == activeWord.getId())
+                tv4.setBackgroundColor(Color.LTGRAY);
         }
     }
 
@@ -443,8 +459,8 @@ public class ActCheckWords extends ActionBarActivity {
         @Override
         public void onError()
         {
-            TextView tv = ( TextView ) enterWordView.findViewById( R.id.tvWord );
-            tv.setText( activeWord.getWord() );
+            TextView tv = (TextView) enterWordView.findViewById(R.id.tvWord);
+            tv.setText(activeWord.getWord());
         }
     }
 }

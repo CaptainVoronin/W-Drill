@@ -1,10 +1,7 @@
 package org.sc.w_drill.utils;
 
-import android.widget.ArrayAdapter;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by Max on 10/5/2014.
@@ -21,7 +18,8 @@ public class FilterableList<T> extends ArrayList<T> implements IFilterChangedLis
         listeners = new ArrayList<IFilteredListChangeListener>();
 
     }
-    public void setFilter( IFilter<T> _filter )
+
+    public void setFilter(IFilter<T> _filter)
     {
         filter = _filter;
         applyFilter();
@@ -30,11 +28,11 @@ public class FilterableList<T> extends ArrayList<T> implements IFilterChangedLis
     private void applyFilter()
     {
         filteredItems = new ArrayList<T>();
-        for( int i = 0; i < super.size(); i++ )
+        for (int i = 0; i < super.size(); i++)
         {
             T value = super.get(i);
-            if (filter.check( value ))
-                filteredItems.add( value );
+            if (filter.check(value))
+                filteredItems.add(value);
         }
         sendMessage();
     }
@@ -50,16 +48,16 @@ public class FilterableList<T> extends ArrayList<T> implements IFilterChangedLis
     {
         int count = 0;
 
-        if( filter == null )
+        if (filter == null)
             return super.size();
         else
             return filteredItems.size();
     }
 
     @Override
-    public T get( int index )
+    public T get(int index)
     {
-        if( filter == null )
+        if (filter == null)
             return super.get(index);
         else
             return filteredItems.get(index);
@@ -68,14 +66,14 @@ public class FilterableList<T> extends ArrayList<T> implements IFilterChangedLis
     @Override
     public boolean add(T value)
     {
-        boolean result = super.add( value );
-        if( result && filter != null)
+        boolean result = super.add(value);
+        if (result && filter != null)
         {
             if (filter.check(value))
                 result = filteredItems.add(value);
         }
 
-        if( result )
+        if (result)
             sendMessage();
         return result;
     }
@@ -84,25 +82,25 @@ public class FilterableList<T> extends ArrayList<T> implements IFilterChangedLis
     public void clear()
     {
         super.clear();
-        if( filteredItems != null )
+        if (filteredItems != null)
             filteredItems.clear();
         sendMessage();
     }
 
     private void sendMessage()
     {
-        if( listeners != null )
+        if (listeners != null)
         {
-            for( IFilteredListChangeListener listener : listeners )
+            for (IFilteredListChangeListener listener : listeners)
                 listener.onSizeChanged();
         }
     }
 
     @Override
-    public boolean addAll( Collection<? extends T> items )
+    public boolean addAll(Collection<? extends T> items)
     {
-        if( super.addAll( items ) )
-            if( filteredItems != null )
+        if (super.addAll(items))
+            if (filteredItems != null)
             {
                 applyFilter();
                 sendMessage();
@@ -110,13 +108,13 @@ public class FilterableList<T> extends ArrayList<T> implements IFilterChangedLis
             }
             else
                 return false;
-         else
+        else
             return false;
     }
 
-    public void addListener( IFilteredListChangeListener listener )
+    public void addListener(IFilteredListChangeListener listener)
     {
-        listeners.add( listener );
+        listeners.add(listener);
     }
 
     @Override

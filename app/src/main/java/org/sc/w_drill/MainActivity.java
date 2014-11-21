@@ -1,14 +1,5 @@
 package org.sc.w_drill;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.sql.SQLDataException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -25,19 +16,30 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.joda.time.DateTime;
-import org.sc.w_drill.db_wrapper.DefaultDictionary;
 import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
+import org.sc.w_drill.db_wrapper.DefaultDictionary;
 import org.sc.w_drill.dict.Dictionary;
-import org.sc.w_drill.utils.ActiveDictionaryStateFragment;
+import org.sc.w_drill.utils.Langs;
 import org.sc.w_drill.utils.MessageDialog;
 import org.sc.w_drill.utils.datetime.DateTimeUtils;
-import org.sc.w_drill.utils.Langs;
 import org.sc.w_drill.utils.image.ImageConstraints;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.sql.SQLDataException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.exit;
 
@@ -47,11 +49,6 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     public static final int CODE_ActDictionaryEntry = 2;
     public static final int CODE_ActSettings = 3;
     private static final int CODE_ActLearnWords = 4;
-
-    /**
-     * База данных приложения
-     */
-    private WDdb database;
 
     /**
      * Фабрика словарей
@@ -66,9 +63,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     ActionBar actionBar = null;
 
     SharedPreferences sharedPrefs;
-
-    ActiveDictionaryStateFragment activeDictionaryStateFragment;
-    LinearLayout rootView;
+    LinearLayout rootView, gridNest;
     View currentView;
     ImageConstraints imageConstraints;
     CheckDictStateTask checkStateTask;
@@ -91,7 +86,8 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
             }
         });
 
-        rootView = (LinearLayout) findViewById(R.id.rootLayout);
+        rootView = (LinearLayout) findViewById(R.id.theBigNest);
+        gridNest = (LinearLayout) findViewById(R.id.gridNest);
 
         int activeDictID = -1;
 
@@ -107,32 +103,32 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
          * Плохой кусок
          *
          ********************************************/
-        database = new WDdb(getApplicationContext());
-        SQLiteDatabase db = database.getWritableDatabase();
-        db.close();
+        SQLiteDatabase db = WDdb.getInstance(getApplicationContext()).getWritableDatabase();
 
         stateHandler = new DictStateHandler();
         checkStateTask = null;
 
         checkDefaultDictionary();
 
-        try {
+        try
+        {
             detectState(activeDictID);
         }
-        catch ( Exception e )
+        catch (Exception e)
         {
             showFatalError();
-            exit( -1 );
+            exit(-1);
         }
     }
 
-    private void showFatalError() {
+    private void showFatalError()
+    {
 
     }
 
     private void checkDefaultDictionary()
     {
-        DefaultDictionary defDict = DefaultDictionary.getInstance( database );
+        DefaultDictionary defDict = DefaultDictionary.getInstance(this);
         defDict.init();
     }
 
@@ -153,6 +149,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
             FileWriter fw = new FileWriter(f);
+            Log.e("MainActivity:handleUncaughtException", sw.toString());
             fw.write(sw.toString());
             fw.close();
 
@@ -167,22 +164,25 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     private void detectState(int activeDictID)
     {
         // Firstly I kill the state task if it exists
-        if( checkStateTask != null )
-            if( !checkStateTask.isCancelled() )
-                checkStateTask.cancel( true );
+        if (checkStateTask != null)
+            if (!checkStateTask.isCancelled())
+                checkStateTask.cancel(true);
 
         checkStateTask = null;
 
         // Are there
-        dictionaryFactory = DBDictionaryFactory.getInstance(database);
+        dictionaryFactory = DBDictionaryFactory.getInstance(this);
 
         ArrayList<Dictionary> dictList = null;
-        try {
+        try
+        {
             dictList = dictionaryFactory.getList();
-        } catch (SQLDataException e) {
+        }
+        catch (SQLDataException e)
+        {
             e.printStackTrace();
             showFatalError();
-            exit( -1 );
+            exit(-1);
         }
 
         if (currentView != null)
@@ -215,6 +215,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         }
 
         rootView.addView(currentView);
+        fillGridNest();
     }
 
     /**
@@ -278,13 +279,16 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     private void gotoQuickWords()
     {
         Intent intent = new Intent(this, ActDictionaryEntry.class);
-        try {
-            intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, DefaultDictionary.getInstance( database ).getId() );
-            intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WHOLE_LIST_ENTRY );
+        try
+        {
+            intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, DefaultDictionary.getInstance(this).getId());
+            intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.WHOLE_LIST_ENTRY);
             startActivity(intent);
-        } catch (SQLDataException e) {
+        }
+        catch (SQLDataException e)
+        {
             e.printStackTrace();
-            showError( getString( R.string.txt_error_open_default_dictionary, e.getMessage() ));
+            showError(getString(R.string.txt_error_open_default_dictionary, e.getMessage()));
         }
     }
 
@@ -295,7 +299,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
     private void addWordQuick()
     {
-        DialogAddWordQuick dlg = new DialogAddWordQuick( this );
+        DialogAddWordQuick dlg = new DialogAddWordQuick(this);
         dlg.show();
     }
 
@@ -382,7 +386,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         params.dictId = activeDict.getId();
 
         checkStateTask = new CheckDictStateTask();
-        checkStateTask.execute( new CheckDictStateTaskParams[] { params } );
+        checkStateTask.execute(new CheckDictStateTaskParams[]{params});
 
         return statView;
 
@@ -392,14 +396,14 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     {
 
         // Set last access time
-        TextView text = ( TextView ) statView.findViewById( R.id.tvLastAccess );
+        TextView text = (TextView) statView.findViewById(R.id.tvLastAccess);
 
-        if( stats == null )
-            text.setText( getString( R.string.txt_last_access_date, getString( R.string.txt_never )));
+        if (stats == null)
+            text.setText(getString(R.string.txt_last_access_date, getString(R.string.txt_never)));
         else
         {
-            String message = DateTimeUtils.timeIntervalToString( this, stats.lastAccess );
-            text.setText( getString(R.string.txt_last_access_date,message));
+            String message = DateTimeUtils.timeIntervalToString(this, stats.lastAccess);
+            text.setText(getString(R.string.txt_last_access_date, message));
         }
 
         /**************************************
@@ -451,7 +455,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         counter = (TextView) statView.findViewById(R.id.words_for_check);
         label = (TextView) statView.findViewById(R.id.words_to_check_label);
 
-        if ( stats.wordsForCheck != 0)
+        if (stats.wordsForCheck != 0)
         {
             label.setText(R.string.txt_words_for_check);
             counter.setText(Integer.valueOf(stats.wordsForCheck).toString());
@@ -490,13 +494,22 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     protected void onResume()
     {
         super.onResume();
-        int id;
+     /*   int id;
 
         if (activeDict == null)
             id = -1;
         else
             id = activeDict.getId();
-        detectState(id);
+        detectState(id); */
+
+        if (checkStateTask == null)
+        {
+            checkStateTask = new CheckDictStateTask();
+            CheckDictStateTaskParams pars = new CheckDictStateTaskParams();
+            pars.context = this;
+            pars.dictId = activeDict.getId();
+            checkStateTask.execute(pars, null, null);
+        }
     }
 
     @Override
@@ -512,9 +525,9 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
             ed.putInt(ST_ACTIVE_DICTIONARY_ID, -1);
         ed.commit();
 
-        if( checkStateTask != null )
-            if( !checkStateTask.isCancelled() )
-                checkStateTask.cancel( true );
+        if (checkStateTask != null)
+            if (!checkStateTask.isCancelled())
+                checkStateTask.cancel(true);
     }
 
     /**
@@ -566,6 +579,51 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         });
 
         return view;
+    }
+
+    /**
+     * This function populates the grid view with information
+     * about other dictionaries
+     */
+    void fillGridNest()
+    {
+        try
+        {
+            ArrayList<Dictionary> dicts = DBDictionaryFactory.getInstance(this).getList();
+            GridView view = new GridView(this);
+            view.setAdapter(new DictionaryGridAdapter(this, dicts));
+            gridNest.removeAllViews();
+            gridNest.addView(view);
+        }
+        catch (SQLDataException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    class DictionaryGridAdapter extends ArrayAdapter<Dictionary>
+    {
+        ArrayList<Dictionary> dicts;
+
+        public DictionaryGridAdapter(Context _context, List objects)
+        {
+            super(_context, R.layout.row_dict_list, objects);
+            dicts = (ArrayList<Dictionary>) objects;
+        }
+
+        @Override
+        public View getView(int i, View view, ViewGroup parent)
+        {
+            LayoutInflater inflater = (LayoutInflater) getContext()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            LinearLayout ll = (LinearLayout) inflater.inflate(R.layout.view_small_dictionary,
+                    parent, false);
+            TextView tv = (TextView) ll.findViewById(R.id.tvDictName);
+
+            tv.setText(dicts.get(i).getName());
+            return null;
+        }
     }
 
     @Override
@@ -630,9 +688,9 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         @Override
         public void handleMessage(android.os.Message msg)
         {
-            if( msg.obj != null && msg.obj instanceof DictStats )
+            if (msg.obj != null && msg.obj instanceof DictStats)
             {
-                DictStats stats = ( DictStats ) msg.obj;
+                DictStats stats = (DictStats) msg.obj;
                 setupStats(stats);
             }
         }
@@ -652,7 +710,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         DateTime lastAccess;
     }
 
-    class CheckDictStateTask extends AsyncTask<CheckDictStateTaskParams, Void, Void >
+    class CheckDictStateTask extends AsyncTask<CheckDictStateTaskParams, Void, Void>
     {
         CheckDictStateTaskParams param;
 
@@ -660,18 +718,16 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         protected Void doInBackground(CheckDictStateTaskParams... params)
         {
             boolean killed = false;
-            WDdb database;
 
             param = params[0];
-            database = new WDdb( param.context );
 
-            DBDictionaryFactory instance = DBDictionaryFactory.getInstance( database );
+            DBDictionaryFactory instance = DBDictionaryFactory.getInstance(param.context);
 
             Dictionary dict = instance.getDictionaryById(param.dictId);
 
             do
             {
-                instance.getAdditionalInfo( dict );
+                instance.getAdditionalInfo(dict);
 
                 DictStats stats = new DictStats();
 
@@ -684,20 +740,21 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
                 msg.obj = stats;
 
-                stateHandler.sendMessage( msg );
+                stateHandler.sendMessage(msg);
 
-                try {
+                try
+                {
                     TimeUnit.SECONDS.sleep(900);
                 }
-                catch ( InterruptedException ex )
+                catch (InterruptedException ex)
                 {
                     killed = true;
                 }
 
-                if( killed )
+                if (killed)
                     break;
 
-            } while( !isCancelled() );
+            } while (!isCancelled());
 
             return null;
         }

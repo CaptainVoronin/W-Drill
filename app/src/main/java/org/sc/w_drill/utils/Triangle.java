@@ -7,34 +7,44 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
+
 import org.sc.w_drill.R;
 
-public class Triangle extends View {
-    public enum Position { U_LEFT, U_RIGHT, B_LEFT, B_RIGHT };
+public class Triangle extends View
+{
+    public enum Position
+    {
+        U_LEFT, U_RIGHT, B_LEFT, B_RIGHT
+    }
+
+    ;
 
     private int mColor = Color.RED;
     private float mDimension = 0;
     private Position position;
 
-    public Triangle(Context context) {
+    public Triangle(Context context)
+    {
         super(context);
         init(null, 0);
     }
 
-    public Triangle(Context context, AttributeSet attrs) {
+    public Triangle(Context context, AttributeSet attrs)
+    {
         super(context, attrs);
         init(attrs, 0);
     }
 
-    public Triangle(Context context, AttributeSet attrs, int defStyle) {
+    public Triangle(Context context, AttributeSet attrs, int defStyle)
+    {
         super(context, attrs, defStyle);
         init(attrs, defStyle);
     }
 
-    private void init(AttributeSet attrs, int defStyle) {
+    private void init(AttributeSet attrs, int defStyle)
+    {
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.Triangle, defStyle, 0);
@@ -49,9 +59,9 @@ public class Triangle extends View {
                 R.styleable.Triangle_dimension,
                 mDimension);
 
-        int p = a.getInteger( R.styleable.Triangle_position, 0 );
+        int p = a.getInteger(R.styleable.Triangle_position, 0);
 
-        switch( p )
+        switch (p)
         {
             case 0:
                 position = Position.U_LEFT;
@@ -72,11 +82,13 @@ public class Triangle extends View {
         invalidateTextPaintAndMeasurements();
     }
 
-    private void invalidateTextPaintAndMeasurements() {
+    private void invalidateTextPaintAndMeasurements()
+    {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(Canvas canvas)
+    {
         super.onDraw(canvas);
         Point a, b, c;
 
@@ -91,39 +103,42 @@ public class Triangle extends View {
 
         Paint paint = new Paint();
 
-        paint.setColor( mColor );
+        paint.setColor(mColor);
         //canvas.drawPaint(paint);
 
         paint.setStyle(Paint.Style.FILL);
         paint.setAntiAlias(true);
 
-        if( position == Position.U_LEFT )
+        if (position == Position.U_LEFT)
         {
             a = new Point(0, 0);
             b = new Point(0, contentHeight);
             c = new Point(contentHeight, 0);
-        } else if( position == Position.U_RIGHT )
+        }
+        else if (position == Position.U_RIGHT)
         {
-            a = new Point( contentWidth, 0);
-            b = new Point( contentWidth, contentHeight);
-            c = new Point( 0, 0);
-        } else if( position == Position.B_LEFT )
+            a = new Point(contentWidth, 0);
+            b = new Point(contentWidth, contentHeight);
+            c = new Point(0, 0);
+        }
+        else if (position == Position.B_LEFT)
         {
-            a = new Point( 0, contentHeight );
-            b = new Point( 0, 0);
-            c = new Point( contentHeight, contentHeight);
-        } else
+            a = new Point(0, contentHeight);
+            b = new Point(0, 0);
+            c = new Point(contentHeight, contentHeight);
+        }
+        else
         { // The bottom right position
-            a = new Point( contentWidth, contentHeight );
-            b = new Point( 0, contentHeight);
-            c = new Point( contentHeight, 0);
+            a = new Point(contentWidth, contentHeight);
+            b = new Point(0, contentHeight);
+            c = new Point(contentHeight, 0);
         }
 
         Path path = new Path();
         path.reset();
 
         path.setFillType(Path.FillType.EVEN_ODD);
-        path.moveTo( a.x, a.y );
+        path.moveTo(a.x, a.y);
         path.lineTo(b.x, b.y);
         path.lineTo(c.x, c.y);
         path.lineTo(a.x, a.y);
@@ -134,13 +149,15 @@ public class Triangle extends View {
 
     /**
      * Gets the example color attribute value.
+     *
      * @return The example color attribute value.
      */
-    public int getColor() {
+    public int getColor()
+    {
         return mColor;
     }
 
-    public void setColor( int _color )
+    public void setColor(int _color)
     {
 
         mColor = _color;
@@ -149,18 +166,22 @@ public class Triangle extends View {
 
     /**
      * Gets the example dimension attribute value.
+     *
      * @return The example dimension attribute value.
      */
-    public float getDimension() {
+    public float getDimension()
+    {
         return mDimension;
     }
 
     /**
      * Sets the view's example dimension attribute value. In the example view, this dimension
      * is the font size.
+     *
      * @param exampleDimension The example dimension attribute value to use.
      */
-    public void setDimension(float exampleDimension) {
+    public void setDimension(float exampleDimension)
+    {
         mDimension = exampleDimension;
         invalidateTextPaintAndMeasurements();
     }

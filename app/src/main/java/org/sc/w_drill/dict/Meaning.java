@@ -17,21 +17,21 @@ public class Meaning implements IMeaning
     ArrayList<DBPair> examples;
     private String partOS;
 
-    public Meaning( int _id, String _meaning  )
+    public Meaning(int _id, String _meaning)
     {
         id = _id;
         meaning = _meaning;
         partOS = EPartOfSpeech.noun.toString();
     }
 
-    public Meaning( String _meaning  )
+    public Meaning(String _meaning)
     {
         id = -1;
         meaning = _meaning;
         partOS = EPartOfSpeech.noun.toString();
     }
 
-    public Meaning( int _id, String _meaning, boolean _isFormal, boolean _isDisapproving, boolean _isRude  )
+    public Meaning(int _id, String _meaning, boolean _isFormal, boolean _isDisapproving, boolean _isRude)
     {
         id = _id;
         meaning = _meaning;
@@ -89,37 +89,40 @@ public class Meaning implements IMeaning
         return getExamples();
     }
 
-    public void addExample( DBPair example )
+    public void addExample(DBPair example)
     {
-        getExamples().add( example );
+        getExamples().add(example);
     }
 
-    public void addExample( int id, String value )
+    public void addExample(int id, String value)
     {
-        getExamples().add( new DBPair( id, value ) );
+        getExamples().add(new DBPair(id, value));
     }
 
-    public void addExample( String value )
+    public void addExample(String value)
     {
-        addExample( -1, value );
+        addExample(-1, value);
     }
 
     private final ArrayList<DBPair> getExamples()
     {
-        if( examples == null )
+        if (examples == null)
             examples = new ArrayList<DBPair>();
         return examples;
     }
 
-    public void setFormal(boolean isFormal) {
+    public void setFormal(boolean isFormal)
+    {
         this.isFormal = isFormal;
     }
 
-    public void setDisapproving(boolean isDisapproving) {
+    public void setDisapproving(boolean isDisapproving)
+    {
         this.isDisapproving = isDisapproving;
     }
 
-    public void setRude(boolean isRude) {
+    public void setRude(boolean isRude)
+    {
         this.isRude = isRude;
     }
 }

@@ -5,7 +5,12 @@ package org.sc.w_drill.utils;
  */
 public class DisplaySize
 {
-    public enum Measurement { b, Kb, Mb, Gb, Tb };
+    public enum Measurement
+    {
+        b, Kb, Mb, Gb, Tb
+    }
+
+    ;
     public float size;
     public Measurement measure;
 }

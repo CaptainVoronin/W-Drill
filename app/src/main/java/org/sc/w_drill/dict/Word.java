@@ -3,7 +3,6 @@ package org.sc.w_drill.dict;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by Max on 10/4/2014.
@@ -15,17 +14,17 @@ public class Word extends BaseWord implements IWord
     private DateTime lastUpdate;
     private DateTime lastAccess;
 
-    public Word ( int _id, String _word, int _learnPercent, LearnState _state, int _avgTime, int _accessCount, String uuid  )
+    public Word(int _id, String _word, int _learnPercent, LearnState _state, int _avgTime, int _accessCount, String uuid)
     {
-        super( _id, _word, _learnPercent, _state, _avgTime, _accessCount, uuid );
+        super(_id, _word, _learnPercent, _state, _avgTime, _accessCount, uuid);
         word = _word;
     }
 
-    public Word ( String _word )
+    public Word(String _word)
     {
-        super( -1, _word, 0, LearnState.learn, 0, 0, "" );
+        super(-1, _word, 0, LearnState.learn, 0, 0, "");
         word = _word;
-        addMeaning( new Meaning( "" ) );
+        addMeaning(new Meaning(""));
     }
 
     @Override
@@ -34,9 +33,9 @@ public class Word extends BaseWord implements IWord
         return getMeanings();
     }
 
-    public void addMeaning( IMeaning meaning )
+    public void addMeaning(IMeaning meaning)
     {
-        getMeanings().add( meaning );
+        getMeanings().add(meaning);
     }
 
     @Override
@@ -52,38 +51,43 @@ public class Word extends BaseWord implements IWord
     }
 
     @Override
-    public void setWord(String _word) {
+    public void setWord(String _word)
+    {
         word = _word;
     }
 
     public static Word getDummy()
     {
-        return new Word( "" );
+        return new Word("");
     }
 
     private final ArrayList<IMeaning> getMeanings()
     {
-        if( meanings == null )
+        if (meanings == null)
             meanings = new ArrayList<IMeaning>();
 
         return meanings;
     }
 
-    public DateTime getLastUpdate() {
+    public DateTime getLastUpdate()
+    {
         return lastUpdate;
     }
 
-    public void setLastUpdate(DateTime lastUpdate) {
+    public void setLastUpdate(DateTime lastUpdate)
+    {
         this.lastUpdate = lastUpdate;
     }
 
     @Override
-    public DateTime getLastAccess() {
+    public DateTime getLastAccess()
+    {
         return lastAccess;
     }
 
     @Override
-    public void setLastAccess(DateTime lastAccess) {
+    public void setLastAccess(DateTime lastAccess)
+    {
         this.lastAccess = lastAccess;
     }
 }

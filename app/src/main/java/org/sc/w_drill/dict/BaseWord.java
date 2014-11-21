@@ -1,8 +1,5 @@
 package org.sc.w_drill.dict;
 
-import java.util.Calendar;
-import java.util.Date;
-
 /**
  * Created by Max on 10/4/2014.
  */
@@ -16,7 +13,7 @@ public class BaseWord implements IBaseWord
     private int accessCount;
     String uuid;
 
-    public BaseWord( int _id, String _word, int _learnPercent, LearnState _state, int _avgTime, int _accessCount, String _uuid )
+    public BaseWord(int _id, String _word, int _learnPercent, LearnState _state, int _avgTime, int _accessCount, String _uuid)
     {
         id = _id;
         word = _word;
@@ -28,17 +25,20 @@ public class BaseWord implements IBaseWord
     }
 
     @Override
-    public void setWord(String _word) {
+    public void setWord(String _word)
+    {
         word = _word;
     }
 
     @Override
-    public String getUUID() {
+    public String getUUID()
+    {
         return uuid;
     }
 
     @Override
-    public void setUUID(String _uuid) {
+    public void setUUID(String _uuid)
+    {
         uuid = _uuid;
     }
 
@@ -103,17 +103,17 @@ public class BaseWord implements IBaseWord
     }
 
     @Override
-    public boolean equals( Object obj )
+    public boolean equals(Object obj)
     {
-        if( obj == null )
+        if (obj == null)
             return false;
 
-        if( !(obj instanceof IBaseWord) )
+        if (!(obj instanceof IBaseWord))
             return false;
 
-        IBaseWord d = ( IBaseWord ) obj;
+        IBaseWord d = (IBaseWord) obj;
 
-        return ((d.getId() == id ) && ( (d.getWord().equalsIgnoreCase( word ))));
+        return ((d.getId() == id) && ((d.getWord().equalsIgnoreCase(word))));
     }
 
 }

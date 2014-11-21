@@ -18,7 +18,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import org.sc.w_drill.db.WDdb;
+
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.db_wrapper.DefaultDictionary;
@@ -39,7 +39,6 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
     Dictionary activeDict;
     private DictWholeListListener mListener;
-    private WDdb database;
     ListView listWords;
     EditText edSearchPattern;
     boolean isVisible;
@@ -56,8 +55,19 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
     boolean defaultDictionary;
 
 
-    enum FilterType { ALL, FOR_LEARN, FOR_CHECK };
-    enum OrderProperty{ ALPHABET, PERCENT, ACCESS_TIME };
+    enum FilterType
+    {
+        ALL, FOR_LEARN, FOR_CHECK
+    }
+
+    ;
+
+    enum OrderProperty
+    {
+        ALPHABET, PERCENT, ACCESS_TIME
+    }
+
+    ;
 
     boolean orderAscending = true;
     OrderProperty orderProperty = OrderProperty.ALPHABET;
@@ -71,7 +81,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
      * @return A new instance of fragment DictWholeWordListFragment.
      */
 
-    public static FragmentDictWordList newInstance(  )
+    public static FragmentDictWordList newInstance()
     {
         FragmentDictWordList fragment = new FragmentDictWordList();
         return fragment;
@@ -83,8 +93,8 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
     public void onFilterClick(View view)
     {
-        if( dlgFilter == null )
-            dlgFilter = new FilterDialog( getActivity() );
+        if (dlgFilter == null)
+            dlgFilter = new FilterDialog(getActivity());
         dlgFilter.show();
     }
 
@@ -92,21 +102,22 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
      * This function must be called iff an instance
      * of the class has already created and it needs
      * change active dictionary
+     *
      * @param dict
      */
-    public void setDict( Dictionary dict )
+    public void setDict(Dictionary dict)
     {
-        if( dict == null )
-            throw new IllegalArgumentException( this.getClass().getName() + " Dictionary can't be 0" );
+        if (dict == null)
+            throw new IllegalArgumentException(this.getClass().getName() + " Dictionary can't be 0");
 
         Bundle b1 = new Bundle();
-        b1.putInt( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, dict.getId() );
-        setArguments( b1 );
+        b1.putInt(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, dict.getId());
+        setArguments(b1);
 
-        if( ( activeDict == null ) || ( ( activeDict != null ) && !activeDict.equals( dict ) ) )
+        if ((activeDict == null) || ((activeDict != null) && !activeDict.equals(dict)))
         {
             activeDict = dict;
-            defaultDictionary = DefaultDictionary.isDefault( activeDict );
+            defaultDictionary = DefaultDictionary.isDefault(activeDict);
             setNeedRefresh();
         }
     }
@@ -115,12 +126,11 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        database = new WDdb( getActivity().getApplicationContext() );
         Bundle args = getArguments();
-        if( args != null )
+        if (args != null)
         {
             int dictId = args.getInt(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME);
-            activeDict = DBDictionaryFactory.getInstance(database).getDictionaryById(dictId);
+            activeDict = DBDictionaryFactory.getInstance(getActivity()).getDictionaryById(dictId);
         }
         selectedWords = new ArrayList<IBaseWord>();
         checkBoxClickListener = new CheckBoxClickListener();
@@ -130,15 +140,16 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             Bundle savedInstanceState)
+    {
         View view = inflater.inflate(R.layout.fragment_dict_whole_word_list, container, false);
 
         listWords = (ListView) view.findViewById(R.id.word_list);
         edSearchPattern = (EditText) view.findViewById(R.id.search_pattern);
         isViewCreated = true;
-        final Button btnFilter = ( Button ) view.findViewById( R.id.btnFilter );
-        final Button btnOrder = ( Button ) view.findViewById( R.id.btnSortOrder );
-        if( !defaultDictionary )
+        final Button btnFilter = (Button) view.findViewById(R.id.btnFilter);
+        final Button btnOrder = (Button) view.findViewById(R.id.btnSortOrder);
+        if (!defaultDictionary)
         {
 
             btnFilter.setOnClickListener(new View.OnClickListener()
@@ -161,8 +172,8 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         }
         else
         {
-            btnFilter.setEnabled( false );
-            btnOrder.setEnabled( false );
+            btnFilter.setEnabled(false);
+            btnOrder.setEnabled(false);
         }
 
         if (needRefresh)
@@ -172,58 +183,63 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
     private void onOrderClick()
     {
-        if( orderDialog == null )
-            orderDialog = new OrderDialog( getActivity() );
+        if (orderDialog == null)
+            orderDialog = new OrderDialog(getActivity());
         orderDialog.show();
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Activity activity)
+    {
         super.onAttach(activity);
-        try {
+        try
+        {
             mListener = (DictWholeListListener) activity;
-        } catch (ClassCastException e) {
+        }
+        catch (ClassCastException e)
+        {
             throw new ClassCastException(activity.toString()
                     + " must implement DictWholeListListener");
         }
     }
 
     @Override
-    public void onDetach() {
+    public void onDetach()
+    {
         super.onDetach();
         mListener = null;
     }
 
     private void refreshList()
     {
-        final ArrayList<BaseWord> list = DBWordFactory.getInstance(database, activeDict)
+        final ArrayList<BaseWord> list = DBWordFactory.getInstance(getActivity(), activeDict)
                 .getBriefList(getDBFilterClause(filterType), getOrderClause(orderAscending, orderProperty));
 
         final FilterableList<BaseWord> wordList = new FilterableList<BaseWord>();
-        wordList.addAll( list );
+        wordList.addAll(list);
 
-        if( searchTextWatcher != null )
-            edSearchPattern.removeTextChangedListener( searchTextWatcher  );
-        searchTextWatcher = new SearchTextWatcher( wordList );
+        if (searchTextWatcher != null)
+            edSearchPattern.removeTextChangedListener(searchTextWatcher);
+        searchTextWatcher = new SearchTextWatcher(wordList);
 
-        if( wordFilter != null )
+        if (wordFilter != null)
         {
             wordList.setFilter(wordFilter);
-            wordFilter.addListener( wordList );
+            wordFilter.addListener(wordList);
         }
 
-        edSearchPattern.addTextChangedListener( searchTextWatcher );
+        edSearchPattern.addTextChangedListener(searchTextWatcher);
 
         WordListAdapter adapter = new WordListAdapter(getActivity(), wordList);
-        wordList.addListener( adapter );
-        listWords.setAdapter( adapter );
+        wordList.addListener(adapter);
+        listWords.setAdapter(adapter);
 
         needRefresh = false;
     }
 
     public void setNeedRefresh()
     {
-        if( isVisible )
+        if (isVisible)
             refreshList();
         else
             needRefresh = true;
@@ -231,9 +247,12 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
     public interface DictWholeListListener
     {
-        public void onWordSelected( int id );
-        public void onWordsDeleted( );
+        public void onWordSelected(int id);
+
+        public void onWordsDeleted();
+
         public void onStartActionModeForWordList();
+
         public void onFinishActionModeForWordList();
     }
 
@@ -243,11 +262,11 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         super.setUserVisibleHint(isVisibleToUser);
 
         // Visibility not changes, exit
-        if (isVisibleToUser == isVisible )
+        if (isVisibleToUser == isVisible)
             return;
 
         // If is becomes visible, refresh list
-        if( ( isVisible = isVisibleToUser ) && isViewCreated && needRefresh )
+        if ((isVisible = isVisibleToUser) && isViewCreated && needRefresh)
             refreshList();
     }
 
@@ -256,6 +275,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         ArrayList<BaseWord> words;
         Context context;
         OnWordClickListener onClick;
+
         public WordListAdapter(Context _context, FilterableList<BaseWord> _words)
         {
             super(_context, R.layout.row_word_list, _words);
@@ -271,7 +291,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            if( !defaultDictionary )
+            if (!defaultDictionary)
                 rowView = inflater.inflate(R.layout.row_word_list, parent, false);
             else
                 rowView = inflater.inflate(R.layout.row_notebook_word_list, parent, false);
@@ -290,7 +310,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
             TextView text = (TextView) rowView.findViewById(R.id.tvWord);
             text.setText(word.getWord());
 
-            if( !defaultDictionary )
+            if (!defaultDictionary)
             {
                 int color = LearnColors.getInstance(getActivity()).getColor(word.getLearnState(), word.getLearnPercent());
                 rowView.setBackgroundColor(color);
@@ -331,7 +351,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         public void onClick(View view)
         {
             Object tag = view.getTag();
-            mListener.onWordSelected( ((Integer) tag).intValue() );
+            mListener.onWordSelected(((Integer) tag).intValue());
         }
     }
 
@@ -339,7 +359,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
     {
         FilterableList<BaseWord> list;
 
-        public SearchTextWatcher( FilterableList<BaseWord> _list )
+        public SearchTextWatcher(FilterableList<BaseWord> _list)
         {
             list = _list;
         }
@@ -353,8 +373,10 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         @Override
         public void onTextChanged(CharSequence charSequence, int i, int i2, int i3)
         {
-            if( charSequence.length() == 0 ) {
-                if (wordFilter == null) {
+            if (charSequence.length() == 0)
+            {
+                if (wordFilter == null)
+                {
                     wordFilter = new WordListFilter("");
                     list.setFilter(wordFilter);
                     wordFilter.addListener(list);
@@ -368,29 +390,29 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         public void afterTextChanged(Editable editable)
         {
             String text = editable.toString();
-            if( wordFilter == null )
+            if (wordFilter == null)
             {
                 wordFilter = new WordListFilter(text);
                 list.setFilter(wordFilter);
-                wordFilter.addListener( list );
+                wordFilter.addListener(list);
             }
             else
-                wordFilter.setNewPattern( text );
+                wordFilter.setNewPattern(text);
         }
     }
 
     class WordListFilter extends AMutableFilter<String, BaseWord>
     {
 
-        public WordListFilter( String _pattern )
+        public WordListFilter(String _pattern)
         {
-            super( _pattern );
+            super(_pattern);
         }
 
         @Override
         public boolean check(BaseWord value)
         {
-            if( value == null )
+            if (value == null)
                 return false;
 
             return value.getWord().startsWith(pattern);
@@ -403,11 +425,11 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         @Override
         public void onCheckedChanged(CompoundButton compoundButton, boolean b)
         {
-            IBaseWord val = ( IBaseWord ) compoundButton.getTag();
-            if( val != null )
-                if ( b )
+            IBaseWord val = (IBaseWord) compoundButton.getTag();
+            if (val != null)
+                if (b)
                 {
-                    if( selectedWords.size() == 0 )
+                    if (selectedWords.size() == 0)
                         showOperationButtons();
                     selectedWords.add(val);
 
@@ -415,7 +437,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
                 else
                 {
                     selectedWords.remove(val);
-                    if( selectedWords.size() == 0 )
+                    if (selectedWords.size() == 0)
                         hideOperationButtons();
                 }
         }
@@ -423,7 +445,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
     private void hideOperationButtons()
     {
-        if( !operationButtonsVisible )
+        if (!operationButtonsVisible)
             return;
         operationButtonsVisible = false;
         mListener.onFinishActionModeForWordList();
@@ -431,7 +453,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
     private void showOperationButtons()
     {
-        if( operationButtonsVisible )
+        if (operationButtonsVisible)
             return;
         operationButtonsVisible = true;
         mListener.onStartActionModeForWordList();
@@ -439,15 +461,17 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
     public void deleteSelected()
     {
-        DictionaryImageFileManager manager = new DictionaryImageFileManager( getActivity(), activeDict );
+        DictionaryImageFileManager manager = new DictionaryImageFileManager(getActivity(), activeDict);
 
-        int cnt = DBWordFactory.getInstance( database, activeDict ).deleteWords( selectedWords );
+        int cnt = DBWordFactory.getInstance(getActivity(), activeDict).deleteWords(selectedWords);
 
-        for(IBaseWord word : selectedWords )
+        for (IBaseWord word : selectedWords)
         {
-            try {
+            try
+            {
                 manager.deleteImage(word);
-            } catch( Exception e )
+            }
+            catch (Exception e)
             {
                 e.printStackTrace();
             }
@@ -455,24 +479,24 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
         selectedWords.clear();
 
-        if( cnt != 0 )
+        if (cnt != 0)
         {
-            if( mListener != null )
-                mListener.onWordsDeleted( );
+            if (mListener != null)
+                mListener.onWordsDeleted();
             refreshList();
         }
     }
 
-    public void onDestroyView ()
+    public void onDestroyView()
     {
         super.onDestroyView();
         needRefresh = true;
         isViewCreated = false;
     }
 
-    public String getDBFilterClause( FilterType type  )
+    public String getDBFilterClause(FilterType type)
     {
-        switch( type )
+        switch (type)
         {
             case ALL:
                 return null;
@@ -491,9 +515,9 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         public Button btnOk, btnCancel;
         RadioButton rbAll, rbForLearn, rbForCheck;
 
-        public FilterDialog( Activity _activity )
+        public FilterDialog(Activity _activity)
         {
-            super(_activity );
+            super(_activity);
             activity = _activity;
         }
 
@@ -501,11 +525,11 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         protected void onCreate(Bundle savedInstanceState)
         {
             super.onCreate(savedInstanceState);
-            setTitle( R.string.dlg_filter_title );
+            setTitle(R.string.dlg_filter_title);
             setContentView(R.layout.dlg_words_filter);
-            rbAll = ( RadioButton ) findViewById( R.id.rbAll );
-            rbForLearn = ( RadioButton ) findViewById( R.id.rbLearned );
-            rbForCheck = ( RadioButton ) findViewById( R.id.rbForCheck );
+            rbAll = (RadioButton) findViewById(R.id.rbAll);
+            rbForLearn = (RadioButton) findViewById(R.id.rbLearned);
+            rbForCheck = (RadioButton) findViewById(R.id.rbForCheck);
             setRadio();
             btnOk = (Button) findViewById(R.id.btnOk);
             btnCancel = (Button) findViewById(R.id.btnCancel);
@@ -515,20 +539,20 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
         private void setRadio()
         {
-            rbAll.setChecked( false );
-            rbForCheck.setChecked( false );
-            rbForLearn.setChecked( false );
+            rbAll.setChecked(false);
+            rbForCheck.setChecked(false);
+            rbForLearn.setChecked(false);
 
-            switch( filterType )
+            switch (filterType)
             {
                 case ALL:
-                    rbAll.setChecked( true );
+                    rbAll.setChecked(true);
                     break;
                 case FOR_LEARN:
-                    rbForLearn.setChecked( true );
+                    rbForLearn.setChecked(true);
                     break;
                 case FOR_CHECK:
-                    rbForCheck.setChecked( true );
+                    rbForCheck.setChecked(true);
                     break;
             }
         }
@@ -538,17 +562,19 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         {
             dismiss();
             FragmentDictWordList.FilterType newFilterType;
-            switch(view.getId() )
+            switch (view.getId())
             {
                 case R.id.btnOk:
                 {
-                    if( rbAll.isChecked() )
+                    if (rbAll.isChecked())
                     {
                         newFilterType = FilterType.ALL;
-                    } else if( rbForLearn.isChecked() )
+                    }
+                    else if (rbForLearn.isChecked())
                     {
                         newFilterType = FilterType.FOR_LEARN;
-                    } else if( rbForCheck.isChecked() )
+                    }
+                    else if (rbForCheck.isChecked())
                     {
                         newFilterType = FilterType.FOR_CHECK;
                     }
@@ -556,7 +582,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
                     {
                         newFilterType = FilterType.ALL;
                     }
-                    if( newFilterType != filterType )
+                    if (newFilterType != filterType)
                     {
                         filterType = newFilterType;
                         setNeedRefresh();
@@ -577,30 +603,30 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         {
             super.onCreate(savedInstanceState);
             //requestWindowFeature(Window.FEATURE_NO_TITLE);
-            setTitle( R.string.dlg_order_title );
+            setTitle(R.string.dlg_order_title);
             setContentView(R.layout.dlg_word_sort_order);
-            rbAlphabet = ( RadioButton ) findViewById( R.id.rbAlphabet );
-            rbPercent = ( RadioButton ) findViewById( R.id.rbPercent );
-            rbLastAccess = ( RadioButton ) findViewById( R.id.rbLastAccess );
-            Button btn = ( Button ) findViewById( R.id.btnAsc );
-            btn.setOnClickListener( this );
-            btn = ( Button ) findViewById( R.id.btnDesc );
-            btn.setOnClickListener( this );
+            rbAlphabet = (RadioButton) findViewById(R.id.rbAlphabet);
+            rbPercent = (RadioButton) findViewById(R.id.rbPercent);
+            rbLastAccess = (RadioButton) findViewById(R.id.rbLastAccess);
+            Button btn = (Button) findViewById(R.id.btnAsc);
+            btn.setOnClickListener(this);
+            btn = (Button) findViewById(R.id.btnDesc);
+            btn.setOnClickListener(this);
             setRadio();
         }
 
         private void setRadio()
         {
-            rbAlphabet.setChecked( false );
-            rbPercent.setChecked( false );
-            rbLastAccess.setChecked( false );
+            rbAlphabet.setChecked(false);
+            rbPercent.setChecked(false);
+            rbLastAccess.setChecked(false);
 
-            if( orderProperty == OrderProperty.ALPHABET )
-                rbAlphabet.setChecked( true );
-            else if( orderProperty == OrderProperty.PERCENT )
-                rbPercent.setChecked( true );
-            if( orderProperty == OrderProperty.ACCESS_TIME )
-                rbLastAccess.setChecked( true );
+            if (orderProperty == OrderProperty.ALPHABET)
+                rbAlphabet.setChecked(true);
+            else if (orderProperty == OrderProperty.PERCENT)
+                rbPercent.setChecked(true);
+            if (orderProperty == OrderProperty.ACCESS_TIME)
+                rbLastAccess.setChecked(true);
         }
 
         public OrderDialog(Context context)
@@ -615,7 +641,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
             boolean directionAsc = view.getId() == R.id.btnAsc;
             OrderProperty order;
 
-            switch( view.getId() )
+            switch (view.getId())
             {
                 case R.id.btnAsc:
                     directionAsc = true;
@@ -625,16 +651,16 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
                     break;
             }
 
-            if( rbAlphabet.isChecked( )  )
+            if (rbAlphabet.isChecked())
                 order = OrderProperty.ALPHABET;
-            else if( rbPercent.isChecked() )
+            else if (rbPercent.isChecked())
                 order = OrderProperty.PERCENT;
-            else if( rbLastAccess.isChecked( ) )
+            else if (rbLastAccess.isChecked())
                 order = OrderProperty.ACCESS_TIME;
             else
                 order = OrderProperty.ALPHABET;
 
-            if( order != orderProperty || orderAscending != directionAsc )
+            if (order != orderProperty || orderAscending != directionAsc)
             {
                 orderProperty = order;
                 orderAscending = directionAsc;
@@ -643,11 +669,11 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
         }
     }
 
-    String getOrderClause( boolean ascOrder, OrderProperty orderProperty )
+    String getOrderClause(boolean ascOrder, OrderProperty orderProperty)
     {
         String buff = "";
 
-        switch( orderProperty )
+        switch (orderProperty)
         {
             case ALPHABET:
                 buff += " word ";
@@ -663,7 +689,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
                 break;
         }
 
-        if( ascOrder )
+        if (ascOrder)
             buff += " asc ";
         else
             buff += " desc ";
@@ -673,27 +699,27 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
     public void moveSelected()
     {
-        DialogSelectDict dlg = new DialogSelectDict( getActivity(), activeDict, this );
+        DialogSelectDict dlg = new DialogSelectDict(getActivity(), activeDict, this);
         dlg.show();
     }
 
     @Override
     public void onDictSelected(Dictionary dict)
     {
-        moveWords( dict );
+        moveWords(dict);
     }
 
     private void moveWords(Dictionary dict)
     {
         try
         {
-            int cnt = DBWordFactory.getInstance(database, activeDict).moveWords(dict, selectedWords);
+            int cnt = DBWordFactory.getInstance(getActivity(), activeDict).moveWords(dict, selectedWords);
 
-            DictionaryImageFileManager manager = new DictionaryImageFileManager( getActivity(), activeDict );
+            DictionaryImageFileManager manager = new DictionaryImageFileManager(getActivity(), activeDict);
 
-            for( IBaseWord word : selectedWords )
+            for (IBaseWord word : selectedWords)
             {
-                if( manager.getImageFile( word ) != null)
+                if (manager.getImageFile(word) != null)
                     manager.moveImageToDict(word, dict);
             }
 
@@ -705,7 +731,8 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
                     mListener.onWordsDeleted();
                 refreshList();
             }
-        } catch( Exception e )
+        }
+        catch (Exception e)
         {
             e.printStackTrace();
             //TODO: There must be a handler
@@ -725,13 +752,13 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
     public void clearStats()
     {
-        DBWordFactory.getInstance( database, activeDict ).clearLearnStatistic();
+        DBWordFactory.getInstance(getActivity(), activeDict).clearLearnStatistic();
         refreshList();
     }
 
     public void setAllLearned()
     {
-        DBWordFactory.getInstance( database, activeDict ).setAllLearned();
+        DBWordFactory.getInstance(getActivity(), activeDict).setAllLearned();
         refreshList();
     }
 

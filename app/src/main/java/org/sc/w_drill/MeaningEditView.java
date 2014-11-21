@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 
@@ -28,7 +27,7 @@ public class MeaningEditView implements View.OnClickListener
     private OnRemoveMeaningViewClickListener listener;
     private ImageView btnRemove;
 
-    public MeaningEditView( Context _context, IMeaning _meaning )
+    public MeaningEditView(Context _context, IMeaning _meaning)
     {
         context = _context;
         meaning = _meaning;
@@ -37,44 +36,44 @@ public class MeaningEditView implements View.OnClickListener
 
     protected void init()
     {
-        LayoutInflater inflater = ( LayoutInflater ) context.getSystemService(Application.LAYOUT_INFLATER_SERVICE );
-        view = inflater.inflate( R.layout.meaning_edit_view, null );
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Application.LAYOUT_INFLATER_SERVICE);
+        view = inflater.inflate(R.layout.meaning_edit_view, null);
 
-        listPartOfSpeech = (Spinner) view.findViewById( R.id.listPartOfSpeech );
-        parts = PartsOfSpeech.getInstance( context );
+        listPartOfSpeech = (Spinner) view.findViewById(R.id.listPartOfSpeech);
+        parts = PartsOfSpeech.getInstance(context);
         String[] items = parts.getNames();
-        listPartOfSpeech.setAdapter( new ArrayAdapter<String>( context,
-                android.R.layout.simple_spinner_item, items ) );
+        listPartOfSpeech.setAdapter(new ArrayAdapter<String>(context,
+                android.R.layout.simple_spinner_item, items));
 
         ((EditText) view.findViewById(R.id.ed_meaning)).setText(meaning.meaning());
-        int index = parts.indexOf( meaning.partOFSpeech() );
-        listPartOfSpeech.setSelection( index );
+        int index = parts.indexOf(meaning.partOFSpeech());
+        listPartOfSpeech.setSelection(index);
 
-        if( meaning.examples().size() != 0 )
-            for(DBPair p : meaning.examples() )
-                ((EditText) view.findViewById(R.id.ed_example)).setText( p.getValue() );
+        if (meaning.examples().size() != 0)
+            for (DBPair p : meaning.examples())
+                ((EditText) view.findViewById(R.id.ed_example)).setText(p.getValue());
         else
-            ((EditText) view.findViewById(R.id.ed_example)).setText( "" );
+            ((EditText) view.findViewById(R.id.ed_example)).setText("");
 
-        btnRemove = (ImageView) view.findViewById( R.id.btnRemove );
-        btnRemove.setOnClickListener( this );
+        btnRemove = (ImageView) view.findViewById(R.id.btnRemove);
+        btnRemove.setOnClickListener(this);
     }
 
     public String getMeaning()
     {
-        return (( EditText )view.findViewById( R.id.ed_meaning )).getText().toString().trim();
+        return ((EditText) view.findViewById(R.id.ed_meaning)).getText().toString().trim();
     }
 
     public String getExample()
     {
-        return (( EditText )view.findViewById( R.id.ed_example )).getText().toString().trim();
+        return ((EditText) view.findViewById(R.id.ed_example)).getText().toString().trim();
     }
 
     public String getPartOfSpeech()
     {
-        String name = ( String ) listPartOfSpeech.getSelectedItem();
+        String name = (String) listPartOfSpeech.getSelectedItem();
 
-        return parts.getCode( name );
+        return parts.getCode(name);
     }
 
     public View getView()
@@ -85,22 +84,22 @@ public class MeaningEditView implements View.OnClickListener
     @Override
     public void onClick(View view)
     {
-        if( listener != null )
+        if (listener != null)
             listener.onClick(this);
     }
 
     public interface OnRemoveMeaningViewClickListener
     {
-        public void onClick( MeaningEditView meaningView );
+        public void onClick(MeaningEditView meaningView);
     }
 
-    public void setOnRemoveClickListener( OnRemoveMeaningViewClickListener _listener )
+    public void setOnRemoveClickListener(OnRemoveMeaningViewClickListener _listener)
     {
         listener = _listener;
     }
 
-    public void setRemovable( boolean removable )
+    public void setRemovable(boolean removable)
     {
-        btnRemove.setVisibility( removable ? View.VISIBLE : View.INVISIBLE );
+        btnRemove.setVisibility(removable ? View.VISIBLE : View.INVISIBLE);
     }
 }

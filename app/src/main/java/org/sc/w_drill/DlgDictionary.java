@@ -1,12 +1,8 @@
 package org.sc.w_drill;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Environment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,21 +11,14 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Filter;
-import android.widget.Spinner;
 import android.widget.TextView;
 
-import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.Langs;
 import org.sc.w_drill.utils.MessageDialog;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 
 /**
  * The autocomplete text editor was created using an approach that is
@@ -41,46 +30,45 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
 {
     public Button btnOk, btnCancel;
     EditText edName;
-    WDdb database;
     AutoCompleteTextView edSearch;
     LangsAdapter langsAdapter;
 
     OnDictionaryOkClickListener listener;
     Langs langs;
 
-    public DlgDictionary(Context context )
+    public DlgDictionary(Context context)
     {
         super(context);
-        database = new WDdb( context );
-        langs = Langs.getInstance( context );
+        langs = Langs.getInstance(context);
     }
 
     @Override
-    public void onCreate( Bundle savedInstance )
+    public void onCreate(Bundle savedInstance)
     {
         super.onCreate(savedInstance);
-        setTitle( R.string.new_dictionary_comment );
+        setTitle(R.string.new_dictionary_comment);
         setContentView(R.layout.dlg_new_dictionary);
 
-        edName = ( EditText ) findViewById( R.id.edName );
-        btnCancel = ( Button ) findViewById( R.id.btnCancel );
-        btnCancel.setOnClickListener( this );
-        btnOk = ( Button ) findViewById( R.id.btnOk );
-        btnOk.setOnClickListener( this );
+        edName = (EditText) findViewById(R.id.edName);
+        btnCancel = (Button) findViewById(R.id.btnCancel);
+        btnCancel.setOnClickListener(this);
+        btnOk = (Button) findViewById(R.id.btnOk);
+        btnOk.setOnClickListener(this);
         String[] langNames = getContext().getResources().getStringArray(R.array.languages);
 
-        edSearch = ( AutoCompleteTextView  ) findViewById( R.id.edSearch );
+        edSearch = (AutoCompleteTextView) findViewById(R.id.edSearch);
 
-        langsAdapter = new LangsAdapter( getContext(), langs );
-        edSearch.setAdapter( langsAdapter );
+        langsAdapter = new LangsAdapter(getContext(), langs);
+        edSearch.setAdapter(langsAdapter);
     }
 
     @Override
     public void onClick(View view)
     {
-        if( view.getId() == R.id.btnCancel )
+        if (view.getId() == R.id.btnCancel)
             dismiss();
-        else {
+        else
+        {
             processOkBtn();
         }
     }
@@ -90,24 +78,24 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
         String name = edName.getText().toString();
         String langName = edSearch.getText().toString();
 
-        Langs langs = Langs.getInstance( getContext() );
-        String code = langs.getCode( langName );
+        Langs langs = Langs.getInstance(getContext());
+        String code = langs.getCode(langName);
 
-        if( code == null )
+        if (code == null)
         {
             //TODO: Handle incorrect input
             return;
         }
 
         dismiss();
-        if( checkDictionaryValues( name, code ) )
+        if (checkDictionaryValues(name, code))
         {
-            Dictionary newDict = DBDictionaryFactory.getInstance( database ).createNew( name, code );
-            if( listener != null )
+            Dictionary newDict = DBDictionaryFactory.getInstance(getContext()).createNew(name, code);
+            if (listener != null)
                 listener.onNewDictOkClick(newDict.getId());
         }
         else
-            MessageDialog.showError( getContext(), R.string.dict_name_already_exists, null, null );
+            MessageDialog.showError(getContext(), R.string.dict_name_already_exists, null, null);
     }
 
     public interface OnDictionaryOkClickListener
@@ -115,22 +103,22 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
         public void onNewDictOkClick(int dictId);
     }
 
-    public void setOkListsner( OnDictionaryOkClickListener _listener )
+    public void setOkListsner(OnDictionaryOkClickListener _listener)
     {
         listener = _listener;
     }
 
-    private boolean checkDictionaryValues( String name, String lang )
+    private boolean checkDictionaryValues(String name, String lang)
     {
-        if( name.length() == 0 )
+        if (name.length() == 0)
         {
-            MessageDialog.showError( getContext(), R.string.incorrect_name, null, null );
+            MessageDialog.showError(getContext(), R.string.incorrect_name, null, null);
             return false;
         }
 
         // проверить на повторяемость названия
-        DBDictionaryFactory factory = DBDictionaryFactory.getInstance( database );
-        boolean res = factory.checkDuplicate( name  );
+        DBDictionaryFactory factory = DBDictionaryFactory.getInstance(getContext());
+        boolean res = factory.checkDuplicate(name);
         return res;
     }
 
@@ -140,56 +128,57 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
         Context context;
         Object[] keyArray;
         Filter filter;
-        HashMap<String,String> subset;
+        HashMap<String, String> subset;
 
-        public LangsAdapter(Context _context, Langs _langs )
+        public LangsAdapter(Context _context, Langs _langs)
         {
-            super( _context, R.layout.row_lang_list, _langs.getList() );
+            super(_context, R.layout.row_lang_list, _langs.getList());
             langs = _langs;
             context = _context;
             keyArray = langs.keysArray();
-            subset = langs.getSubset( null );
+            subset = langs.getSubset(null);
         }
 
         @Override
-        public View getView( int position, View convertView, ViewGroup parent )
+        public View getView(int position, View convertView, ViewGroup parent)
         {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View rowView = inflater.inflate(R.layout.row_lang_list, parent, false);
 
-            String l = subset.get( keyArray [ position ].toString() );
+            String l = subset.get(keyArray[position].toString());
 
-            TextView tv = ( TextView ) rowView.findViewById( R.id.tvLangDispName );
-            tv.setText( l );
-            tv.setTag( keyArray [ position ] );
+            TextView tv = (TextView) rowView.findViewById(R.id.tvLangDispName);
+            tv.setText(l);
+            tv.setTag(keyArray[position]);
             return rowView;
         }
 
         @Override
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        public View getDropDownView(int position, View convertView, ViewGroup parent)
+        {
 
             LayoutInflater inflater = getLayoutInflater();
             View row = inflater.inflate(R.layout.row_lang_list, parent,
                     false);
             TextView tv = (TextView) row.findViewById(R.id.tvLangDispName);
-            tv.setText( subset.get( keyArray[ position ].toString() ) );
+            tv.setText(subset.get(keyArray[position].toString()));
             return row;
         }
 
         @Override
         public Filter getFilter()
         {
-            if( filter == null )
+            if (filter == null)
                 filter = new LangFilter();
             return filter;
         }
 
-        public void setSubset( HashMap<String, String> _subset )
+        public void setSubset(HashMap<String, String> _subset)
         {
             subset = _subset;
             keyArray = subset.keySet().toArray();
-            addAll( subset.values() );
+            addAll(subset.values());
             //notifyDataSetChanged();
         }
 
@@ -202,15 +191,16 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
         protected FilterResults performFiltering(CharSequence charSequence)
         {
             FilterResults result = new FilterResults();
-            if( charSequence == null || charSequence.length() == 0 )
+            if (charSequence == null || charSequence.length() == 0)
             {
-                HashMap<String,String> res = langs.getSubset( null );
+                HashMap<String, String> res = langs.getSubset(null);
                 result.values = res;
                 result.count = res.size();
             }
-            else {
+            else
+            {
                 String search = charSequence.toString();
-                HashMap<String,String> res = langs.getSubset(search);
+                HashMap<String, String> res = langs.getSubset(search);
                 result.values = res;
                 result.count = res.size();
             }
@@ -222,7 +212,7 @@ public class DlgDictionary extends Dialog implements android.view.View.OnClickLi
         protected void publishResults(CharSequence charSequence, FilterResults results)
         {
             langsAdapter.clear();
-            langsAdapter.setSubset( ( HashMap<String, String> ) results.values  );
+            langsAdapter.setSubset((HashMap<String, String>) results.values);
         }
     }
 }

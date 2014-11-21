@@ -1,19 +1,16 @@
 package org.sc.w_drill;
 
-import java.util.ArrayList;
-import java.util.Locale;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,6 +25,9 @@ import org.sc.w_drill.dict.IBaseWord;
 import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.utils.MessageDialog;
 
+import java.util.ArrayList;
+import java.util.Locale;
+
 public class ActDictionaryEntry
         extends ActionBarActivity
         implements ActionBar.TabListener,
@@ -40,7 +40,7 @@ public class ActDictionaryEntry
 
     public static final int RESULT_WORD_UPDATED = Activity.RESULT_FIRST_USER + 1;
     public static final int DICTIONARY_CHANGED = Activity.RESULT_FIRST_USER + 2;
-    private static final int ADD_WORDS_FRAGMENT_INDEX = 0 ;
+    private static final int ADD_WORDS_FRAGMENT_INDEX = 0;
     private static final int WHOLE_LIST_FRAGMENT_INDEX = 1;
 
     /**
@@ -97,14 +97,14 @@ public class ActDictionaryEntry
         Intent data = getIntent();
 
         int dictId;
-        database = new WDdb(getApplicationContext());
 
         if (data != null)
         {
             dictId = data.getIntExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
-            if (dictId != -1) {
-                activeDict = DBDictionaryFactory.getInstance(database).getDictionaryById(dictId);
-                defaultDictionary = DefaultDictionary.isDefault( activeDict );
+            if (dictId != -1)
+            {
+                activeDict = DBDictionaryFactory.getInstance(this).getDictionaryById(dictId);
+                defaultDictionary = DefaultDictionary.isDefault(activeDict);
             }
             else
                 fatalError();
@@ -113,7 +113,7 @@ public class ActDictionaryEntry
 
             entryKind = data.getIntExtra(ENTRY_KIND_PARAM_NAME, ADD_WORDS);
 
-            editAndReturn = data.getBooleanExtra( EDIT_AND_RETURN, false );
+            editAndReturn = data.getBooleanExtra(EDIT_AND_RETURN, false);
         }
         else
             fatalError();
@@ -122,7 +122,7 @@ public class ActDictionaryEntry
         final ActionBar actionBar = getSupportActionBar();
 
         // TODO: Change the title
-        if( !defaultDictionary )
+        if (!defaultDictionary)
             actionBar.setTitle(activeDict.getName());
         else
             actionBar.setTitle(getString(R.string.txt_default_dictionary_title));
@@ -165,7 +165,7 @@ public class ActDictionaryEntry
         switch (entryKind)
         {
             case ActDictionaryEntry.ADD_WORDS:
-                getSupportActionBar().setSelectedNavigationItem( ADD_WORDS_FRAGMENT_INDEX );
+                getSupportActionBar().setSelectedNavigationItem(ADD_WORDS_FRAGMENT_INDEX);
                 break;
             case ActDictionaryEntry.WHOLE_LIST_ENTRY:
                 getSupportActionBar().setSelectedNavigationItem(WHOLE_LIST_FRAGMENT_INDEX);
@@ -176,7 +176,7 @@ public class ActDictionaryEntry
     private void fatalError()
     {
         //TODO: THere must be an error message
-        setResult( Activity.RESULT_CANCELED );
+        setResult(Activity.RESULT_CANCELED);
         finish();
     }
 
@@ -186,21 +186,21 @@ public class ActDictionaryEntry
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.act_dictionaty_entry, menu);
         boolean res = super.onCreateOptionsMenu(menu);
-        btnSave = ( MenuItem ) menu.findItem(  R.id.action_save );
-        btnSave.setOnMenuItemClickListener( new MenuItem.OnMenuItemClickListener()
+        btnSave = (MenuItem) menu.findItem(R.id.action_save);
+        btnSave.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
         {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem)
             {
-                if( !defaultDictionary )
+                if (!defaultDictionary)
                     fragmentEditWord.startSaveWord();
                 else
                     selectAction();
                 return true;
             }
         });
-        btnClear = ( MenuItem ) menu.findItem(  R.id.action_clear );
-        btnClear.setOnMenuItemClickListener( new MenuItem.OnMenuItemClickListener()
+        btnClear = (MenuItem) menu.findItem(R.id.action_clear);
+        btnClear.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
         {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem)
@@ -210,8 +210,8 @@ public class ActDictionaryEntry
             }
         });
 
-        menuClearStats = ( MenuItem ) menu.findItem(  R.id.action_clear_stats );
-        menuClearStats.setOnMenuItemClickListener( new MenuItem.OnMenuItemClickListener()
+        menuClearStats = (MenuItem) menu.findItem(R.id.action_clear_stats);
+        menuClearStats.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
         {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem)
@@ -221,7 +221,7 @@ public class ActDictionaryEntry
             }
         });
 
-        menuSetAllLearned = ( MenuItem ) menu.findItem(  R.id.action_set_all_learned );
+        menuSetAllLearned = (MenuItem) menu.findItem(R.id.action_set_all_learned);
         menuSetAllLearned.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
         {
             @Override
@@ -232,17 +232,17 @@ public class ActDictionaryEntry
             }
         });
 
-        if( !showButtons )
+        if (!showButtons)
         {
-            btnClear.setVisible( false );
-            btnSave.setVisible( false );
+            btnClear.setVisible(false);
+            btnSave.setVisible(false);
             menuSetAllLearned.setVisible(true);
             menuClearStats.setVisible(true);
         }
         else
         {
-            btnClear.setVisible( true );
-            btnSave.setVisible( true );
+            btnClear.setVisible(true);
+            btnSave.setVisible(true);
             menuSetAllLearned.setVisible(false);
             menuClearStats.setVisible(false);
 
@@ -253,7 +253,7 @@ public class ActDictionaryEntry
 
     private void selectAction()
     {
-        DlgWhatToDoWithWord dlg = new DlgWhatToDoWithWord( this, this );
+        DlgWhatToDoWithWord dlg = new DlgWhatToDoWithWord(this, this);
         dlg.show();
     }
 
@@ -270,8 +270,8 @@ public class ActDictionaryEntry
         // the ViewPager.
         int pos = tab.getPosition();
 
-        if( btnSave != null )
-            if( pos == 0 )
+        if (btnSave != null)
+            if (pos == 0)
             {
                 btnSave.setVisible(true);
                 btnClear.setVisible(true);
@@ -286,7 +286,7 @@ public class ActDictionaryEntry
             showButtons = pos == 0;
         }
 
-        mViewPager.setCurrentItem( pos );
+        mViewPager.setCurrentItem(pos);
     }
 
     @Override
@@ -315,7 +315,7 @@ public class ActDictionaryEntry
     public void onWordUpdated(int id)
     {
         updatedWordId = id;
-        if( editAndReturn )
+        if (editAndReturn)
             onBackPressed();
     }
 
@@ -357,8 +357,8 @@ public class ActDictionaryEntry
     public void onSaveAsIs()
     {
         fragmentEditWord.startSaveWord();
-        if( defaultDictionary )
-            getSupportActionBar().setSelectedNavigationItem( WHOLE_LIST_FRAGMENT_INDEX );
+        if (defaultDictionary)
+            getSupportActionBar().setSelectedNavigationItem(WHOLE_LIST_FRAGMENT_INDEX);
     }
 
     @Override
@@ -366,10 +366,10 @@ public class ActDictionaryEntry
     {
         IWord word = fragmentEditWord.startSaveWord();
         ArrayList<IBaseWord> words = new ArrayList<IBaseWord>();
-        words.add( word );
-        DBWordFactory.getInstance( database, activeDict ).moveWords( dict, words );
-        if( defaultDictionary )
-            getSupportActionBar().setSelectedNavigationItem( WHOLE_LIST_FRAGMENT_INDEX );
+        words.add(word);
+        DBWordFactory.getInstance(this, activeDict).moveWords(dict, words);
+        if (defaultDictionary)
+            getSupportActionBar().setSelectedNavigationItem(WHOLE_LIST_FRAGMENT_INDEX);
     }
 
     /**
@@ -488,7 +488,7 @@ public class ActDictionaryEntry
         @Override
         public void onDestroyActionMode(ActionMode actionMode)
         {
-            if( fragmentDictWordList != null )
+            if (fragmentDictWordList != null)
                 fragmentDictWordList.operationModeDestroyed();
         }
     };
@@ -503,7 +503,7 @@ public class ActDictionaryEntry
             setResult(RESULT_WORD_UPDATED, resultData);
         }
 
-        if( wordsAdded || wordsDeleted )
+        if (wordsAdded || wordsDeleted)
         {
             resultData.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, Integer.valueOf(activeDict.getId()));
             setResult(DICTIONARY_CHANGED, resultData);
@@ -513,21 +513,22 @@ public class ActDictionaryEntry
     }
 
     @Override
-    protected void onActivityResult (int requestCode, int resultCode, Intent data)
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        switch ( requestCode )
+        switch (requestCode)
         {
             case CODE_SelectImageIntent:
-                if( resultCode == Activity.RESULT_CANCELED )
+                if (resultCode == Activity.RESULT_CANCELED)
                     return;
-                if( data == null )
+                if (data == null)
                     return;
-                try {
+                try
+                {
                     Uri retUri = data.getData();
                     if (fragmentEditWord != null)
                         fragmentEditWord.onImageSelected(retUri);
                 }
-                catch( Exception ex )
+                catch (Exception ex)
                 {
                     ex.printStackTrace();
                     showError(ex.getMessage());
@@ -540,6 +541,6 @@ public class ActDictionaryEntry
 
     private void showError(String message)
     {
-        MessageDialog.showError(this, message, null, null );
+        MessageDialog.showError(this, message, null, null);
     }
 }

@@ -1,16 +1,14 @@
 package org.sc.w_drill;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -20,7 +18,6 @@ import android.widget.TextView;
 import org.sc.w_drill.backup.ExportHelper;
 import org.sc.w_drill.backup.ExportProgressListener;
 import org.sc.w_drill.backup.ImportHelper;
-import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.MessageDialog;
@@ -28,38 +25,37 @@ import org.sc.w_drill.utils.MessageDialog;
 import java.io.File;
 
 
-public class ActExportDictionary extends ActionBarActivity {
+public class ActExportDictionary extends ActionBarActivity
+{
 
     Dictionary activeDict;
-    WDdb database;
     ProgressBar prgBar;
     String destdir;
     ExportTask task = null;
     SharedPreferences prefs;
     boolean bExportImages = false;
-    boolean bExportStats  = false;
+    boolean bExportStats = false;
     String errorString;
     int exportedCount;
     ExportHandler handler;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_export_dictionary);
 
         errorString = null;
         exportedCount = 0;
 
-        database = new WDdb( this );
-
         Intent data = getIntent();
-        if( data != null )
+        if (data != null)
         {
             int id = data.getIntExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
-            if( id == -1 )
+            if (id == -1)
                 showErrorAndExit();
             else
-                activeDict = DBDictionaryFactory.getInstance( database ).getDictionaryById( id );
+                activeDict = DBDictionaryFactory.getInstance(this).getDictionaryById(id);
         }
         else
             showErrorAndExit();
@@ -67,17 +63,17 @@ public class ActExportDictionary extends ActionBarActivity {
         handler = new ExportHandler();
 
         prefs = getPreferences(Activity.MODE_PRIVATE);
-        bExportImages = prefs.getBoolean( ExportHelper.PREF_EXPORT_IMAGES, false );
-        bExportStats  = prefs.getBoolean( ExportHelper.PREF_EXPORT_STATS, false );
+        bExportImages = prefs.getBoolean(ExportHelper.PREF_EXPORT_IMAGES, false);
+        bExportStats = prefs.getBoolean(ExportHelper.PREF_EXPORT_STATS, false);
 
-        CheckBox chb = ( CheckBox ) findViewById( R.id.chbExportStats );
-        chb.setChecked( bExportStats );
+        CheckBox chb = (CheckBox) findViewById(R.id.chbExportStats);
+        chb.setChecked(bExportStats);
 
-        chb = ( CheckBox ) findViewById( R.id.chbExportImages );
-        chb.setChecked( bExportImages );
+        chb = (CheckBox) findViewById(R.id.chbExportImages);
+        chb.setChecked(bExportImages);
 
-        Button btn = (Button) findViewById( R.id.btnStart );
-        btn.setOnClickListener(  new View.OnClickListener()
+        Button btn = (Button) findViewById(R.id.btnStart);
+        btn.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
@@ -86,7 +82,7 @@ public class ActExportDictionary extends ActionBarActivity {
             }
         });
 
-        prgBar = ( ProgressBar  ) findViewById( R.id.prgBar );
+        prgBar = (ProgressBar) findViewById(R.id.prgBar);
     }
 
     private void showErrorAndExit()
@@ -97,68 +93,68 @@ public class ActExportDictionary extends ActionBarActivity {
     private void preStartExport()
     {
 
-        TextView tv = ( TextView ) findViewById( R.id.tvResultMessage );
-        tv.setText( "" );
+        TextView tv = (TextView) findViewById(R.id.tvResultMessage);
+        tv.setText("");
 
-        CheckBox chb = ( CheckBox ) findViewById( R.id.chbExportStats );
+        CheckBox chb = (CheckBox) findViewById(R.id.chbExportStats);
         bExportStats = chb.isChecked();
 
-        chb = ( CheckBox ) findViewById( R.id.chbExportImages );
+        chb = (CheckBox) findViewById(R.id.chbExportImages);
         bExportImages = chb.isChecked();
 
         prefs = getPreferences(Activity.MODE_PRIVATE);
 
         SharedPreferences.Editor ed = prefs.edit();
-        ed.putBoolean( ExportHelper.PREF_EXPORT_IMAGES, bExportImages );
-        ed.putBoolean( ExportHelper.PREF_EXPORT_STATS, bExportStats );
+        ed.putBoolean(ExportHelper.PREF_EXPORT_IMAGES, bExportImages);
+        ed.putBoolean(ExportHelper.PREF_EXPORT_STATS, bExportStats);
         ed.commit();
 
         startExport(bExportStats, bExportImages);
     }
 
-    private void startExport( boolean bExportStats, boolean  bExportImages )
+    private void startExport(boolean bExportStats, boolean bExportImages)
     {
         ExportTaskParams params = new ExportTaskParams();
         params.context = this;
-        params.destdir = new File( Environment.getExternalStorageDirectory() + File.separator + "Scholar" );
+        params.destdir = new File(Environment.getExternalStorageDirectory() + File.separator + "Scholar");
         destdir = params.destdir.getPath();
         params.dict = activeDict;
         params.bExportImages = bExportImages;
         params.bExportStats = bExportStats;
 
-        task = new ExportTask( );
-        task.execute( params );
+        task = new ExportTask();
+        task.execute(params);
     }
 
-    public void setProgressMax( int maxValue )
+    public void setProgressMax(int maxValue)
     {
-        prgBar.setMax( maxValue );
+        prgBar.setMax(maxValue);
     }
 
-    public void setCurrentProgress( Integer value )
+    public void setCurrentProgress(Integer value)
     {
         prgBar.setProgress(value.intValue());
     }
 
-    public void onFinish( Long value )
+    public void onFinish(Long value)
     {
-        prgBar.setVisibility( View.INVISIBLE );
-        Button btn = ( Button ) findViewById( R.id.btnStart );
+        prgBar.setVisibility(View.INVISIBLE);
+        Button btn = (Button) findViewById(R.id.btnStart);
         btn.setEnabled(true);
-        TextView tv = ( TextView ) findViewById( R.id.tvResultMessage );
-        if( value.longValue() == 0 )
+        TextView tv = (TextView) findViewById(R.id.tvResultMessage);
+        if (value.longValue() == 0)
         {
-            tv.setText( getString( R.string.txt_dict_export_complete, destdir + File.separator
-                                                                      + activeDict.getName() + ".zip" ));
+            tv.setText(getString(R.string.txt_dict_export_complete, destdir + File.separator
+                    + activeDict.getName() + ".zip"));
         }
         else
         {
             String message = "";
 
-            if( errorString != null )
+            if (errorString != null)
                 message = errorString;
 
-            tv.setText( getString( R.string.txt_dict_export_error, message ));
+            tv.setText(getString(R.string.txt_dict_export_error, message));
         }
 
         task = null;
@@ -166,8 +162,8 @@ public class ActExportDictionary extends ActionBarActivity {
 
     void onProcessStarted()
     {
-        prgBar.setVisibility( View.VISIBLE );
-        Button btn = ( Button ) findViewById( R.id.btnStart );
+        prgBar.setVisibility(View.VISIBLE);
+        Button btn = (Button) findViewById(R.id.btnStart);
         btn.setEnabled(false);
     }
 
@@ -190,18 +186,19 @@ public class ActExportDictionary extends ActionBarActivity {
             long res = 0;
             try
             {
-                ExportHelper helper = new ExportHelper( params.context,
-                                                        params.destdir.getPath(),
-                                                        params.dict, params.bExportImages,
-                                                        params.bExportStats, this, handler );
+                ExportHelper helper = new ExportHelper(params.context,
+                        params.destdir.getPath(),
+                        params.dict, params.bExportImages,
+                        params.bExportStats, this, handler);
                 helper.backup();
-            } catch( Exception ex )
+            }
+            catch (Exception ex)
             {
                 ex.printStackTrace();
                 res = -1;
             }
 
-             return Long.valueOf( res );
+            return Long.valueOf(res);
         }
 
 
@@ -212,40 +209,42 @@ public class ActExportDictionary extends ActionBarActivity {
         }
 
         @Override
-        protected void onProgressUpdate(Integer... progress) {
+        protected void onProgressUpdate(Integer... progress)
+        {
             setCurrentProgress(progress[0]);
         }
 
         @Override
         public void setMaxValue(Integer max)
         {
-            setProgressMax( max );
+            setProgressMax(max);
         }
 
         @Override
         public void setCurrentProgress(Integer current)
         {
-            ActExportDictionary.this.setCurrentProgress( current );
+            ActExportDictionary.this.setCurrentProgress(current);
         }
 
-        protected void onPostExecute(Long result) {
+        protected void onPostExecute(Long result)
+        {
             super.onPostExecute(result);
-            onFinish( result );
+            onFinish(result);
         }
     }
 
     @Override
     public void onBackPressed()
     {
-        if( task != null )
-            showMessage( getString( R.string.txt_need_wait_for_end ) );
+        if (task != null)
+            showMessage(getString(R.string.txt_need_wait_for_end));
         else
             super.onBackPressed();
     }
 
     private void showMessage(String message)
     {
-        MessageDialog.showInfo( this, message, null, null );
+        MessageDialog.showInfo(this, message, null, null);
     }
 
     class ExportHandler extends Handler
@@ -253,10 +252,10 @@ public class ActExportDictionary extends ActionBarActivity {
         @Override
         public void handleMessage(android.os.Message msg)
         {
-            switch( msg.arg1 )
+            switch (msg.arg1)
             {
                 case ImportHelper.MSG_IMPORT_ERROR:
-                    ActExportDictionary.this.setErrorInfo( msg.obj.toString() );
+                    ActExportDictionary.this.setErrorInfo(msg.obj.toString());
                     break;
                 case ImportHelper.MSG_IMPORT_COMPLETE:
                     ActExportDictionary.this.setExportedWordCount((Integer) msg.obj);
@@ -264,7 +263,9 @@ public class ActExportDictionary extends ActionBarActivity {
                 default:
                     break;
             }
-        };
+        }
+
+        ;
     }
 
     private void setExportedWordCount(Integer obj)

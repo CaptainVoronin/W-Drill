@@ -21,30 +21,35 @@ import java.util.List;
  */
 public class DictListAdapter extends ArrayAdapter<Dictionary>
 {
-    public enum ListForm { SHORT, FULL };
+    public enum ListForm
+    {
+        SHORT, FULL
+    }
+
+    ;
 
     ListForm form;
 
     ArrayList<Dictionary> dictList;
     Context context;
     Langs langs;
-    boolean shortForm = false;
+    //boolean shortForm = false;
 
-    public DictListAdapter(Context _context, List objects, ListForm _form )
+    public DictListAdapter(Context _context, List objects, ListForm _form)
     {
         super(_context, R.layout.row_dict_list, objects);
 
-        dictList = ( ArrayList<Dictionary>) objects;
+        dictList = (ArrayList<Dictionary>) objects;
 
         context = _context;
 
-        langs = Langs.getInstance( context );
+        langs = Langs.getInstance(context);
 
         form = _form;
     }
 
     @Override
-    public View getView( int position, View convertView, ViewGroup parent )
+    public View getView(int position, View convertView, ViewGroup parent)
     {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -53,7 +58,7 @@ public class DictListAdapter extends ArrayAdapter<Dictionary>
 
         Dictionary dict = dictList.get(position);
 
-        if( form.equals( ListForm.FULL ) )
+        if (form.equals(ListForm.FULL))
         {
             rowView = inflater.inflate(R.layout.row_dict_list, parent, false);
 
@@ -64,23 +69,23 @@ public class DictListAdapter extends ArrayAdapter<Dictionary>
             lbLang.setText(langs.get(dict.getLang()));
             lbWordsCount.setText(context.getString(R.string.row_dict_list_dict_word_count, dict.getWordCount()));
 
-            if( dict.getImagesCount() == -1 )
+            if (dict.getImagesCount() == -1)
             {
-                DictionaryImageFileManager manager = new DictionaryImageFileManager( context, dict );
-                dict.setImagesCount( manager.getFiles().length );
-                if( dict.getImagesCount() != 0 )
-                    dict.setImagesSize( manager.getTotalFileSize() );
+                DictionaryImageFileManager manager = new DictionaryImageFileManager(context, dict);
+                dict.setImagesCount(manager.getFiles().length);
+                if (dict.getImagesCount() != 0)
+                    dict.setImagesSize(manager.getTotalFileSize());
             }
 
             TextView lbImagesInfo = (TextView) rowView.findViewById(R.id.tv_dictionary_images_info);
-            if( dict.getImagesCount() != 0 )
+            if (dict.getImagesCount() != 0)
             {
-                DisplaySize sz = SizeUtils.getDisplaySize( dict.getImagesSize() );
+                DisplaySize sz = SizeUtils.getDisplaySize(dict.getImagesSize());
                 lbImagesInfo.setText(context.getString(R.string.txt_dictionary_images_info,
                         dict.getImagesCount(), sz.size, sz.measure.toString()));
             }
             else
-                lbImagesInfo.setText( R.string.no_one_image );
+                lbImagesInfo.setText(R.string.no_one_image);
         }
         else
         {

@@ -2,8 +2,6 @@ package org.sc.w_drill.dict;
 
 import org.joda.time.DateTime;
 
-import java.util.Date;
-
 /**
  * Created by maxsh on 29.09.2014.
  */
@@ -21,7 +19,7 @@ public class Dictionary
     private int imagesCount;
     private long imagesSize;
 
-    public Dictionary( int _id, String _name, String _uuid, String _lang, int _word_count )
+    public Dictionary(int _id, String _name, String _uuid, String _lang, int _word_count)
     {
         id = _id;
         name = _name;
@@ -32,7 +30,7 @@ public class Dictionary
         imagesSize = -1;
     }
 
-    public Dictionary( int _id, String _name, String _uuid, String _lang, int _word_count, int _words_to_learn, int _words_to_check )
+    public Dictionary(int _id, String _name, String _uuid, String _lang, int _word_count, int _words_to_learn, int _words_to_check)
     {
         id = _id;
         name = _name;
@@ -46,7 +44,7 @@ public class Dictionary
 
     }
 
-    public Dictionary( int _id, String _name, String _uuid, String _lang )
+    public Dictionary(int _id, String _name, String _uuid, String _lang)
     {
         id = _id;
         name = _name;
@@ -58,17 +56,17 @@ public class Dictionary
     }
 
     @Override
-    public boolean equals( Object obj )
+    public boolean equals(Object obj)
     {
-        if( obj == null )
+        if (obj == null)
             return false;
 
-        if( !(obj instanceof Dictionary) )
+        if (!(obj instanceof Dictionary))
             return false;
 
-        Dictionary d = ( Dictionary ) obj;
+        Dictionary d = (Dictionary) obj;
 
-        return ((d.getId() == id ) && ( (d.getName().equalsIgnoreCase( name ))));
+        return ((d.getId() == id) && ((d.getName().equalsIgnoreCase(name))));
     }
 
     public String getUUID()
@@ -76,19 +74,23 @@ public class Dictionary
         return uuid;
     }
 
-    public int getId() {
+    public int getId()
+    {
         return id;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public String getLang() {
+    public String getLang()
+    {
         return lang;
     }
 
-    public int getWordCount() {
+    public int getWordCount()
+    {
         return word_count;
     }
 
@@ -102,12 +104,12 @@ public class Dictionary
         return words_to_check;
     }
 
-    public void setWordsToLear( int val )
+    public void setWordsToLear(int val)
     {
         words_to_learn = val;
     }
 
-    public void setWordsToCheck( int val )
+    public void setWordsToCheck(int val)
     {
         words_to_check = val;
     }

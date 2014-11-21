@@ -5,5 +5,5 @@ package org.sc.w_drill.utils;
  */
 public interface IFilter<T>
 {
-    public boolean check( T value );
+    public boolean check(T value);
 }

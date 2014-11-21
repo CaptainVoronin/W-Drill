@@ -1,8 +1,6 @@
 package org.sc.w_drill;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -18,11 +16,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import org.sc.w_drill.db.WDdb;
+
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.db_wrapper.DBWordFactory;
 import org.sc.w_drill.dict.Dictionary;
-import org.sc.w_drill.dict.IBaseWord;
 import org.sc.w_drill.dict.IMeaning;
 import org.sc.w_drill.dict.IWord;
 import org.sc.w_drill.utils.CircularArrayList;
@@ -43,27 +40,14 @@ import java.util.Calendar;
 public class ActLearnWords extends ActionBarActivity
 {
 
-    /*public static final int LEARN_WORDS = 0;
-    public static final int CHECK_WORDS_WORDS_FROM_SET = 1;
-    public static final int CHECK_WORDS_WORDS_FROM_DICT = 2; */
-    //public static final String LEARN_KIND = "LEARN_KIND";
-    /**
-     * It's the learning mode indicator.
-     * 0 - indicates that there are a limited set of words.
-     * 1 - check a whole entire if a dictionary.
-     */
-    //public static final int LearnMode = 0;
-
     Dictionary activeDict;
-//    IBaseWord.LearnState learnStage;
     IWord activeWord;
     TextView wordPlace;
     TextView wordTranscription;
     TextView wordExample;
-    WDdb database;
     ArrayList<WordTmpStats> wordStats;
     private boolean confirmed;
-//    long deltaTime = 0;
+
     Calendar start;
     CircularArrayList<IWord> words = null;
     Triangle learnIndicator;
@@ -77,69 +61,73 @@ public class ActLearnWords extends ActionBarActivity
     DictionaryImageFileManager dictManager;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_act_learn_words);
 
         mDetector = new GestureDetectorCompat(this, new MyGestureListener());
 
-        int dictId = getIntent().getIntExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1 );
-        database = new WDdb( getApplicationContext() );
-        activeDict = DBDictionaryFactory.getInstance( database ).getDictionaryById( dictId );
+        int dictId = getIntent().getIntExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
+        activeDict = DBDictionaryFactory.getInstance(this).getDictionaryById(dictId);
 
-        int wordId = getIntent().getIntExtra( ActDictionaryEntry.UPDATED_WORD_ID_PARAM_NAME, -1 );
+        int wordId = getIntent().getIntExtra(ActDictionaryEntry.UPDATED_WORD_ID_PARAM_NAME, -1);
 
-        wordPlace = ( TextView ) findViewById( R.id.the_word);
+        wordPlace = (TextView) findViewById(R.id.the_word);
 
-        wordTranscription = ( TextView ) findViewById( R.id.transcription );
-        wordExample = ( TextView ) findViewById( R.id.examples );
+        wordTranscription = (TextView) findViewById(R.id.transcription);
+        wordExample = (TextView) findViewById(R.id.examples);
 
-        learnIndicator = ( Triangle ) findViewById( R.id.learnIndicator );
+        learnIndicator = (Triangle) findViewById(R.id.learnIndicator);
 
-        learnColors = LearnColors.getInstance( getApplicationContext() );
+        learnColors = LearnColors.getInstance(getApplicationContext());
 
-        partsOS = PartsOfSpeech.getInstance( getApplicationContext() );
+        partsOS = PartsOfSpeech.getInstance(getApplicationContext());
 
-        viewContainer = ( LinearLayout ) findViewById( R.id.viewContainer );
+        viewContainer = (LinearLayout) findViewById(R.id.viewContainer);
 
-        imgUp   = ( ImageView ) findViewById( R.id.imgUp );
-        imgDown = ( ImageView ) findViewById( R.id.imgDown );
+        imgUp = (ImageView) findViewById(R.id.imgUp);
+        imgDown = (ImageView) findViewById(R.id.imgDown);
 
-        dictManager = new DictionaryImageFileManager( this, activeDict );
+        dictManager = new DictionaryImageFileManager(this, activeDict);
 
-        imgIllustration = ( ImageView ) findViewById( R.id.wordIllustration );
+        imgIllustration = (ImageView) findViewById(R.id.wordIllustration);
 
         getWordsSet();
-        if( words != null )
+        if (words != null)
         {
             IWord word = words.next();
-            if( word != null )
-                bringWordToScreen( word );
+            if (word != null)
+                bringWordToScreen(word);
         }
     }
 
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.act_learn_words_menu, menu);
-        boolean res = super.onCreateOptionsMenu( menu );
+        boolean res = super.onCreateOptionsMenu(menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        } else if( id == R.id.action_edit )
+        if (id == R.id.action_settings)
         {
-            Intent intent = new Intent( ActLearnWords.this, ActDictionaryEntry.class );
+            return true;
+        }
+        else if (id == R.id.action_edit)
+        {
+            Intent intent = new Intent(ActLearnWords.this, ActDictionaryEntry.class);
             intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
-            intent.putExtra( DBWordFactory.WORD_ID_VALUE_NAME, activeWord.getId() );
-            intent.putExtra( ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.ADD_WORDS );
-            intent.putExtra( ActDictionaryEntry.EDIT_AND_RETURN, Boolean.valueOf( true ) );
+            intent.putExtra(DBWordFactory.WORD_ID_VALUE_NAME, activeWord.getId());
+            intent.putExtra(ActDictionaryEntry.ENTRY_KIND_PARAM_NAME, ActDictionaryEntry.ADD_WORDS);
+            intent.putExtra(ActDictionaryEntry.EDIT_AND_RETURN, Boolean.valueOf(true));
             startActivityForResult(intent, MainActivity.CODE_ActDictionaryEntry);
             return true;
         }
@@ -152,15 +140,16 @@ public class ActLearnWords extends ActionBarActivity
         WordTmpStats stat;
 
         // TODO: There should be a limit of rows. Now it's the constant value - 10
-        ArrayList<IWord> wrd = DBWordFactory.getInstance( database, activeDict ).getWordsToLearn( 10 );
+        ArrayList<IWord> wrd = DBWordFactory.getInstance(this, activeDict).getWordsToLearn(10);
 
-        if( wrd == null )
+        if (wrd == null)
         {
             words = null;
             showMessageAndExit(getString(R.string.txt_no_words_to_learn));
         }
-        else {
-            words = new CircularArrayList( wrd);
+        else
+        {
+            words = new CircularArrayList(wrd);
 
             wordStats = new ArrayList<WordTmpStats>();
             for (IWord w : wrd)
@@ -174,7 +163,7 @@ public class ActLearnWords extends ActionBarActivity
 
     private void showMessageAndExit(String string)
     {
-        String title = getString( R.string.txt_words_learning );
+        String title = getString(R.string.txt_words_learning);
         MessageDialog.showInfo(this, string, new MessageDialog.Handler()
         {
             @Override
@@ -187,56 +176,56 @@ public class ActLearnWords extends ActionBarActivity
 
     private void showNothingToDoDialog()
     {
-        String title = getString( R.string.txt_words_learning );
-        MessageDialog.showInfo( this, R.string.nothing_to_do, new MessageDialog.Handler()
+        String title = getString(R.string.txt_words_learning);
+        MessageDialog.showInfo(this, R.string.nothing_to_do, new MessageDialog.Handler()
         {
             @Override
             public void doAction()
             {
                 onBackPressed();
             }
-        }, title );
+        }, title);
     }
 
     private void showWhatToDoDialog()
     {
         // TODO: This dialog can be shown if there are a words for checking
-        MessageDialog.showQuestion( this, R.string.no_more_words, new MessageDialog.Handler()
-        {
-            @Override
-            public void doAction()
-            {
-                Intent intent = new Intent(ActLearnWords.this, ActCheckWords.class);
-                intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
-                startActivity(intent);
+        MessageDialog.showQuestion(this, R.string.no_more_words, new MessageDialog.Handler()
+                {
+                    @Override
+                    public void doAction()
+                    {
+                        Intent intent = new Intent(ActLearnWords.this, ActCheckWords.class);
+                        intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, activeDict.getId());
+                        startActivity(intent);
 
-            }
-        },
-        new MessageDialog.Handler()
-        {
-            @Override
-            public void doAction()
-            {
-                onBackPressed();
-            }
-        }, getString ( R.string.txt_words_learning ));
+                    }
+                },
+                new MessageDialog.Handler()
+                {
+                    @Override
+                    public void doAction()
+                    {
+                        onBackPressed();
+                    }
+                }, getString(R.string.txt_words_learning));
     }
 
-    void bringWordToScreen( IWord word )
+    void bringWordToScreen(IWord word)
     {
         clearScreen();
         activeWord = word;
-        int color = getResources().getColor( R.color.TextPartSelection );
+        int color = getResources().getColor(R.color.TextPartSelection);
 
-        wordPlace.setText(Html.fromHtml( TextHelper.decorate( activeWord.getWord(), Integer.valueOf( color ).toString() ) ) );
-        learnIndicator.setColor( learnColors.getColor(activeWord) );
+        wordPlace.setText(Html.fromHtml(TextHelper.decorate(activeWord.getWord(), Integer.valueOf(color).toString())));
+        learnIndicator.setColor(learnColors.getColor(activeWord));
 
-        if( activeWord.getTranscription() != null && activeWord.getTranscription().length() != 0 )
-            wordTranscription.setText( activeWord.getTranscription() );
+        if (activeWord.getTranscription() != null && activeWord.getTranscription().length() != 0)
+            wordTranscription.setText(activeWord.getTranscription());
 
         StringBuilder buffer = new StringBuilder();
 
-        if( activeWord.meanings() != null )
+        if (activeWord.meanings() != null)
         {
             for (IMeaning m : activeWord.meanings())
             {
@@ -247,14 +236,15 @@ public class ActLearnWords extends ActionBarActivity
             wordExample.setText(buffer.toString());
         }
 
-        if( dictManager.getImageFile( activeWord ) != null )
+        if (dictManager.getImageFile(activeWord) != null)
         {
             try
             {
                 Bitmap bmp = dictManager.getImageBitmap(activeWord);
-                ImageConstraints constraints = ImageConstraints.getInstance( this );
-                imgIllustration.setImageBitmap(ImageHelper.resizeBitmapForShow( constraints, bmp ) );
-            } catch ( FileNotFoundException ex )
+                ImageConstraints constraints = ImageConstraints.getInstance(this);
+                imgIllustration.setImageBitmap(ImageHelper.resizeBitmapForShow(constraints, bmp));
+            }
+            catch (FileNotFoundException ex)
             {
                 ex.printStackTrace();
                 // TODO: exception handler
@@ -267,20 +257,20 @@ public class ActLearnWords extends ActionBarActivity
 
     private void clearScreen()
     {
-        wordExample.setText( "" );
+        wordExample.setText("");
         wordTranscription.setText("");
         viewContainer.removeAllViews();
-        imgIllustration.setImageBitmap( null );
+        imgIllustration.setImageBitmap(null);
     }
 
     void showMeaning()
     {
         state = State.WAIT_CONFIRMATION;
-        for( IMeaning m : activeWord.meanings() )
+        for (IMeaning m : activeWord.meanings())
         {
-            MeaningRow row = new MeaningRow( m );
+            MeaningRow row = new MeaningRow(m);
             View view = row.getView();
-            viewContainer.addView( view );
+            viewContainer.addView(view);
         }
     }
 
@@ -289,16 +279,16 @@ public class ActLearnWords extends ActionBarActivity
         return activeWord;
     } */
 
-    protected void onActivityResult (int requestCode, int resultCode, Intent data)
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        switch( requestCode )
+        switch (requestCode)
         {
             case MainActivity.CODE_ActDictionaryEntry:
-                if ( resultCode == ActDictionaryEntry.RESULT_WORD_UPDATED  )
+                if (resultCode == ActDictionaryEntry.RESULT_WORD_UPDATED)
                 {
-                    int id = data.getIntExtra( DBWordFactory.WORD_ID_VALUE_NAME, -1 );
-                    if( id == activeWord.getId() );
-                        updateWord( );
+                    int id = data.getIntExtra(DBWordFactory.WORD_ID_VALUE_NAME, -1);
+                    if (id == activeWord.getId()) ;
+                    updateWord();
                 }
                 break;
             default:
@@ -308,15 +298,15 @@ public class ActLearnWords extends ActionBarActivity
 
     private void updateWord()
     {
-        if( words!= null )
+        if (words != null)
         {
             int index = words.indexOf(activeWord);
 
-            activeWord = DBWordFactory.getInstance(database, activeDict).getWordEx(activeWord.getId());
-            words.set( index, activeWord );
+            activeWord = DBWordFactory.getInstance(this, activeDict).getWordEx(activeWord.getId());
+            words.set(index, activeWord);
 
             bringWordToScreen(activeWord);
-            if( state == State.WAIT_CONFIRMATION )
+            if (state == State.WAIT_CONFIRMATION)
                 showMeaning();
         }
     }
@@ -325,7 +315,7 @@ public class ActLearnWords extends ActionBarActivity
     {
         public int id;
 
-        public WordTmpStats( int _id )
+        public WordTmpStats(int _id)
         {
             id = _id;
             avgTime = 0;
@@ -339,12 +329,18 @@ public class ActLearnWords extends ActionBarActivity
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event){
+    public boolean onTouchEvent(MotionEvent event)
+    {
         this.mDetector.onTouchEvent(event);
         return super.onTouchEvent(event);
     }
 
-    enum Direction { UP, DOWN, LEFT, RIGHT, NONE };
+    enum Direction
+    {
+        UP, DOWN, LEFT, RIGHT, NONE
+    }
+
+    ;
 
     class MyGestureListener extends GestureDetector.SimpleOnGestureListener
     {
@@ -358,21 +354,21 @@ public class ActLearnWords extends ActionBarActivity
             float y1 = event1.getRawY();
             float x2 = event2.getRawX();
             float y2 = event2.getRawY();
-            Direction d = getDirection( x1, y1, x2, y2 );
+            Direction d = getDirection(x1, y1, x2, y2);
 
-            processAction( d );
+            processAction(d);
 
             return true;
         }
 
-        Direction getDirection( float x1, float y1, float x2, float y2)
+        Direction getDirection(float x1, float y1, float x2, float y2)
         {
             Direction d = Direction.NONE;
             float delta = 50;
             float tg;
             double ang;
 
-            if( Math.abs( Math.abs( x1 ) - Math.abs( x2 ) ) < 0.0001 )
+            if (Math.abs(Math.abs(x1) - Math.abs(x2)) < 0.0001)
                 ang = 90;
             else
             {
@@ -383,18 +379,19 @@ public class ActLearnWords extends ActionBarActivity
             // Firstly, it needs to detect horizontal or
             // vertical movement. It depends on angle
 
-            if( Math.abs ( ang ) > 50 )
+            if (Math.abs(ang) > 50)
             {
                 // This is an area of vertical movements
-                if( y1 > y2 )
+                if (y1 > y2)
                     d = Direction.UP;
                 else
                     d = Direction.DOWN;
 
-            } else if ( Math.abs ( ang ) < 30 )
+            }
+            else if (Math.abs(ang) < 30)
             {
                 // This is an area of horizontal movements
-                if( x1 > x2 )
+                if (x1 > x2)
                     d = Direction.LEFT;
                 else
                     d = Direction.RIGHT;
@@ -407,10 +404,10 @@ public class ActLearnWords extends ActionBarActivity
     @Override
     public void onBackPressed()
     {
-        if( wordsLearned )
-            setResult(Activity.RESULT_OK );
+        if (wordsLearned)
+            setResult(Activity.RESULT_OK);
         else
-            setResult(Activity.RESULT_CANCELED );
+            setResult(Activity.RESULT_CANCELED);
 
         super.onBackPressed();
     }
@@ -419,14 +416,14 @@ public class ActLearnWords extends ActionBarActivity
     {
         LinearLayout view;
 
-        public MeaningRow( IMeaning meaning )
+        public MeaningRow(IMeaning meaning)
         {
-            LayoutInflater lf = ( LayoutInflater ) getSystemService( LAYOUT_INFLATER_SERVICE );
-            view = (LinearLayout) lf.inflate( R.layout.row_show_meaning, null );
-            TextView tv = ( TextView ) view.findViewById( R.id.tvPartOfSpeech );
-            tv.setText( PartsOfSpeech.getInstance( ActLearnWords.this ).getName( meaning.partOFSpeech() ) );
-            tv = ( TextView ) view.findViewById( R.id.tvMeaning );
-            tv.setText( meaning.meaning() );
+            LayoutInflater lf = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+            view = (LinearLayout) lf.inflate(R.layout.row_show_meaning, null);
+            TextView tv = (TextView) view.findViewById(R.id.tvPartOfSpeech);
+            tv.setText(PartsOfSpeech.getInstance(ActLearnWords.this).getName(meaning.partOFSpeech()));
+            tv = (TextView) view.findViewById(R.id.tvMeaning);
+            tv.setText(meaning.meaning());
         }
 
         public View getView()
@@ -435,57 +432,70 @@ public class ActLearnWords extends ActionBarActivity
         }
     }
 
-    enum State { WAIT_ANSWER, WAIT_CONFIRMATION };
-    enum Answer{ I_KNOW, I_DONT_KNOW };
-    State state  = State.WAIT_ANSWER;
+    enum State
+    {
+        WAIT_ANSWER, WAIT_CONFIRMATION
+    }
+
+    ;
+
+    enum Answer
+    {
+        I_KNOW, I_DONT_KNOW
+    }
+
+    ;
+    State state = State.WAIT_ANSWER;
     Answer answer;
 
-    void processAction( Direction direction )
+    void processAction(Direction direction)
     {
         boolean accepted = false;
 
-        if( state == State.WAIT_ANSWER )
+        if (state == State.WAIT_ANSWER)
         {
-            if( direction == Direction.UP )
+            if (direction == Direction.UP)
             {
                 answer = Answer.I_KNOW;
                 setIconsToIKnowState();
                 accepted = true;
             }
-            else if( direction == Direction.DOWN )
+            else if (direction == Direction.DOWN)
             {
                 answer = Answer.I_DONT_KNOW;
                 setIconsToIDontKnowState();
                 accepted = true;
             }
 
-            if( accepted )
+            if (accepted)
                 showMeaning();
         }
         else
         {
             state = State.WAIT_ANSWER;
 
-            if( direction == Direction.RIGHT )
+            if (direction == Direction.RIGHT)
             {
-                if( answer == Answer.I_DONT_KNOW )
+                if (answer == Answer.I_DONT_KNOW)
                     processFail();
                 else
                     processSuccess();
                 accepted = true;
-            } else if( direction == Direction.UP )
+            }
+            else if (direction == Direction.UP)
             {
-                if( answer == Answer.I_KNOW )
+                if (answer == Answer.I_KNOW)
                     processSuccess();
                 accepted = true;
-            } else if( direction == Direction.DOWN )
+            }
+            else if (direction == Direction.DOWN)
             {
                 if (answer == Answer.I_KNOW)
                     processFail();
                 accepted = true;
             }
 
-            if ( accepted )
+            if (accepted)
             {
                 setIconsToDefaultState();
                 nextWord();
@@ -495,14 +505,14 @@ public class ActLearnWords extends ActionBarActivity
 
     private void nextWord()
     {
-        if ( words.size() != 0 )
+        if (words.size() != 0)
         {
             IWord word = words.next();
             // There is another one word
             // Set buttons to default state
 
-            imgUp.setImageDrawable( getResources().getDrawable( R.drawable.hand_up ) );
-            imgDown.setImageDrawable( getResources().getDrawable( R.drawable.hand_down ) );
+            imgUp.setImageDrawable(getResources().getDrawable(R.drawable.hand_up));
+            imgDown.setImageDrawable(getResources().getDrawable(R.drawable.hand_down));
 
             // Bring the new word to the screen
             bringWordToScreen(word);
@@ -514,10 +524,11 @@ public class ActLearnWords extends ActionBarActivity
             // Take the next set from DB
             getWordsSet();
 
-            if( words == null || words.size() == 0 ) {
+            if (words == null || words.size() == 0)
+            {
                 // If there are words for learning
                 // we'll make a transition.
-                if( DBDictionaryFactory.getInstance( database ).getWordsTo( activeDict.getId(), DBDictionaryFactory.STAGE_CHECK ) >= 4 )
+                if (DBDictionaryFactory.getInstance(this).getWordsTo(activeDict.getId(), DBDictionaryFactory.STAGE_CHECK) >= 4)
                     showWhatToDoDialog();
                 else
                 {
@@ -539,7 +550,7 @@ public class ActLearnWords extends ActionBarActivity
 
         stat.attempts++;
 
-        if( percent - 20 < 0 )
+        if (percent - 20 < 0)
             percent = 0;
         else
             percent -= 20;
@@ -555,41 +566,41 @@ public class ActLearnWords extends ActionBarActivity
 
         stat.attempts++;
 
-        if( percent + 20 > 100 )
+        if (percent + 20 > 100)
             percent = 100;
         else
             percent += 20;
 
         wordsLearned = true;
         saveResult(stat, percent);
-        words.remove( activeWord );
+        words.remove(activeWord);
         wordStats.remove(stat);
     }
 
     private void setIconsToIDontKnowState()
     {
-        imgUp.setImageDrawable( getResources().getDrawable( R.drawable.hand_up ) );
-        imgDown.setImageDrawable( getResources().getDrawable( R.drawable.next ) );
+        imgUp.setImageDrawable(getResources().getDrawable(R.drawable.hand_up));
+        imgDown.setImageDrawable(getResources().getDrawable(R.drawable.next));
     }
 
     private void setIconsToDefaultState()
     {
-        imgUp.setImageDrawable( getResources().getDrawable( R.drawable.hand_up ) );
-        imgDown.setImageDrawable( getResources().getDrawable( R.drawable.hand_down ) );
+        imgUp.setImageDrawable(getResources().getDrawable(R.drawable.hand_up));
+        imgDown.setImageDrawable(getResources().getDrawable(R.drawable.hand_down));
     }
 
     private void setIconsToIKnowState()
     {
-        imgUp.setImageDrawable( getResources().getDrawable( R.drawable.next ) );
-        imgDown.setImageDrawable( getResources().getDrawable( R.drawable.hand_down ) );
+        imgUp.setImageDrawable(getResources().getDrawable(R.drawable.next));
+        imgDown.setImageDrawable(getResources().getDrawable(R.drawable.hand_down));
     }
 
     WordTmpStats getStat()
     {
         WordTmpStats stat = null;
 
-        for( WordTmpStats s : wordStats )
-            if( s.id == activeWord.getId() )
+        for (WordTmpStats s : wordStats)
+            if (s.id == activeWord.getId())
             {
                 stat = s;
                 break;
@@ -597,14 +608,14 @@ public class ActLearnWords extends ActionBarActivity
         return stat;
     }
 
-    void saveResult( WordTmpStats stat, int percent )
+    void saveResult(WordTmpStats stat, int percent)
     {
-        int time = ( int ) ( Calendar.getInstance().getTimeInMillis() - start.getTimeInMillis() );
+        int time = (int) (Calendar.getInstance().getTimeInMillis() - start.getTimeInMillis());
 
-        time = Math.round( ( activeWord.getAvgTime() + time ) / ( activeWord.getAccessCount() + 1 ) );
-        activeWord.setLearnPercent( percent );
-        DBWordFactory.getInstance( database, activeDict )
-                .updatePercentAndTime( activeWord.getId(), activeWord.getLearnPercent(), time );
+        time = Math.round((activeWord.getAvgTime() + time) / (activeWord.getAccessCount() + 1));
+        activeWord.setLearnPercent(percent);
+        DBWordFactory.getInstance(this, activeDict)
+                .updatePercentAndTime(activeWord.getId(), activeWord.getLearnPercent(), time);
 
     }
 }

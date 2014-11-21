@@ -5,8 +5,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,7 +17,6 @@ import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
-import org.sc.w_drill.db.WDdb;
 import org.sc.w_drill.db_wrapper.DBDictionaryFactory;
 import org.sc.w_drill.dict.Dictionary;
 import org.sc.w_drill.utils.MessageDialog;
@@ -35,8 +34,6 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
     public static final int CHOOSE_FILE_CODE = Activity.RESULT_FIRST_USER + 1;
     public static final int CODE_ActImportDictionary = 12334;
 
-    WDdb db;
-
     protected ArrayList<Dictionary> dicts;
 
     ListView listDicts;
@@ -50,30 +47,31 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
     boolean activeDictDeleted = false;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dictionary_list);
-
-        db = new WDdb( getApplicationContext() );
         Intent data = getIntent();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-        if( data != null )
-            activeDictId = data.getIntExtra( DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1 );
+        if (data != null)
+            activeDictId = data.getIntExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, -1);
         prepareList();
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.act_dictionary_list, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -83,12 +81,11 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
             goShowNewDictionaryDialog();
             return true;
         }
-        else
-         if( id == R.id.action_load_dictionary )
-         {
-             chooseZipFile();
-             return true;
-         }
+        else if (id == R.id.action_load_dictionary)
+        {
+            chooseZipFile();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -100,12 +97,12 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
     private void exportDictionary()
     {
         int id = dictForOperation.getId();
-        Intent intent = new Intent( this, ActExportDictionary.class );
+        Intent intent = new Intent(this, ActExportDictionary.class);
 
 
         intent.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, id);
 
-        startActivity( intent );
+        startActivity(intent);
     }
 
     /*private void showMessage(String message)
@@ -128,19 +125,20 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
 
     private void showError(String message)
     {
-        String title = getString( R.string.txt_dictionary_export );
-        MessageDialog.showError( this, message, null, title );
+        String title = getString(R.string.txt_dictionary_export);
+        MessageDialog.showError(this, message, null, title);
     }
 
     /**
      * The function call ActWordList and pesses
      * ID of the selected dictionary
+     *
      * @param dict
      */
-    protected void setActiveDictAndGotoWordList( Dictionary dict )
+    protected void setActiveDictAndGotoWordList(Dictionary dict)
     {
-        Intent resultData = new Intent( );
-        resultData.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, Integer.valueOf(dict.getId()) );
+        Intent resultData = new Intent();
+        resultData.putExtra(DBDictionaryFactory.DICTIONARY_ID_VALUE_NAME, Integer.valueOf(dict.getId()));
         setResult(Activity.RESULT_OK, resultData);
         finish();
     }
@@ -151,27 +149,27 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
      */
     protected void goShowNewDictionaryDialog()
     {
-        DlgDictionary dlg = new DlgDictionary( this );
-        dlg.setOkListsner( this );
+        DlgDictionary dlg = new DlgDictionary(this);
+        dlg.setOkListsner(this);
         dlg.show();
     }
 
-    protected void onActivityResult (int requestCode, int resultCode, Intent data)
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        switch( requestCode )
+        switch (requestCode)
         {
             case CHOOSE_FILE_CODE:
 
-                if( data != null )
+                if (data != null)
                 {
                     Uri retUri = data.getData();
-                    File f = new File( retUri.getPath() );
+                    File f = new File(retUri.getPath());
                     loadFile(f);
                 }
 
                 break;
             case CODE_ActImportDictionary:
-                if( resultCode == Activity.RESULT_OK )
+                if (resultCode == Activity.RESULT_OK)
                     prepareList();
                 break;
             default:
@@ -182,37 +180,40 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
 
     private void loadFile(File file)
     {
-        Intent intent = new Intent( this, ActImportDictionary.class );
+        Intent intent = new Intent(this, ActImportDictionary.class);
 
-        intent.putExtra( ActImportDictionary.SRC_FILE_PARAM_NAME, file.getPath() );
+        intent.putExtra(ActImportDictionary.SRC_FILE_PARAM_NAME, file.getPath());
 
-        startActivityForResult( intent, CODE_ActImportDictionary );
+        startActivityForResult(intent, CODE_ActImportDictionary);
     }
 
     private void prepareList()
     {
-        listDicts = (ListView) findViewById( R.id.listDictionaries );
+        listDicts = (ListView) findViewById(R.id.listDictionaries);
 
 
-        try {
-            dicts = DBDictionaryFactory.getInstance( db ).getList();
-        } catch (SQLDataException e) {
+        try
+        {
+            dicts = DBDictionaryFactory.getInstance(this).getList();
+        }
+        catch (SQLDataException e)
+        {
             e.printStackTrace();
-            showError( getString( R.string.txt_fatal_internal_error, e.getMessage() ));
+            showError(getString(R.string.txt_fatal_internal_error, e.getMessage()));
             exit(-1);
         }
 
         // If we have some dictionaries, we will use a the real adapter
-        if( dicts.size() != 0 )
+        if (dicts.size() != 0)
         {
-            adapter = new DictListAdapter( this, dicts, DictListAdapter.ListForm.FULL );
-            listDicts.setAdapter( adapter );
+            adapter = new DictListAdapter(this, dicts, DictListAdapter.ListForm.FULL);
+            listDicts.setAdapter(adapter);
         }
         else // In other case we use fictive
         {
             String[] stringList = new String[1];
-            stringList[0] = getApplicationContext().getString( R.string.txt_no_dicts_at_all);
-            listDicts.setAdapter( new ArrayAdapter<String>( getApplicationContext(), android.R.layout.simple_list_item_1 ) );
+            stringList[0] = getApplicationContext().getString(R.string.txt_no_dicts_at_all);
+            listDicts.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1));
         }
 
         listDicts.setOnItemClickListener(new OnDictItemClickListener());
@@ -233,7 +234,8 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
             // A simple click chooses an active dictionary
             // consequently after the a click we set up the selected
             // dictionary as active and should go to its word listDicts.
-            if( dicts.size() != 0 ) {
+            if (dicts.size() != 0)
+            {
                 Dictionary dict = dicts.get(i);
                 Log.d("[ActDictionaryList::OnDictItemClickListener::onItemClick]", "Selected " + dict.getName());
                 setActiveDictAndGotoWordList(dict);
@@ -252,20 +254,20 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
         @Override
         public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l)
         {
-            dictForOperation = ( Dictionary ) view.getTag();
+            dictForOperation = (Dictionary) view.getTag();
 
-            PopupMenu popup = new PopupMenu( ActDictionaryList.this, view);
+            PopupMenu popup = new PopupMenu(ActDictionaryList.this, view);
             popup.getMenuInflater().inflate(R.menu.dict_list_popup_menu, popup.getMenu());
 
             popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener()
             {
                 public boolean onMenuItemClick(MenuItem item)
                 {
-                    switch( item.getItemId() )
+                    switch (item.getItemId())
                     {
                         case R.id.action_delete:
-                            if( dictForOperation != null )
-                                preDeleteDict( dictForOperation.getName() );
+                            if (dictForOperation != null)
+                                preDeleteDict(dictForOperation.getName());
                             return true;
                         case R.id.action_export:
                             exportDictionary();
@@ -279,11 +281,11 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
         }
     }
 
-    private void preDeleteDict( String name )
+    private void preDeleteDict(String name)
     {
-        String message = getString( R.string.delete_dictionary_question, name );
+        String message = getString(R.string.delete_dictionary_question, name);
 
-        MessageDialog.showQuestion( this, message, null, new MessageDialog.Handler()
+        MessageDialog.showQuestion(this, message, null, new MessageDialog.Handler()
         {
             @Override
             public void doAction()
@@ -295,24 +297,29 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
 
     private void deleteDictionary()
     {
-        if( dictForOperation != null )
+        if (dictForOperation != null)
         {
-            DictionaryImageFileManager manager = new DictionaryImageFileManager( this, dictForOperation );
-            try {
+            DictionaryImageFileManager manager = new DictionaryImageFileManager(this, dictForOperation);
+            try
+            {
                 manager.deleteDictDir();
-            }catch( Exception ex )
+            }
+            catch (Exception ex)
             {
                 ex.printStackTrace();
                 //TODO: there should be something more clever
             }
-            try {
-                DBDictionaryFactory.getInstance(db).delete(dictForOperation);
-            } catch (SQLDataException e) {
+            try
+            {
+                DBDictionaryFactory.getInstance(this).delete(dictForOperation);
+            }
+            catch (SQLDataException e)
+            {
                 e.printStackTrace();
-                showError( getString( R.string.txt_error_dectionary_deletition, e.getMessage() ) );
+                showError(getString(R.string.txt_error_dectionary_deletition, e.getMessage()));
             }
         }
-        if( dictForOperation.getId() == activeDictId )
+        if (dictForOperation.getId() == activeDictId)
             activeDictDeleted = true;
 
         dictForOperation = null;
@@ -322,16 +329,16 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
 
     public void onBackPressed()
     {
-        if( activeDictDeleted )
+        if (activeDictDeleted)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder( this );
-            builder.setMessage( R.string.txt_have_to_choose_dict).setNegativeButton( "Cancel", new DialogInterface.OnClickListener()
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(R.string.txt_have_to_choose_dict).setNegativeButton("Cancel", new DialogInterface.OnClickListener()
             {
                 public void onClick(DialogInterface dialog, int id)
                 {
                     // User cancelled the dialog
                 }
-            }).setCancelable( true ).create().show();
+            }).setCancelable(true).create().show();
         }
         else
             super.onBackPressed();
@@ -351,18 +358,23 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
         sIntent.addCategory(Intent.CATEGORY_DEFAULT);
 
         Intent chooserIntent;
-        if (getPackageManager().resolveActivity(sIntent, 0) != null){
+        if (getPackageManager().resolveActivity(sIntent, 0) != null)
+        {
             // it is device with samsung file manager
             chooserIntent = Intent.createChooser(sIntent, "Open file");
-            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { intent});
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{intent});
         }
-        else {
+        else
+        {
             chooserIntent = Intent.createChooser(intent, "Open file");
         }
 
-        try {
+        try
+        {
             startActivityForResult(chooserIntent, CHOOSE_FILE_CODE);
-        } catch (android.content.ActivityNotFoundException ex) {
+        }
+        catch (android.content.ActivityNotFoundException ex)
+        {
             Toast.makeText(getApplicationContext(), "No suitable File Manager was found.", Toast.LENGTH_SHORT).show();
         }
     }

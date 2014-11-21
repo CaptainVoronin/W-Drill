@@ -1,6 +1,5 @@
 package org.sc.w_drill.db;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -58,7 +57,7 @@ public class WDdb extends SQLiteOpenHelper
             "   update words set last_access = CURRENT_TIMESTAMP, access_count = old.access_count + 1 where id = old.id;" +
             "END;";
 
-    final static String CREATE_MEANINGS ="CREATE TABLE " +
+    final static String CREATE_MEANINGS = "CREATE TABLE " +
             "meanings ( id INTEGER PRIMARY KEY autoincrement," +
             "word_id INTEGER NOT NULL," +
             "meaning TEXT NOT NULL," +
@@ -68,7 +67,7 @@ public class WDdb extends SQLiteOpenHelper
             "is_rude INTEGER NOT NULL DEFAULT 0," +
             "FOREIGN KEY ( word_id ) REFERENCES words ( id ) ON DELETE CASCADE );";
 
-    final static String CREATE_EXAMPLES ="CREATE TABLE " +
+    final static String CREATE_EXAMPLES = "CREATE TABLE " +
             "examples ( id INTEGER PRIMARY KEY autoincrement," +
             "meaning_id INTEGER NOT NULL," +
             "example TEXT NOT NULL," +
@@ -76,12 +75,26 @@ public class WDdb extends SQLiteOpenHelper
 
     final static String DB_NAME = "wd.db";
 
+    private static WDdb instance;
+
+    static
+    {
+        instance = null;
+    }
+
     Context mContext;
 
-    public WDdb( Context context )
+    protected WDdb(Context context)
     {
-        super(context, DB_NAME, null, SCHEME_VERSION );
+        super(context, DB_NAME, null, SCHEME_VERSION);
         mContext = context;
+    }
+
+    public static synchronized WDdb getInstance(Context context)
+    {
+        if (instance == null)
+            instance = new WDdb(context);
+        return instance;
     }
 
     @Override
@@ -99,7 +112,7 @@ public class WDdb extends SQLiteOpenHelper
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     {
 
-        if( !needUpdate( oldVersion, newVersion ) )
+        if (!needUpdate(oldVersion, newVersion))
             return;
 
 
@@ -124,16 +137,16 @@ public class WDdb extends SQLiteOpenHelper
         onCreate(db); */
     }
 
-    private boolean needUpdate( int oldVersion, int newVersion  )
+    private boolean needUpdate(int oldVersion, int newVersion)
     {
-        return oldVersion < newVersion ;
+        return oldVersion < newVersion;
     }
 
     @Override
     public SQLiteDatabase getWritableDatabase()
     {
         SQLiteDatabase db = super.getWritableDatabase();
-        Cursor crs = db.rawQuery( "PRAGMA foreign_keys=ON", null );
+        Cursor crs = db.rawQuery("PRAGMA foreign_keys=ON", null);
         crs.close();
         return db;
     }

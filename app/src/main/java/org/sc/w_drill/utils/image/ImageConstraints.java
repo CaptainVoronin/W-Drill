@@ -6,8 +6,6 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
 
-import org.sc.w_drill.dict.Dictionary;
-
 /**
  * Created by MaxSh on 27.10.2014.
  */
@@ -22,9 +20,10 @@ public class ImageConstraints
     static ImageConstraints instance = null;
 
 
-    public static ImageConstraints getInstance( Context _context )
+    public static ImageConstraints getInstance(Context _context)
     {
-        if( instance == null ) {
+        if (instance == null)
+        {
             instance = new ImageConstraints(_context);
         }
 
@@ -33,25 +32,25 @@ public class ImageConstraints
 
     private void init()
     {
-        WindowManager wm = ( WindowManager ) context.getSystemService(Application.WINDOW_SERVICE);
+        WindowManager wm = (WindowManager) context.getSystemService(Application.WINDOW_SERVICE);
         Display d = wm.getDefaultDisplay();
         DisplayMetrics dm = new DisplayMetrics();
-        d.getMetrics( dm  );
+        d.getMetrics(dm);
 
         // Define size in inches
         phisWidth = dm.widthPixels / dm.xdpi;
         phisHeight = dm.heightPixels / dm.ydpi;
         float minDim = phisWidth > phisHeight ? phisHeight : phisWidth;
 
-        if( minDim > 2.5 )
+        if (minDim > 2.5)
             minDim /= 2;
         else
             minDim = 1.6f;
         // TODO: I'm not certain about size for small screens
-        maxSize = Math.round( minDim * dm.xdpi );
+        maxSize = Math.round(minDim * dm.xdpi);
     }
 
-    protected ImageConstraints( Context _context )
+    protected ImageConstraints(Context _context)
     {
         context = _context;
         init();
@@ -67,17 +66,17 @@ public class ImageConstraints
         return storageSize;
     }
 
-    public static boolean isFileAcceptable( String src )
+    public static boolean isFileAcceptable(String src)
     {
-        int pos = src.lastIndexOf( "." );
-        String ext = src.substring( pos );
+        int pos = src.lastIndexOf(".");
+        String ext = src.substring(pos);
 
-        if( ext.equalsIgnoreCase("jpg" ) ||
-            ext.equalsIgnoreCase("jpeg" )  ||
-            ext.equalsIgnoreCase("png" )  ||
-            ext.equalsIgnoreCase("bmp" )  ||
-            ext.equalsIgnoreCase("gif" ) )
-        return true;
+        if (ext.equalsIgnoreCase("jpg") ||
+                ext.equalsIgnoreCase("jpeg") ||
+                ext.equalsIgnoreCase("png") ||
+                ext.equalsIgnoreCase("bmp") ||
+                ext.equalsIgnoreCase("gif"))
+            return true;
         else
             return false;
     }
