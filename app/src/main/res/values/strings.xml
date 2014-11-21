@@ -21,15 +21,19 @@
     <string name="l_fr">французский</string>
     <string name="l_sp">испанский</string>
     <string name="action_dict_list">Словари</string>
-    <!-- <string name="action_move_and_delete">Перести слова и удалить</string> -->
     <string name="action_delete">Удалить</string>
     <string name="txt_new_dictionary">Создать</string>
     <string name="delete_dictionary_question">Вы действительно хотите удалить словарь %s?</string>
     <string name="current_dict_info" formatted="false">%s (%s)</string>
     <string name="txt_have_to_choose_dict">Не выбран словарь</string>
     <string name="txt_words_total">Всего слов</string>
+
     <string name="txt_words_for_learn">Слов для изучения</string>
     <string name="txt_words_for_check">Слов для проверки</string>
+
+    <string name="txt_words_for_learn_1">Слов для изучения %s</string>
+    <string name="txt_words_for_check_1">Слов для проверки %s</string>
+
     <string name="row_dict_list_dict_word_count">всего слов — %s</string>
     <string name="dict_has_to_be_supplemented_with_words">Словарь необходимо пополнить словами</string>
     <string name="title_activity_act_dictionary_entry">Содержимое словаря</string>
@@ -80,13 +84,13 @@
     <string name="txt_file_name">Имя файла</string>
     <string name="txt_load_dictionary">Загрузить словарь</string>
     <string name="txt_restore_dictionary_error">В процессе загрузки словаря встретилась ошибка\n%s</string>
-    <string name="txt_words_learning">Изучение</string>
+    <string name="txt_learning">Изучение</string>
     <string name="title_activity_act_about">О программе</string>
     <string name="action_about">О программе</string>
     <string name="txt_version_name">Название версии</string>
     <string name="txt_version_number">Номер версии</string>
     <string name="txt_dictionaries">Словари</string>
-    <string name="txt_no_words_for_check">Нет слов для проверки</string>
+    <!-- <string name="txt_no_words_for_check">Нет слов для проверки</string> -->
     <string name="error_on_word_update">Ошибка при обновлении слова.</string>
     <string name="error_on_word_insert">Ошибка при сохранении слова</string>
     <string name="error_on_image_saving">Ошибка при сохранении файла изображения</string>
@@ -118,7 +122,7 @@
     <string name="txt_set_all_learned">Отметить все слова как выученные</string>
     <string name="txt_dlg_add_word_quick">Добавление слова в блокнот</string>
     <string name="txt_fatal_internal_error">Фатальная внутренняя ошибка приложения.\\n%s</string>
-    <string name="txt_error_dectionary_deletition">Ошибка при удалении словаря\\n%s</string>
+    <string name="txt_error_dictionary_deletition">Ошибка при удалении словаря\\n%s</string>
     <string name="action_view_quick_words">Необработанные слова</string>
     <string name="action_add_word_quick">Быстро добавить слово</string>
     <string name="txt_error_open_default_dictionary">Внутренняя ошибка: невозможно открыть список непошитых слов.\\n%s</string>

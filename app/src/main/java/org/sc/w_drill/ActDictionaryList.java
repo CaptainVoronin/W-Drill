@@ -316,7 +316,7 @@ public class ActDictionaryList extends ActionBarActivity implements DlgDictionar
             catch (SQLDataException e)
             {
                 e.printStackTrace();
-                showError(getString(R.string.txt_error_dectionary_deletition, e.getMessage()));
+                showError(getString(R.string.txt_error_dictionary_deletition, e.getMessage()));
             }
         }
         if (dictForOperation.getId() == activeDictId)

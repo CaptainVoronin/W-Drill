@@ -465,7 +465,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         }
         else
         {
-            label.setText(R.string.txt_no_words_for_check);
+            label.setText(R.string.txt_no_words_to_check);
             counter.setText("");
         }
 
@@ -590,7 +590,11 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
         try
         {
             ArrayList<Dictionary> dicts = DBDictionaryFactory.getInstance(this).getList( activeDict.getId() );
+            for( Dictionary d : dicts )
+                DBDictionaryFactory.getInstance( this ).getAdditionalInfo( d );
+
             GridView view = new GridView(this);
+            view.setNumColumns( 3 );
             view.setAdapter(new DictionaryGridAdapter(this, dicts));
             gridNest.removeAllViews();
             gridNest.addView(view);
@@ -625,6 +629,22 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
             tv.setTag( d );
             tv.setText(d.getName());
             tv.setOnClickListener( new SmallDictClickListener()  );
+
+            tv = (TextView) ll.findViewById(R.id.tvLearnCount);
+
+            if( d.getWordsToLearn() != 0 )
+                tv.setText( getString( R.string.txt_words_for_learn_1, d.getWordsToLearn() ));
+            else
+                tv.setText( getString( R.string.txt_no_words_to_learn));
+
+            tv = (TextView) ll.findViewById(R.id.tvCheckCount);
+
+            if( d.getWordsToCheck() != 0 )
+                tv.setText( getString( R.string.txt_words_for_check_1, d.getWordsToCheck() ));
+            else
+                tv.setText( getString( R.string.txt_no_words_to_check));
+
+
             return ll;
         }
     }

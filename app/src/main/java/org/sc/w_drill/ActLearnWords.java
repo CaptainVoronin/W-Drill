@@ -163,7 +163,7 @@ public class ActLearnWords extends ActionBarActivity
 
     private void showMessageAndExit(String string)
     {
-        String title = getString(R.string.txt_words_learning);
+        String title = getString(R.string.txt_learning);
         MessageDialog.showInfo(this, string, new MessageDialog.Handler()
         {
             @Override
@@ -176,7 +176,7 @@ public class ActLearnWords extends ActionBarActivity
 
     private void showNothingToDoDialog()
     {
-        String title = getString(R.string.txt_words_learning);
+        String title = getString(R.string.txt_learning);
         MessageDialog.showInfo(this, R.string.nothing_to_do, new MessageDialog.Handler()
         {
             @Override
@@ -208,7 +208,7 @@ public class ActLearnWords extends ActionBarActivity
                     {
                         onBackPressed();
                     }
-                }, getString(R.string.txt_words_learning));
+                }, getString(R.string.txt_learning));
     }
 
     void bringWordToScreen(IWord word)
