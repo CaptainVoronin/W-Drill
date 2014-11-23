@@ -406,7 +406,9 @@ public class FragmentEditWord extends Fragment
         Meaning m = new Meaning("");
         MeaningEditView view = new MeaningEditView(getActivity(), m);
         meaningViewList.add(view);
+        view.setInitialFocus();
         viewContainer.addView(view.getView());
+
         view.setOnRemoveClickListener(this);
 
         setRemovable();

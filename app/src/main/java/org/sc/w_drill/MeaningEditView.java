@@ -88,6 +88,12 @@ public class MeaningEditView implements View.OnClickListener
             listener.onClick(this);
     }
 
+    public void setInitialFocus()
+    {
+        EditText ed = ( EditText ) view.findViewById( R.id.ed_meaning );
+        ed.requestFocus();
+    }
+
     public interface OnRemoveMeaningViewClickListener
     {
         public void onClick(MeaningEditView meaningView);

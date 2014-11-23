@@ -39,7 +39,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    style="@style/Header3Strong"
+                    style="@style/Header3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/transcription"/>
