@@ -594,7 +594,7 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
                 DBDictionaryFactory.getInstance( this ).getAdditionalInfo( d );
 
             GridView view = new GridView(this);
-            view.setNumColumns( 3 );
+            view.setNumColumns( 2 );
             view.setAdapter(new DictionaryGridAdapter(this, dicts));
             gridNest.removeAllViews();
             gridNest.addView(view);
@@ -626,18 +626,19 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
 
             TextView tv = (TextView) ll.findViewById(R.id.tvDictName);
             Dictionary d = dicts.get(i);
-            tv.setTag( d );
+            SmallDictClickListener listener = new SmallDictClickListener( d.getId() );
             tv.setText(d.getName());
-            tv.setOnClickListener( new SmallDictClickListener()  );
+            tv.setOnClickListener( listener );
 
             tv = (TextView) ll.findViewById(R.id.tvLearnCount);
-
+            tv.setOnClickListener( listener );
             if( d.getWordsToLearn() != 0 )
                 tv.setText( getString( R.string.txt_words_for_learn_1, d.getWordsToLearn() ));
             else
                 tv.setText( getString( R.string.txt_no_words_to_learn));
 
             tv = (TextView) ll.findViewById(R.id.tvCheckCount);
+            tv.setOnClickListener( listener );
 
             if( d.getWordsToCheck() != 0 )
                 tv.setText( getString( R.string.txt_words_for_check_1, d.getWordsToCheck() ));
@@ -652,11 +653,16 @@ public class MainActivity extends ActionBarActivity implements DlgDictionary.OnD
     class SmallDictClickListener implements View.OnClickListener
     {
 
+        int id;
+        public SmallDictClickListener( int _id )
+        {
+            id = _id;
+        }
+
         @Override
         public void onClick(View view)
         {
-            activeDict = ( Dictionary ) view.getTag();
-            detectState( activeDict.getId() );
+            detectState( id );
         }
     }
 

@@ -4,14 +4,14 @@
     tools:context=".MainActivity" >
 
     <item android:id="@+id/action_add_word_quick"
-        android:icon="@android:drawable/ic_menu_add"
+        android:icon="@drawable/notepad_plus"
         android:title="@string/action_add_word_quick"
         android:orderInCategory="100"
         app:showAsAction="always" />
 
     <item android:id="@+id/action_goto_quick_words"
         android:title="@string/action_view_quick_words"
-        android:icon="@android:drawable/ic_menu_agenda"
+        android:icon="@drawable/notepad"
         android:orderInCategory="100"
         app:showAsAction="always" />
 
