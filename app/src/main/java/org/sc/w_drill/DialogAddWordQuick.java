@@ -95,7 +95,7 @@ public class DialogAddWordQuick extends Dialog implements View.OnClickListener
 
     private void showError(String string)
     {
-        MessageDialog.showError(getContext(), R.string.nothing_to_do, null, null);
+        MessageDialog.showError(getContext(), string, null, null);
     }
 
     private void insertWord()
