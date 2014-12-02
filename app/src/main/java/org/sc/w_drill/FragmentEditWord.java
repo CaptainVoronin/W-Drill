@@ -403,10 +403,16 @@ public class FragmentEditWord extends Fragment
 
     private void addMeaningView()
     {
+        int cnt = meaningViewList.size();
+
+        MeaningEditView pmv = meaningViewList.get( cnt - 1 );
+        String pos = pmv.getPartOfSpeech();
+
         Meaning m = new Meaning("");
         MeaningEditView view = new MeaningEditView(getActivity(), m);
         meaningViewList.add(view);
         view.setInitialFocus();
+        view.setPartOfSpeach( pos );
         viewContainer.addView(view.getView());
 
         view.setOnRemoveClickListener(this);

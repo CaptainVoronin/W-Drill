@@ -94,6 +94,12 @@ public class MeaningEditView implements View.OnClickListener
         ed.requestFocus();
     }
 
+    public void setPartOfSpeach(String pos)
+    {
+        int index = parts.indexOf( pos );
+        listPartOfSpeech.setSelection(index);
+    }
+
     public interface OnRemoveMeaningViewClickListener
     {
         public void onClick(MeaningEditView meaningView);
