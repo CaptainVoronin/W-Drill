@@ -83,7 +83,7 @@ public class FragmentDictWordList extends Fragment implements DialogSelectDict.D
 
     public static FragmentDictWordList newInstance()
     {
-        FragmentDictWordList fragment = new FragmentDictWordList();
+            FragmentDictWordList fragment = new FragmentDictWordList();
         return fragment;
     }
 
