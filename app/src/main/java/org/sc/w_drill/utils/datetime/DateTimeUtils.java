@@ -114,12 +114,15 @@ public class DateTimeUtils
 
         LocalDateTime now = new LocalDateTime();
 
-        long diff = now.toDateTime().getMillis() - dt.getMillis();
-
-        TimeInterval ti = calculateTimeInterval(diff);
-
         try
         {
+            if( dt == null )
+                return context.getString( R.string.txt_never  );
+
+            long diff = now.toDateTime().getMillis() - dt.getMillis();
+
+            TimeInterval ti = calculateTimeInterval(diff);
+
             return intervalToString(context, ti);
         }
         catch (IntervalToBigException ex)
