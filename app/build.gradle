@@ -22,7 +22,7 @@ android {
     buildTypes {
 
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
             applicationVariants.all { variant ->
@@ -57,9 +57,10 @@ android {
 
 def appendVersionNameVersionCode(variant, defaultConfig) {
 
-    def file = variant.packageApplication.outputFile
-    def fileName = "scholar-" + defaultConfig.versionName + "-" + defaultConfig.versionCode + ".apk"
-    variant.packageApplication.outputFile = new File(file.parent, fileName)
+    def file = variant.outputs[0].outputFile
+    //def fileName = "scholar-" + defaultConfig.versionName + "-" + defaultConfig.versionCode + ".apk"
+    def fileName = "scholar.apk"
+    variant.outputs[0].outputFile = new File(file.parent, fileName)
 }
 
 def increaseVersionCode( defaultConfig ) {
